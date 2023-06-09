@@ -7,6 +7,7 @@ import ScanStack from './stacks/ScanStack';
 import Home from '../screens/Home';
 import Scan from '../screens/Scan';
 import Service from '../screens/Service';
+import 'react-native-gesture-handler';
 
 
 const Stack = createNativeStackNavigator();
