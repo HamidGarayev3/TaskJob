@@ -4,11 +4,14 @@ import Home from './Home'
 import Inventar from './Inventar'
 import Sifarish from './Sifarish'
 import Scan from './Scan'
+import { Drawer } from 'react-native-paper';
 
 
 const Settings = ({navigation}:any) => {
+ 
   return (
     <View style={{flex:1,backgroundColor:'#1F1D2B'}}>
+
              <TouchableOpacity onPress={() =>
             navigation.navigate('Scan')
             }  style={{paddingHorizontal:10,marginTop:10}}>

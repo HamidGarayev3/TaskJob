@@ -11,7 +11,7 @@ import SettingsStack from './SettingsStack';
 const ScanStackScreen = createNativeStackNavigator();
 const Stack = createNativeStackNavigator();
 
-const ScanStack = ({navigation}:any) => {
+const ScanStack = ({navigation }:any) => {
   return (
     <ScanStackScreen.Navigator>
     <ScanStackScreen.Screen
@@ -62,6 +62,7 @@ const ScanStack = ({navigation}:any) => {
       options={{headerShown:false
       }}
     />
+
   </ScanStackScreen.Navigator>
   )
 }

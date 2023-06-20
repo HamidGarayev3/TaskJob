@@ -1,9 +1,19 @@
-import { View, Text, TouchableOpacity, Image, TextInput } from 'react-native'
-import React from 'react'
+import { View, Text, TouchableOpacity, Image, TextInput, Switch } from 'react-native'
+import React, { useState } from 'react'
+import Scan from './Scan'
 
 const Inventar = ({navigation}:any) => {
+  const [isEnabled, setIsEnabled] = useState(false);
+  const toggleSwitch = () => setIsEnabled(previousState => !previousState);
   return (
     <View style={{flex:1,backgroundColor:'#1F1D2B'}}>
+       <Switch
+        trackColor={{false: '#767577', true: '#81b0ff'}}
+        thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+        ios_backgroundColor="#3e3e3e"
+        onValueChange={toggleSwitch}
+        value={isEnabled}
+      />
       <View style={{flex:2,flexDirection:'row',marginTop:30,paddingHorizontal:20}}>
       <TouchableOpacity onPress={() =>
             navigation.navigate('Scan')

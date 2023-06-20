@@ -6,6 +6,8 @@ import Inventar from '../../screens/Inventar';
 import Sifarish from '../../screens/Sifarish';
 import Scan from '../../screens/Scan';
 import Home from '../../screens/Home';
+import ScanStack from './ScanStack';
+import { SharedComponent } from '../../components/sharedComponents';
 
 const SettingsStackScreen = createNativeStackNavigator();
 const Stack = createNativeStackNavigator();
@@ -33,7 +35,7 @@ const SettingsStack = ({navigation}:any) => {
     
     <SettingsStackScreen.Screen
       name="Scan"
-      component={Scan}
+      component={ScanStack}
       options={{headerShown:false}}
     />
     <SettingsStackScreen.Screen
