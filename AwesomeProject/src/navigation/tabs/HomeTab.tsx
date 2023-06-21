@@ -19,16 +19,6 @@ const HomeTab = () => {
     <Tab.Navigator  initialRouteName="Home"  >
 
 
-<Tab.Screen
-        options={{
-            tabBarActiveTintColor:'#FFA523',
-            tabBarIcon: ({ color, size, focused }) =>  <FontAwesomeIcon secondaryColor='#FFA523' size={24} color={color} icon={faHouse} />,
-            tabBarShowLabel: false,
-            headerShown:false,
-            tabBarStyle:{backgroundColor:'#1F1D2B',height:56}
-        }}
-        name="LoginScreen"
-        component={LoginScreen} />
 
     <Tab.Screen
         options={{

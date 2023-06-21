@@ -11,6 +11,7 @@ const App = () => {
     }}>
       <Navigator />
     </View>
+    
   </NavigationContainer>
   )
 }

@@ -12,15 +12,8 @@ const Settings = ({navigation}:any) => {
   return (
     <View style={{flex:1,backgroundColor:'#1F1D2B'}}>
 
-             <TouchableOpacity onPress={() =>
-            navigation.navigate('Scan')
-            }  style={{paddingHorizontal:10,marginTop:10}}>
-        <Image
-        source={require('../assets&styles/back.png')}
-        style={{ width: 30, height: 30,}}
-      />
-        </TouchableOpacity>
-      <View style={{flexDirection:'row',paddingHorizontal:50,marginTop:20}}>
+             
+      <View style={{flexDirection:'row',paddingHorizontal:20,marginVertical:35}}>
  
       <View style={{}}>
      
@@ -30,107 +23,107 @@ const Settings = ({navigation}:any) => {
       />
       </View>
       <View style={{flexDirection:'column'}}>
-        <View style={{}}>
-        <Text style={{fontSize:20,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>Devon Lane</Text>
+        <View style={{marginLeft:20}}>
+        <Text style={{fontSize:20,color:'#F4F9FD',fontWeight:"700"}}>Devon Lane</Text>
         </View>
-        <View style={{}}>
-        <Text style={{fontSize:18,color:'#F4F9FD',marginLeft:10}}>Duis aute irure</Text>
+        <View style={{marginLeft:20}}>
+        <Text style={{fontSize:18,color:'#F4F9FD'}}>Duis aute irure</Text>
         </View>
       </View>
       </View>
       
-      <TouchableOpacity style={{padding:7,backgroundColor:'#3A3D4A',marginHorizontal:50,borderRadius:15,marginTop:20,flexDirection:'row',justifyContent:'center'}}>
-      <Text style={{marginLeft:30,fontSize:20,color:'#F4F9FD',fontWeight:"700"}}>Qaimələr</Text>
+      <TouchableOpacity style={{backgroundColor:'#3A3D4A',padding:10,flexDirection:'row',justifyContent:'center',marginHorizontal:20,borderRadius:15}}>
+      <Text style={{fontSize:16,color:'#F4F9FD',fontWeight:"700"}}>Qaimələr</Text>
       <Image
         source={require('../assets&styles/qaime.png')}
-        style={{ width: 30, height: 30,marginLeft:140}}
+        style={{ width: 24, height: 24,marginLeft:100}}
       />
       </TouchableOpacity>
 
       <View >
-      <TouchableOpacity style={{padding:7,marginHorizontal:50,borderRadius:15,marginTop:10,flexDirection:'row',justifyContent:'center'}}>
+      <TouchableOpacity style={{padding:7,marginHorizontal:20,borderRadius:15,marginTop:10,flexDirection:'row',justifyContent:'center',}}>
       
-<View style={{marginRight:85,flexDirection:'row'}}>
+<View style={{flexDirection:'row',marginRight:65}}>
 <Image
         source={require('../assets&styles/plus.png')}
-        style={{ width: 30, height: 30,}}
+        style={{ width: 24, height: 24,}}
       />
-      <Text style={{fontSize:20,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>Mal mədaxil</Text>
+      <Text style={{fontSize:16,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>Mal mədaxil</Text>
 </View>
       </TouchableOpacity>
       <TouchableOpacity style={{padding:7,marginHorizontal:50,borderRadius:15,marginTop:10,flexDirection:'row',justifyContent:'center'}}>
       
-      <View style={{marginRight:85,flexDirection:'row'}}>
+      <View style={{flexDirection:'row',marginLeft:-65}}>
       <Image
               source={require('../assets&styles/minus.png')}
-              style={{ width: 30, height: 30,}}
+              style={{ width: 24, height: 24,}}
             />
-            <Text style={{fontSize:20,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>Mal məxaric</Text>
+            <Text style={{fontSize:16,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>Mal məxaric</Text>
       </View>
             </TouchableOpacity>
             <TouchableOpacity style={{padding:7,marginHorizontal:50,borderRadius:15,marginTop:10,flexDirection:'row',justifyContent:'center'}}>
       
-      <View style={{marginRight:85,flexDirection:'row'}}>
+      <View style={{flexDirection:'row',marginLeft:-65}}>
       <Image
               source={require('../assets&styles/plus.png')}
-              style={{ width: 30, height: 30,}}
+              style={{ width: 24, height: 24,}}
             />
-            <Text style={{fontSize:20,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>Mal Mədaxil</Text>
+            <Text style={{fontSize:16,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>Mal Mədaxil</Text>
       </View>
             </TouchableOpacity>
             <TouchableOpacity style={{padding:7,marginHorizontal:50,borderRadius:15,marginTop:10,flexDirection:'row',justifyContent:'center'}}>
       
-      <View style={{marginRight:85,flexDirection:'row'}}>
+      <View style={{flexDirection:'row',marginLeft:-65}}>
       <Image
               source={require('../assets&styles/minus.png')}
-              style={{ width: 30, height: 30,}}
+              style={{ width: 24, height: 24,}}
             />
-            <Text style={{fontSize:20,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>Mal məxaric</Text>
+            <Text style={{fontSize:16,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>Mal məxaric</Text>
       </View>
             </TouchableOpacity>
       </View>
-      <TouchableOpacity style={{padding:7,backgroundColor:'#3A3D4A',marginHorizontal:50,borderRadius:15,marginTop:20,flexDirection:'row',justifyContent:'center'}}>
-      <Text style={{marginLeft:30,fontSize:20,color:'#F4F9FD',fontWeight:"700"}}>Sənədlər</Text>
+      <TouchableOpacity style={{padding:10,backgroundColor:'#3A3D4A',marginHorizontal:20,borderRadius:15,marginTop:20,flexDirection:'row',justifyContent:'center'}}>
+      <Text style={{fontSize:16,color:'#F4F9FD',fontWeight:"700"}}>Sənədlər</Text>
       <Image
         source={require('../assets&styles/doc.png')}
-        style={{ width: 30, height: 30,marginLeft:140}}
+        style={{ width: 24, height: 24,marginLeft:100}}
       />
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() =>
             navigation.navigate('Inventar')
-            }  style={{padding:7,marginHorizontal:50,borderRadius:15,marginTop:10,flexDirection:'row',justifyContent:'center'}}>
+            }  style={{padding:7,borderRadius:15,marginTop:10,flexDirection:'row',justifyContent:'center'}}>
       
-      <View style={{marginRight:105,flexDirection:'row'}}>
+      <View style={{flexDirection:'row',marginRight:85}}>
       <Image
               source={require('../assets&styles/plusminus.png')}
-              style={{ width: 30, height: 30,}}
+              style={{ width: 24, height: 24,}}
             />
-            <Text style={{fontSize:20,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>İnventar</Text>
+            <Text style={{fontSize:16,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>İnventar</Text>
       </View>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() =>
             navigation.navigate('Sifarish')
-            }  style={{padding:7,marginHorizontal:50,borderRadius:15,marginTop:10,flexDirection:'row',justifyContent:'center'}}>
+            }  style={{padding:7,marginHorizontal:20,borderRadius:15,marginTop:10,flexDirection:'row',justifyContent:'center'}}>
       
-      <View style={{marginRight:95,flexDirection:'row'}}>
+      <View style={{flexDirection:'row',marginRight:78}}>
       <Image
               source={require('../assets&styles/percent.png')}
-              style={{ width: 30, height: 30,}}
+              style={{ width: 24, height: 24,}}
             />
-            <Text style={{fontSize:20,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>Sifarişlər</Text>
+            <Text style={{fontSize:16,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>Sifarişlər</Text>
       </View>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() =>
             navigation.navigate('Home')
-            } style={{paddingHorizontal:50,flexDirection:'row',marginBottom:20,marginTop:50}}>
+            } style={{paddingHorizontal:40,flexDirection:'row',marginBottom:20,marginTop:100}}>
             <Image
               source={require('../assets&styles/logout.png')}
-              style={{ width: 24, height: 24,marginLeft:35}}
+              style={{ width: 24, height: 24}}
             />
-            <Text style={{fontSize:20,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>Logout</Text>
+            <Text style={{fontSize:16,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>Logout</Text>
             </TouchableOpacity>
 
     </View>
