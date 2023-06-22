@@ -4,8 +4,8 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Settings from '../../screens/Settings';
 import Inventar from '../../screens/Inventar';
 import Sifarish from '../../screens/Sifarish';
-import Scan from '../../screens/Scan';
-import Home from '../../screens/Home';
+import Scan from '../../screens/HomePage';
+import Home from '../../screens/ScanPage';
 import ScanStack from './ScanStack';
 import { SharedComponent } from '../../components/sharedComponents';
 

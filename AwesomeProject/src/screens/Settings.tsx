@@ -1,11 +1,11 @@
 import { View, Text, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
-import Home from './Home'
+import Home from './ScanPage'
 import Inventar from './Inventar'
 import Sifarish from './Sifarish'
-import Scan from './Scan'
+import Scan from './HomePage'
 import { Drawer } from 'react-native-paper';
-
+import LoginScreen from './LoginScreen'
 
 const Settings = ({navigation}:any) => {
  
@@ -117,7 +117,7 @@ const Settings = ({navigation}:any) => {
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() =>
-            navigation.navigate('Home')
+            navigation.navigate('LoginScreen')
             } style={{paddingHorizontal:40,flexDirection:'row',marginBottom:20,marginTop:100}}>
             <Image
               source={require('../assets&styles/logout.png')}

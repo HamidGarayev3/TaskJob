@@ -1,14 +1,19 @@
 import { View, Text, TouchableOpacity, Image, TextInput } from 'react-native'
 import React from 'react'
-import Scan from './Scan'
+import Scan from './HomePage'
+import { useNavigation } from '@react-navigation/native';
+
+
+
 
 
 const Sifarish = ({navigation}:any) => {
+  
   return (
     <View style={{flex:1,backgroundColor:'#1F1D2B'}}>
       <View style={{flex:2,flexDirection:'row',marginTop:30,paddingHorizontal:20}}>
       <TouchableOpacity onPress={() =>
-            navigation.navigate('Scan')
+            navigation.goBack()
             }  style={{backgroundColor:'#1F1D2B',borderRadius:5,borderWidth:1,borderColor:'white',width:40,height:44,alignContent:'center',alignItems:'center',justifyContent:'center'}}>
         <Image
         source={require('../assets&styles/back.png')}

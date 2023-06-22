@@ -1,10 +1,10 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Home from '../../screens/Home';
+import Home from '../../screens/ScanPage';
 import Inventar from '../../screens/Inventar';
 import Sifarish from '../../screens/Sifarish';
-import Scan from '../../screens/Scan';
+import Scan from '../../screens/HomePage';
 import Service from '../../screens/Service';
 import ScanStack from '../stacks/ScanStack';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -16,31 +16,31 @@ const Tab = createBottomTabNavigator();
 
 const HomeTab = () => {
   return (
-    <Tab.Navigator  initialRouteName="Home"  >
+    <Tab.Navigator  initialRouteName="HomePage"  >
 
 
-
+<Tab.Screen
+    
+        name="Scan"
+        component={ScanStack}
+        options={{
+            tabBarActiveTintColor:'#FFA523',
+            tabBarIcon: ({ color, size, focused }) => <FontAwesomeIcon size={size} color={color} icon={faHouse} />,
+            tabBarShowLabel: false,
+            headerShown:false,
+            tabBarStyle:{backgroundColor:'#1F1D2B',height:56}
+        }} />
     <Tab.Screen
         options={{
             tabBarActiveTintColor:'#FFA523',
-            tabBarIcon: ({ color, size, focused }) =>  <FontAwesomeIcon secondaryColor='#FFA523' size={24} color={color} icon={faHouse} />,
+            tabBarIcon: ({ color, size, focused }) =>  <FontAwesomeIcon secondaryColor='#FFA523' size={24} color={color} icon={faBarcode} />,
             tabBarShowLabel: false,
             headerShown:false,
             tabBarStyle:{backgroundColor:'#1F1D2B',height:56}
         }}
         name="Home"
         component={Home} />
-    <Tab.Screen
     
-        name="Scan"
-        component={ScanStack}
-        options={{
-            tabBarActiveTintColor:'#FFA523',
-            tabBarIcon: ({ color, size, focused }) => <FontAwesomeIcon size={size} color={color} icon={faBarcode} />,
-            tabBarShowLabel: false,
-            headerShown:false,
-            tabBarStyle:{backgroundColor:'#1F1D2B',height:56}
-        }} />
             <Tab.Screen
         name="Service"
         component={Service}

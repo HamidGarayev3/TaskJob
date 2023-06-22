@@ -32,11 +32,13 @@ const LoginScreen: React.FC = ({navigation}:any) => {
 
       if (response.ok) {
         const result = await response.text();
+       
         if (result === '0') {
           // Login failed
           Alert.alert('Giriş uğursuz oldu', 'Yanlış istifadəçi adı və ya şifrə.');
         } else {
           // Login successful
+          console.log('Login successful');
           console.log('Login successful');
           // Navigate to the home screen or perform other actions
           navigation.navigate('HomeTab')

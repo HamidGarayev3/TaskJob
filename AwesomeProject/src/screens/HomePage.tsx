@@ -1,23 +1,24 @@
-import { View, Text, TextInput, Pressable, Image, TouchableOpacity } from 'react-native'
-import React, { useRef } from 'react'
+import { View, Text, TextInput, Pressable, Image, TouchableOpacity,Switch } from 'react-native'
+import React, { useRef, useState } from 'react'
 import 'react-native-gesture-handler';
 import Settings from './Settings';
-import Home from './Home';
+import Home from './ScanPage';
 
 
 
 
 const Scan = ({navigation}:any) => {
 
+
   return (
     <View style={{flex:1,backgroundColor:'#1F1D2B'}}>
       <View style={{flex:2,marginTop:20,marginHorizontal:20,marginBottom:20,flexDirection:'row'}}>
         <TouchableOpacity onPress={() =>
-            navigation.navigate('Settings')
+            navigation.openDrawer()
             } >
         <Image
         source={require('../assets&styles/menu.png')}
-        style={{ width: 30, height: 30 }}
+        style={{ width: 24, height: 24 }}
       />
         </TouchableOpacity>
         <Text style={{marginLeft:30,fontSize:20,color:'#F4F9FD',fontWeight:"700"}}>Text ABC</Text>

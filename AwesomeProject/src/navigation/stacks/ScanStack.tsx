@@ -1,10 +1,10 @@
 import { View, Text } from 'react-native';
 import React from 'react';
-import Scan from '../../screens/Scan';
+import Scan from '../../screens/HomePage';
 import Inventar from '../../screens/Inventar';
 import Sifarish from '../../screens/Sifarish';
 import Settings from '../../screens/Settings';
-import Home from '../../screens/Home';
+import Home from '../../screens/ScanPage';
 import SettingsStack from './SettingsStack';
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import Service from '../../screens/Service';
@@ -24,13 +24,8 @@ const ScanStack = () => {
         name="Inventar"
         component={Inventar}
         options={{
-          headerTransparent: true,
-          headerTitle: 'Inventar',
-          headerTitleStyle: {
-            color: 'blue',
-            fontSize: 24
-          },
-          headerTintColor: 'red'
+          headerShown: false, // Hide the header
+          drawerLabel: () => null, // Hide the label in the drawer menu
         }}
       />
 
@@ -38,13 +33,8 @@ const ScanStack = () => {
         name="Sifarish"
         component={Sifarish}
         options={{
-          headerTransparent: true,
-          headerTitle: 'Sifarish',
-          headerTitleStyle: {
-            color: 'yellow',
-            fontSize: 24
-          },
-          headerTintColor: 'green'
+          headerShown: false, // Hide the header
+          drawerLabel: () => null, // Hide the label in the drawer menu
         }}
       />
 
