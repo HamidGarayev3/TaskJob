@@ -6,7 +6,7 @@ import Inventar from '../../screens/Inventar';
 import Sifarish from '../../screens/Sifarish';
 import Scan from '../../screens/HomePage';
 import Home from '../../screens/ScanPage';
-import ScanStack from './ScanStack';
+import ScanStack from './HomePageStack';
 import { SharedComponent } from '../../components/sharedComponents';
 
 const SettingsStackScreen = createNativeStackNavigator();

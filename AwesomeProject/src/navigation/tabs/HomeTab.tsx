@@ -6,11 +6,13 @@ import Inventar from '../../screens/Inventar';
 import Sifarish from '../../screens/Sifarish';
 import Scan from '../../screens/HomePage';
 import Service from '../../screens/Service';
-import ScanStack from '../stacks/ScanStack';
+import ScanStack from '../stacks/HomePageStack';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faHouse,faBarcode,faGear } from '@fortawesome/free-solid-svg-icons';
 import TestScan from '../../screens/TestScan';
 import LoginScreen from '../../screens/LoginScreen';
+import ServiceStack from '../stacks/ServiceStack';
+import ScanPageStack from '../stacks/ScanPageStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -38,12 +40,12 @@ const HomeTab = () => {
             headerShown:false,
             tabBarStyle:{backgroundColor:'#1F1D2B',height:56}
         }}
-        name="Home"
-        component={Home} />
+        name="ScanPageStack"
+        component={ScanPageStack} />
     
             <Tab.Screen
-        name="Service"
-        component={Service}
+        name="ServiceStack"
+        component={ServiceStack}
         options={{
             tabBarLabel:'aaaaa',
             tabBarLabelStyle:{fontSize:14,color:'black'},

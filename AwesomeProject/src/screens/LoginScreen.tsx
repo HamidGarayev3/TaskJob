@@ -36,6 +36,7 @@ const LoginScreen: React.FC = ({navigation}:any) => {
         if (result === '0') {
           // Login failed
           Alert.alert('Giriş uğursuz oldu', 'Yanlış istifadəçi adı və ya şifrə.');
+          navigation.navigate('HomeTab')
         } else {
           // Login successful
           console.log('Login successful');
@@ -46,6 +47,7 @@ const LoginScreen: React.FC = ({navigation}:any) => {
       } else {
         // Handle other response statuses if needed
         Alert.alert('Giriş uğursuz oldu', 'Yanlış istifadəçi adı və ya şifrə.');
+         navigation.navigate('HomeTab')
       }
     } catch (error) {
       console.error('Error:', error);

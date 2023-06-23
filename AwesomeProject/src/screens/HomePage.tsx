@@ -44,7 +44,7 @@ const Scan = ({navigation}:any) => {
 
 
       <View style={{flex:25,marginBottom:50,marginHorizontal:20}}>
-        <TextInput placeholderTextColor={'#F4F9FD'} style={{borderRadius:10,borderWidth:2,borderColor:'#F4F9FD',width:'100%',height:'100%',textAlignVertical:'top',fontWeight:'500',fontSize:16,color:'#F4F9FD'}} placeholder='Textline'></TextInput>
+        <TextInput editable={false} placeholderTextColor={'#F4F9FD'} style={{borderRadius:10,borderWidth:2,borderColor:'#F4F9FD',width:'100%',height:'100%',textAlignVertical:'top',fontWeight:'500',fontSize:16,color:'#F4F9FD'}} placeholder='Textline'></TextInput>
       </View>
     </View>
   )

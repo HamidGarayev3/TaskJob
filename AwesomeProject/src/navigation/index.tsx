@@ -3,7 +3,7 @@ import React from 'react'
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeTab from './tabs/HomeTab';
-import ScanStack from './stacks/ScanStack';
+import ScanStack from './stacks/HomePageStack';
 import Home from '../screens/ScanPage';
 import Scan from '../screens/HomePage';
 import Service from '../screens/Service';
