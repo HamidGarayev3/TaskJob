@@ -20,13 +20,13 @@ const LoginScreen: React.FC = ({navigation}:any) => {
     }
 
     try {
-      const response = await fetch('http://46.32.169.71/DEMO/hs/PdaServis/catalog/', {
+      const response = await fetch('http://46.32.169.71/DEMO/hs/MobileApi/Connect', {
         method: 'GET',
         headers: {
           'Authorization': authHeader,
-          'TypeReport': 'Login',
+          'Report': 'LoginMenu',
           'User': username,
-          'Password': password,
+          'Pass': password,
         },
       });
 
