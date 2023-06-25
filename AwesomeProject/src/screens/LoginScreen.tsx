@@ -1,26 +1,28 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Alert, StyleSheet,TouchableOpacity,Text,Dimensions } from 'react-native';
+import { View, TextInput, Button, Alert, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
 import { encode } from 'base-64';
 import HomeTab from '../navigation/tabs/HomeTab';
-
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
-
-const LoginScreen: React.FC = ({navigation}:any) => {
+const LoginScreen: React.FC = ({ navigation }: any) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const serverName = 'sa'; // Replace with the actual server name
+  const serverPassword = 'abc'; // Replace with the actual server password
 
   const handleLogin = async () => {
-    const authHeader = "Basic " + encode(username + ":" + password);
     if (!username || !password) {
       Alert.alert('Doğrulama Xətası', 'Zəhmət olmasa istifadəçi adı və şifrə sahələrini doldurun.');
       return;
     }
+    
+
+    const authHeader = "Basic " + encode(username + ":" + password);
 
     try {
-      const response = await fetch('http://46.32.169.71/DEMO/hs/MobileApi/Connect', {
+      const response = await fetch(`http://46.32.169.71/DEMO/hs/MobileApi/Connect?Username=${encodeURIComponent(serverName)}&Password=${encodeURIComponent(serverPassword)}`, {
         method: 'GET',
         headers: {
           'Authorization': authHeader,
@@ -32,22 +34,22 @@ const LoginScreen: React.FC = ({navigation}:any) => {
 
       if (response.ok) {
         const result = await response.text();
-       
+
         if (result === '0') {
           // Login failed
           Alert.alert('Giriş uğursuz oldu', 'Yanlış istifadəçi adı və ya şifrə.');
-          navigation.navigate('HomeTab')
         } else {
           // Login successful
           console.log('Login successful');
-          console.log('Login successful');
           // Navigate to the home screen or perform other actions
-          navigation.navigate('HomeTab')
+          navigation.navigate('HomeTab');
         }
       } else {
         // Handle other response statuses if needed
-        Alert.alert('Giriş uğursuz oldu', 'Yanlış istifadəçi adı və ya şifrə.');
-         navigation.navigate('HomeTab')
+        Alert.alert('Giriş uğursuz oldu');
+        console.log(response.status);
+        console.log(authHeader);
+        console.log(await response.text());
       }
     } catch (error) {
       console.error('Error:', error);
@@ -57,29 +59,27 @@ const LoginScreen: React.FC = ({navigation}:any) => {
 
   return (
     <View style={styles.container}>
-      <View style={{marginBottom:windowHeight/18}}>
-      <Text style={{fontSize:20,color:'white',fontWeight:"700",textAlign:'center',alignSelf:'center',marginBottom:12}}>Giriş</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="İstifadəçi adı"
-        value={username}
-        onChangeText={setUsername}
-        placeholderTextColor={'white'}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Şifrə"
-        placeholderTextColor={'white'}
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-      {/* <Button style={styles.input} title="Login"  /> */}
+      <View style={{ marginBottom: windowHeight / 18 }}>
+        <Text style={{ fontSize: 20, color: 'white', fontWeight: "700", textAlign: 'center', alignSelf: 'center', marginBottom: 12 }}>Giriş</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="İstifadəçi adı"
+          value={username}
+          onChangeText={setUsername}
+          placeholderTextColor={'white'}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Şifrə"
+          placeholderTextColor={'white'}
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
 
-      <TouchableOpacity onPress={handleLogin} style={{width:windowWidth/2.5,height:windowHeight/18,backgroundColor:'#F4F9FD',borderRadius:8,flexDirection:'row',alignSelf:'center',alignContent:'center',alignItems:'center',justifyContent:'center',marginTop:12}}>
-
-      <Text style={{fontSize:20,color:'#1F1D2B',fontWeight:"700",textAlign:'center',alignSelf:'center'}}>Daxil ol</Text>
-      </TouchableOpacity>
+        <TouchableOpacity onPress={handleLogin} style={{ width: windowWidth / 2.5, height: windowHeight / 18, backgroundColor: '#F4F9FD', borderRadius: 8, flexDirection: 'row', alignSelf: 'center', alignContent: 'center', alignItems: 'center', justifyContent: 'center', marginTop: 12 }}>
+          <Text style={{ fontSize: 20, color: '#1F1D2B', fontWeight: "700", textAlign: 'center', alignSelf: 'center' }}>Daxil ol</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -90,18 +90,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor:'#1F1D2B',
+    backgroundColor: '#1F1D2B',
   },
   input: {
-    width:windowWidth/1.5,
-    height:windowHeight/14,
+    width: windowWidth / 1.5,
+    height: windowHeight / 14,
     borderWidth: 1,
     borderColor: '#ccc',
     marginBottom: 10,
     paddingLeft: 10,
-    color:'white',
-    marginTop:12,
-    borderRadius:8
+    color: 'white',
+    marginTop: 12,
+    borderRadius: 8
   },
 });
 
