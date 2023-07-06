@@ -1,55 +1,62 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Alert, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
-import { encode } from 'base-64';
-import HomeTab from '../navigation/tabs/HomeTab';
-
+import { View, TextInput, Alert, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
+var base64 = require("base-64");
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 const LoginScreen: React.FC = ({ navigation }: any) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const serverName = 'sa'; // Replace with the actual server name
-  const serverPassword = 'abc'; // Replace with the actual server password
 
   const handleLogin = async () => {
     if (!username || !password) {
       Alert.alert('Doğrulama Xətası', 'Zəhmət olmasa istifadəçi adı və şifrə sahələrini doldurun.');
       return;
     }
-    
-
-    const authHeader = "Basic " + encode(username + ":" + password);
+    const serverName: string = 'sa'; // Replace with the actual server name
+    const serverPassword: string = 'abc'; // Replace with the actual server password
+    let uname = "sa";
+    let pword = "abc";
 
     try {
-      const response = await fetch(`http://46.32.169.71/DEMO/hs/MobileApi/Connect?Username=${encodeURIComponent(serverName)}&Password=${encodeURIComponent(serverPassword)}`, {
+      const response = await fetch(`http://46.32.169.71/DEMO/hs/MobileApi/Connect`, {
         method: 'GET',
         headers: {
-          'Authorization': authHeader,
+          Authorization: "Basic " + base64.encode(uname + ":" + pword),
           'Report': 'LoginMenu',
-          'User': username,
-          'Pass': password,
+          "User": username,
+          "Pass": password,
         },
       });
 
       if (response.ok) {
-        const result = await response.text();
+        const responseData = await response.text(); // Read the response as text
 
-        if (result === '0') {
-          // Login failed
-          Alert.alert('Giriş uğursuz oldu', 'Yanlış istifadəçi adı və ya şifrə.');
-        } else {
-          // Login successful
+        if (response.status === 200) {
           console.log('Login successful');
-          // Navigate to the home screen or perform other actions
+          const clonedResponse = response.clone(); // Clone the response before reading it
+          const responseData = await clonedResponse.text(); // Parse the cloned response as text
+  
+          console.error('Empty response:', responseData); 
           navigation.navigate('HomeTab');
+        } else {
+          Alert.alert('Giriş uğursuz oldu', 'Yanlış istifadəçi adı və ya şifrə.');
         }
-      } else {
-        // Handle other response statuses if needed
-        Alert.alert('Giriş uğursuz oldu');
+      } else if (response.status === 400) {
+        const errorResponse = await response.text();
+        console.log('Server Response:', errorResponse);
+        const errorMessage = 'Bad request. Please check your credentials.';
+        Alert.alert('Giriş uğursuz oldu', errorMessage);
+        console.log(errorMessage);
+      } else if (response.status === 401) {
+        const errorMessage = 'Unauthorized. Please check your credentials.';
+        Alert.alert('Giriş uğursuz oldu', errorMessage);
         console.log(response.status);
-        console.log(authHeader);
-        console.log(await response.text());
+        console.log(errorMessage);
+      } else {
+        const errorMessage = 'Unexpected error. Please try again later.';
+        Alert.alert('Giriş uğursuz oldu', errorMessage);
+        console.log(response.status, errorMessage);
       }
     } catch (error) {
       console.error('Error:', error);
@@ -60,7 +67,7 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
   return (
     <View style={styles.container}>
       <View style={{ marginBottom: windowHeight / 18 }}>
-        <Text style={{ fontSize: 20, color: 'white', fontWeight: "700", textAlign: 'center', alignSelf: 'center', marginBottom: 12 }}>Giriş</Text>
+        <Text style={{ fontSize: 20, color: 'white', fontWeight: '700', textAlign: 'center', alignSelf: 'center', marginBottom: 12 }}>Giriş</Text>
         <TextInput
           style={styles.input}
           placeholder="İstifadəçi adı"
@@ -77,8 +84,8 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
           onChangeText={setPassword}
         />
 
-        <TouchableOpacity onPress={handleLogin} style={{ width: windowWidth / 2.5, height: windowHeight / 18, backgroundColor: '#F4F9FD', borderRadius: 8, flexDirection: 'row', alignSelf: 'center', alignContent: 'center', alignItems: 'center', justifyContent: 'center', marginTop: 12 }}>
-          <Text style={{ fontSize: 20, color: '#1F1D2B', fontWeight: "700", textAlign: 'center', alignSelf: 'center' }}>Daxil ol</Text>
+        <TouchableOpacity onPress={handleLogin} style={styles.button}>
+          <Text style={styles.buttonText}>Daxil ol</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -103,6 +110,74 @@ const styles = StyleSheet.create({
     marginTop: 12,
     borderRadius: 8
   },
+  button: {
+    width: windowWidth / 2.5,
+    height: windowHeight / 18,
+    backgroundColor: '#F4F9FD',
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignSelf: 'center',
+    alignContent: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12
+  },
+  buttonText: {
+    fontSize: 20,
+    color: '#1F1D2B',
+    fontWeight: '700',
+    textAlign: 'center',
+    alignSelf: 'center'
+  },
 });
 
 export default LoginScreen;
+
+
+
+
+
+
+
+
+
+// import React, { useState } from 'react';
+// import { View, TextInput, Alert, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
+// var base64 = require("base-64");
+// const windowWidth = Dimensions.get('window').width;
+// const windowHeight = Dimensions.get('window').height;
+
+// const LoginScreen: React.FC = ({ navigation }: any) => {
+//   const [username, setUsername] = useState('');
+//   const [password, setPassword] = useState('');
+//   const uname = "sa";
+//   const pword = "abc";
+
+//   const handleLogin = async () => {
+//     const data = {
+//       User: username,
+//       Pass: password
+//     };
+
+//     try {
+//       const response = await fetch('http://46.32.169.71/DEMO/hs/MobileApi/Connect', {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json',
+//           Authorization: "Basic " + base64.encode(uname + ":" + pword),
+//         },
+//         body:JSON.stringify(data)
+//       });
+
+//       console.log('Data sent to the server');
+//       const responseData = await response.text();
+//       console.log('Server Response:', responseData);
+
+//       // Perform the desired action after sending data to the server
+//     } catch (error) {
+//       console.error('Error:', error);
+//       Alert.alert('Error', 'An error occurred while sending data to the server.');
+//     }
+//   };
+
+

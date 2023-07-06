@@ -31,29 +31,29 @@ const ScanPage = ({navigation}:any) => {
 
       <View style={{flex:2.4,flexDirection:'row',paddingHorizontal:20}}>
       <TouchableOpacity style={{flex: 0.8, paddingHorizontal: 10, backgroundColor: '#FFA523', marginHorizontal: 5, borderRadius: 8,borderColor:'white',borderWidth:1}}>
-    <Text style={{fontSize: 11, color: 'white', textAlign: 'center',alignSelf:'center',marginTop:7}}>maya deyeri</Text>
+    <Text style={{fontSize: 11, color: 'white', marginTop:7}}>maya deyeri</Text>
     <Text style={{fontSize: 11, color: 'white', textAlign: 'center',alignSelf:'center',marginTop:12}}>000.245</Text>
   </TouchableOpacity>
 
   <TouchableOpacity style={{flex: 0.8, paddingHorizontal: 10, backgroundColor: '#1F1D2B', marginHorizontal: 5, borderRadius: 8,borderColor:'white',borderWidth:1}}>
-  <Text style={{fontSize: 11, color: 'white', textAlign: 'center',alignSelf:'center',marginTop:7}}>maya deyeri</Text>
+  <Text style={{fontSize: 11, color: 'white', marginTop:7}}>alış</Text>
     <Text style={{fontSize: 11, color: 'white', textAlign: 'center',alignSelf:'center',marginTop:12}}>000.245</Text>
   </TouchableOpacity>
 
   <TouchableOpacity style={{flex: 0.8, paddingHorizontal: 10, backgroundColor: '#525298', marginHorizontal: 5, borderRadius: 8,borderColor:'white',borderWidth:1}}>
-  <Text style={{fontSize: 11, color: 'white', marginTop:7}}>maya deyeri</Text>
+  <Text style={{fontSize: 11, color: 'white', marginTop:7}}>topdan</Text>
     <Text style={{fontSize: 11, color: 'white', textAlign: 'center',alignSelf:'center',marginTop:12}}>000.245</Text>
   </TouchableOpacity>
       </View>
 
       <View style={{flex:2.4,flexDirection:'row',paddingHorizontal:20,marginTop:10}}>
       <TouchableOpacity style={{flex: 0.8, paddingHorizontal: 10, backgroundColor: '#1F1D2B', marginHorizontal: 5, borderRadius: 8,borderColor:'white',borderWidth:1}}>
-    <Text style={{fontSize: 11, color: 'white', textAlign: 'center',alignSelf:'center',marginTop:7}}>qalıq</Text>
+    <Text style={{fontSize: 11, color: 'white', marginTop:7}}>qalıq</Text>
     <Text style={{fontSize: 11, color: 'white', textAlign: 'center',alignSelf:'center',marginTop:12}}>000.245</Text>
   </TouchableOpacity>
 
   <TouchableOpacity style={{flex: 0.8, paddingHorizontal: 10, backgroundColor: '#22B07D', marginHorizontal: 5, borderRadius: 8,borderColor:'white',borderWidth:1}}>
-  <Text style={{fontSize: 10.5, color: 'white', textAlign: 'center',alignSelf:'center',marginTop:7}}>satış qiyməti</Text>
+  <Text style={{fontSize: 10.5, color: 'white', marginTop:7}}>satış qiyməti</Text>
   <Text style={{fontSize: 11, color: 'white', textAlign: 'center',alignSelf:'center',marginTop:12}}>000.245</Text>
   </TouchableOpacity>
 
