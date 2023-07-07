@@ -20,39 +20,36 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
 
     try {
       const response = await fetch(`http://46.32.169.71/DEMO/hs/MobileApi/Connect`, {
-        method: 'GET',
+        method: 'POST',
         headers: {
           Authorization: "Basic " + base64.encode(uname + ":" + pword),
-          'Report': 'LoginMenu',
-          "User": username,
-          "Pass": password,
+         
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          "typReport":"LoginMenu",
+          "Usr":{"Name":username,"Pass":password}
+        }),
       });
 
+      
       if (response.ok) {
-        const responseData = await response.text(); // Read the response as text
+        const responseData = await response.json();
 
-        if (response.status === 200) {
+        if (responseData.ResulCode === '0') {
+          // Login successful
           console.log('Login successful');
+          navigation.navigate('HomeTab', { userName: response.User });
+
+          
           const clonedResponse = response.clone(); // Clone the response before reading it
           const responseData = await clonedResponse.text(); // Parse the cloned response as text
-  
-          console.error('Empty response:', responseData); 
-          navigation.navigate('HomeTab');
+
+          console.log('Response:', responseData);
         } else {
+          // Login failed
           Alert.alert('Giriş uğursuz oldu', 'Yanlış istifadəçi adı və ya şifrə.');
         }
-      } else if (response.status === 400) {
-        const errorResponse = await response.text();
-        console.log('Server Response:', errorResponse);
-        const errorMessage = 'Bad request. Please check your credentials.';
-        Alert.alert('Giriş uğursuz oldu', errorMessage);
-        console.log(errorMessage);
-      } else if (response.status === 401) {
-        const errorMessage = 'Unauthorized. Please check your credentials.';
-        Alert.alert('Giriş uğursuz oldu', errorMessage);
-        console.log(response.status);
-        console.log(errorMessage);
       } else {
         const errorMessage = 'Unexpected error. Please try again later.';
         Alert.alert('Giriş uğursuz oldu', errorMessage);
@@ -63,7 +60,6 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
       Alert.alert('Xəta', 'Giriş zamanı xəta baş verdi.');
     }
   };
-
   return (
     <View style={styles.container}>
       <View style={{ marginBottom: windowHeight / 18 }}>
