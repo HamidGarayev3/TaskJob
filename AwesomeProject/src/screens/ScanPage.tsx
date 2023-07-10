@@ -1,6 +1,8 @@
 import { View, Text, TouchableOpacity, Image, TextInput } from 'react-native'
 import React from 'react'
-const ScanPage = ({navigation}:any) => {
+const ScanPage = ({navigation,route}:any) => {
+  const UserName = route.params.user
+
   return (
     <View style={{flex:1,backgroundColor:'#1F1D2B'}}>
 
@@ -15,7 +17,7 @@ const ScanPage = ({navigation}:any) => {
         style={{ width: 24, height: 24 }}
       />
         </TouchableOpacity>
-        <Text style={{fontSize:20,color:'white',fontFamily:'digital-7',marginLeft:70}}>PN0001245</Text>
+        <Text style={{fontSize:20,color:'white',fontFamily:'digital-7',marginLeft:70}}>{UserName}</Text>
       </View>
 
       <View style={{flex:3,paddingHorizontal:20,marginTop:30}}>

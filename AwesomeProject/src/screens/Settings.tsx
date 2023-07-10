@@ -8,8 +8,8 @@ import { Drawer } from 'react-native-paper';
 import LoginScreen from './LoginScreen'
 import { ScrollView } from 'react-native-gesture-handler'
 
-const Settings = ({navigation}:any) => {
- 
+const Settings = ({navigation,route }:any) => {
+  
   return (
 <ScrollView>
 <View style={{flex:1,backgroundColor:'#1F1D2B'}}>
@@ -26,7 +26,7 @@ const Settings = ({navigation}:any) => {
 </View>
 <View style={{flexDirection:'column'}}>
   <View style={{marginLeft:20}}>
-  <Text style={{fontSize:20,color:'#F4F9FD',fontWeight:"700"}}>Devon Lane</Text>
+  <Text style={{fontSize:20,color:'#F4F9FD',fontWeight:"700"}}></Text>
   </View>
   <View style={{marginLeft:20}}>
   <Text style={{fontSize:18,color:'#F4F9FD'}}>Duis aute irure</Text>

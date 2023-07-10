@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { View, TextInput, Alert, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NavigationProp } from '@react-navigation/native';
+
 var base64 = require("base-64");
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -35,12 +38,12 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
       
       if (response.ok) {
         const responseData = await response.json();
-
+        const user = responseData.User
         if (responseData.ResulCode === '0') {
           // Login successful
+          
           console.log('Login successful');
-          navigation.navigate('HomeTab', { userName: response.User });
-
+          navigation.navigate('HomeTab', { screen: 'Settings', params: { user } });
           
           const clonedResponse = response.clone(); // Clone the response before reading it
           const responseData = await clonedResponse.text(); // Parse the cloned response as text
