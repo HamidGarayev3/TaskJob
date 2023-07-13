@@ -1,33 +1,40 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TextInput, Pressable, Image, TouchableOpacity, Alert, Animated, Clipboard } from 'react-native';
+import { View, Text, TextInput, Pressable, Image, TouchableOpacity, Alert, Animated } from 'react-native';
+import Clipboard from '@react-native-clipboard/clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
-
 var base64 = require("base-64");
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
-const Scan = ({ navigation }: any) => {
+const Scan = ({ navigation }: { navigation: any }) => {
+  const [inputValue, setInputValue] = useState('');
+  const inputRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (inputValue) {
+      console.log('Barcode:', inputValue);
+      // Perform any additional actions with the input value
+  
+      // Reset the input value after processing
+      setInputValue('');
+    }
+  }, [inputValue]);
+
+  const handleInputChange = (text: string) => {
+    setInputValue(text);
+  };
   const [status, setStatus] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const animatedDotsOpacity = useRef(new Animated.Value(0)).current;
 
-  useEffect(() => {
-    const clipboardListener = Clipboard.addListener('change', handleClipboardChange);
-
-    return () => {
-      clipboardListener.remove();
-    };
-  }, []);
-
-  const handleClipboardChange = async () => {
-    try {
-      const copiedData = await Clipboard.getString();
-      console.log('Copied Barcode:', copiedData);
-    } catch (error) {
-      console.error('Error retrieving copied data:', error);
-    }
-  };
+ 
 
   useEffect(() => {
     const animateDots = () => {
@@ -57,7 +64,7 @@ const Scan = ({ navigation }: any) => {
   const Import = async () => {
     let uname = "sa";
     let pword = "abc";
-
+  
     try {
       setIsLoading(true);
       setStatus('Sorğu başladı');
@@ -72,14 +79,21 @@ const Scan = ({ navigation }: any) => {
           "Usr": { "Name": 'Admin' }
         }),
       });
-
+  
       if (response.ok) {
         setStatus('Sorğu uğurlu oldu');
-
+  
+        const jsonData = await response.json();
         const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
-        await RNFS.writeFile(fileUri, JSON.stringify(await response.json()), 'utf8');
+        await RNFS.writeFile(fileUri, JSON.stringify(jsonData), 'utf8');
         console.log('JSON file saved to local storage:', fileUri);
-
+  
+        // Retrieve the first data item from the JSON file
+        const fileContent = await RNFS.readFile(fileUri, 'utf8');
+        const parsedData = JSON.parse(fileContent);
+        const firstDataItem = parsedData[0];
+        console.log('First data item:', firstDataItem);
+  
         // Perform further actions with the JSON file
         // You can navigate to another screen and access the file there
         navigation.navigate('Settings');
@@ -97,9 +111,22 @@ const Scan = ({ navigation }: any) => {
       setIsLoading(false);
     }
   };
+  
+  
 
   return (
     <View style={{ flex: 1, backgroundColor: '#1F1D2B' }}>
+        <View style={{ display: 'none' }}>
+      <TextInput
+        ref={inputRef}
+        value={inputValue}
+        onChangeText={handleInputChange}
+        style={{ height: 0 }}
+        underlineColorAndroid="transparent"
+        autoCorrect={false}
+        autoCapitalize="none"
+      />
+    </View>
       <View style={{ flex: 2.5, marginTop: 20, marginHorizontal: 20, marginBottom: 20, flexDirection: 'row' }}>
         <TouchableOpacity onPress={() => navigation.openDrawer()}>
           <Image
