@@ -1,11 +1,42 @@
 import { View, Text, TouchableOpacity, Image, TextInput } from 'react-native'
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react';
 const ScanPage = ({navigation}:any) => {
+  const [inputValue, setInputValue] = useState('');
+  const inputRef = useRef<TextInput>(null);
 
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (inputValue) {
+      console.log('Barcode:', inputValue);
+      // Perform any additional actions with the input value
+  
+      // Reset the input value after processing
+      setInputValue('');
+    }
+  }, [inputValue]);
+
+  const handleInputChange = (text: string) => {
+    setInputValue(text);
+  };
   return (
     <View style={{flex:1,backgroundColor:'#1F1D2B'}}>
 
-
+<View style={{ display: 'none' }}>
+      <TextInput
+        ref={inputRef}
+        value={inputValue}
+        onChangeText={handleInputChange}
+        style={{ height: 0 }}
+        underlineColorAndroid="transparent"
+        autoCorrect={false}
+        autoCapitalize="none"
+      />
+    </View>
 
       <View style={{flex:1,flexDirection:'row',paddingHorizontal:20,marginTop:20}}>
       <TouchableOpacity onPress={() =>
@@ -16,7 +47,7 @@ const ScanPage = ({navigation}:any) => {
         style={{ width: 24, height: 24 }}
       />
         </TouchableOpacity>
-        <Text style={{fontSize:20,color:'white',fontFamily:'digital-7',marginLeft:70}}></Text>
+        <Text style={{fontSize:20,color:'white',fontFamily:'digital-7',marginLeft:70}}>{inputValue}</Text>
       </View>
 
       <View style={{flex:3,paddingHorizontal:20,marginTop:30}}>

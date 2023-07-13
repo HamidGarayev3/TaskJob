@@ -34,8 +34,6 @@ const Scan = ({ navigation }: { navigation: any }) => {
   const [isLoading, setIsLoading] = useState(false);
   const animatedDotsOpacity = useRef(new Animated.Value(0)).current;
 
- 
-
   useEffect(() => {
     const animateDots = () => {
       Animated.loop(
@@ -64,7 +62,7 @@ const Scan = ({ navigation }: { navigation: any }) => {
   const Import = async () => {
     let uname = "sa";
     let pword = "abc";
-  
+
     try {
       setIsLoading(true);
       setStatus('Sorğu başladı');
@@ -79,21 +77,24 @@ const Scan = ({ navigation }: { navigation: any }) => {
           "Usr": { "Name": 'Admin' }
         }),
       });
-  
+
       if (response.ok) {
         setStatus('Sorğu uğurlu oldu');
-  
+
         const jsonData = await response.json();
+
         const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
         await RNFS.writeFile(fileUri, JSON.stringify(jsonData), 'utf8');
         console.log('JSON file saved to local storage:', fileUri);
-  
-        // Retrieve the first data item from the JSON file
+
+        // Read the file content and parse JSON
         const fileContent = await RNFS.readFile(fileUri, 'utf8');
         const parsedData = JSON.parse(fileContent);
-        const firstDataItem = parsedData[0];
-        console.log('First data item:', firstDataItem);
-  
+
+        // Retrieve the first 10 data items from the JSON file
+        const firstTenDataItems = parsedData.slice(0, 10);
+        console.log('First 10 data items:', firstTenDataItems);
+
         // Perform further actions with the JSON file
         // You can navigate to another screen and access the file there
         navigation.navigate('Settings');
@@ -111,22 +112,10 @@ const Scan = ({ navigation }: { navigation: any }) => {
       setIsLoading(false);
     }
   };
-  
-  
 
   return (
     <View style={{ flex: 1, backgroundColor: '#1F1D2B' }}>
-        <View style={{ display: 'none' }}>
-      <TextInput
-        ref={inputRef}
-        value={inputValue}
-        onChangeText={handleInputChange}
-        style={{ height: 0 }}
-        underlineColorAndroid="transparent"
-        autoCorrect={false}
-        autoCapitalize="none"
-      />
-    </View>
+      
       <View style={{ flex: 2.5, marginTop: 20, marginHorizontal: 20, marginBottom: 20, flexDirection: 'row' }}>
         <TouchableOpacity onPress={() => navigation.openDrawer()}>
           <Image
@@ -136,7 +125,6 @@ const Scan = ({ navigation }: { navigation: any }) => {
         </TouchableOpacity>
         <Text style={{ marginLeft: 30, fontSize: 20, color: '#F4F9FD', fontWeight: "700" }}>Text ABC</Text>
       </View>
-
 
       <View style={{ flex: 8.6, paddingHorizontal: 20, flexDirection: 'row', marginBottom: 50 }}>
         <TouchableOpacity onPress={Import} disabled={isLoading} style={{ flex: 4.3, backgroundColor: '#F4F9FD', marginRight: 20, borderRadius: 8, flexDirection: 'row', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
@@ -154,7 +142,6 @@ const Scan = ({ navigation }: { navigation: any }) => {
           <Text style={{ marginLeft: 10, fontSize: 20, color: '#1F1D2B', fontWeight: "700" }}>Export</Text>
         </TouchableOpacity>
       </View>
-
 
       <View style={{ flex: 25, marginBottom: 50, marginHorizontal: 20 }}>
         <View style={{ position: 'relative' }}>
