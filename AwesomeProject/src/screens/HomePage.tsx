@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TextInput, Pressable, Image, TouchableOpacity, Alert, Animated } from 'react-native';
-import Clipboard from '@react-native-clipboard/clipboard';
+import { View, Text, TextInput, Image, TouchableOpacity, Alert, Animated } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
-var base64 = require("base-64");
+import base64 from "base-64";
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
@@ -21,7 +20,7 @@ const Scan = ({ navigation }: { navigation: any }) => {
     if (inputValue) {
       console.log('Barcode:', inputValue);
       // Perform any additional actions with the input value
-  
+
       // Reset the input value after processing
       setInputValue('');
     }
@@ -30,6 +29,7 @@ const Scan = ({ navigation }: { navigation: any }) => {
   const handleInputChange = (text: string) => {
     setInputValue(text);
   };
+
   const [status, setStatus] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const animatedDotsOpacity = useRef(new Animated.Value(0)).current;
@@ -83,21 +83,18 @@ const Scan = ({ navigation }: { navigation: any }) => {
 
         const jsonData = await response.json();
 
-        const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
-        await RNFS.writeFile(fileUri, JSON.stringify(jsonData), 'utf8');
-        console.log('JSON file saved to local storage:', fileUri);
+        // Check if jsonData is a valid JSON object
+        if (typeof jsonData === 'object' && jsonData !== null) {
+          const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
+          await RNFS.writeFile(fileUri, JSON.stringify(jsonData), 'utf8');
+          console.log('JSON file saved to local storage:', fileUri);
 
-        // Read the file content and parse JSON
-        const fileContent = await RNFS.readFile(fileUri, 'utf8');
-        const parsedData = JSON.parse(fileContent);
-
-        // Retrieve the first 10 data items from the JSON file
-        const firstTenDataItems = parsedData.slice(0, 10);
-        console.log('First 10 data items:', firstTenDataItems);
-
-        // Perform further actions with the JSON file
-        // You can navigate to another screen and access the file there
-        navigation.navigate('Settings');
+          // Perform further actions with the JSON file
+          // You can navigate to another screen and access the file there
+          navigation.navigate('Settings');
+        } else {
+          console.log('Invalid JSON data received:', jsonData);
+        }
       } else {
         const errorMessage = 'Request failed. Please try again later.';
         setStatus('Sorğu uğursuz oldu');
@@ -115,7 +112,17 @@ const Scan = ({ navigation }: { navigation: any }) => {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#1F1D2B' }}>
-      
+      <View style={{ display: 'none' }}>
+        <TextInput
+          ref={inputRef}
+          value={inputValue}
+          onChangeText={handleInputChange}
+          style={{ height: 0 }}
+          underlineColorAndroid="transparent"
+          autoCorrect={false}
+          autoCapitalize="none"
+        />
+      </View>
       <View style={{ flex: 2.5, marginTop: 20, marginHorizontal: 20, marginBottom: 20, flexDirection: 'row' }}>
         <TouchableOpacity onPress={() => navigation.openDrawer()}>
           <Image
