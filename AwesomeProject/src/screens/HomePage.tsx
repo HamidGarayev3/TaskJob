@@ -7,6 +7,7 @@ import base64 from "base-64";
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
 const Scan = ({ navigation }: { navigation: any }) => {
+  
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<TextInput>(null);
 
@@ -18,17 +19,22 @@ const Scan = ({ navigation }: { navigation: any }) => {
 
   useEffect(() => {
     if (inputValue) {
-      console.log('Barcode:', inputValue);
+      console.log(inputValue);
       // Perform any additional actions with the input value
 
       // Reset the input value after processing
       setInputValue('');
     }
   }, [inputValue]);
-
   const handleInputChange = (text: string) => {
     setInputValue(text);
+    fetchItemDetails(text); // Send request every time input value changes
   };
+
+  // const handleInputChange = (text: string) => {
+  //   setInputValue(text);
+  //   fetchItemDetails(text); // Send request every time input value changes
+  // };
 
   const [status, setStatus] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -48,7 +54,7 @@ const Scan = ({ navigation }: { navigation: any }) => {
             duration: 500,
             useNativeDriver: true,
           }),
-        ]),
+        ])
       ).start();
     };
 
@@ -59,9 +65,56 @@ const Scan = ({ navigation }: { navigation: any }) => {
     }
   }, [isLoading, animatedDotsOpacity]);
 
+
+// ...
+
+const fetchItemDetails = async (barcode: string) => {
+  try {
+    setStatus('Sorğu başladı');
+
+    // Read the file content and parse JSON
+    const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
+    const fileContent = await RNFS.readFile(fileUri, 'utf8');
+
+    if (fileContent) {
+      const parsedData = JSON.parse(fileContent);
+
+      // Get the Items array from the parsed data
+      const itemsArray = parsedData.Item;
+
+      if (itemsArray && itemsArray.length > 0) {
+        // Find the item with the matching barcode
+        const foundItem = itemsArray.find((item: any) => item.Barcode === barcode);
+
+        if (foundItem) {
+          console.log('Item details:', foundItem);
+          setStatus('Sorğu uğurlu oldu');
+        } else {
+          console.log('Item not found.');
+          setStatus('Sorğu uğursuz oldu');
+        }
+      } else {
+        console.log('Items array is empty or not found.');
+        setStatus('Items array is empty or not found.');
+      }
+    } else {
+      console.log('JSON data not available. Please import first.');
+      setStatus('JSON data not available. Please import first.');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    setStatus('Sorğu alınmadı');
+  }
+};
+
+  
+  
+
+  
+
   const Import = async () => {
-    let uname = "sa";
-    let pword = "abc";
+    let uname = 'sa';
+    let pword = 'abc';
 
     try {
       setIsLoading(true);
@@ -69,12 +122,12 @@ const Scan = ({ navigation }: { navigation: any }) => {
       const response = await fetch(`http://46.32.169.71/DEMO/hs/MobileApi/Connect`, {
         method: 'POST',
         headers: {
-          Authorization: "Basic " + base64.encode(uname + ":" + pword),
+          Authorization: 'Basic ' + base64.encode(uname + ':' + pword),
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          "typReport": "Catalogs",
-          "Usr": { "Name": 'Admin' }
+          typReport: 'Catalogs',
+          Usr: { Name: 'Admin' },
         }),
       });
 
@@ -86,12 +139,11 @@ const Scan = ({ navigation }: { navigation: any }) => {
         // Check if jsonData is a valid JSON object
         if (typeof jsonData === 'object' && jsonData !== null) {
           const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
-          await RNFS.writeFile(fileUri, JSON.stringify(jsonData), 'utf8');
+          await AsyncStorage.setItem(fileUri, JSON.stringify(jsonData)); // Save the JSON data to AsyncStorage
           console.log('JSON file saved to local storage:', fileUri);
 
           // Perform further actions with the JSON file
           // You can navigate to another screen and access the file there
-          navigation.navigate('Settings');
         } else {
           console.log('Invalid JSON data received:', jsonData);
         }
@@ -109,7 +161,8 @@ const Scan = ({ navigation }: { navigation: any }) => {
       setIsLoading(false);
     }
   };
-
+  
+  
   return (
     <View style={{ flex: 1, backgroundColor: '#1F1D2B' }}>
       <View style={{ display: 'none' }}>
