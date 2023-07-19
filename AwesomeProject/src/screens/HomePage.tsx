@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TextInput, Image, TouchableOpacity, Alert, Animated } from 'react-native';
+import { View, Text, TextInput, Image, TouchableOpacity, Alert, Animated, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 import base64 from "base-64";
@@ -7,9 +7,12 @@ import base64 from "base-64";
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
 const Scan = ({ navigation }: { navigation: any }) => {
-  
+
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<TextInput>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState('');
+  const animatedDotsOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (inputRef.current) {
@@ -26,19 +29,11 @@ const Scan = ({ navigation }: { navigation: any }) => {
       setInputValue('');
     }
   }, [inputValue]);
+
   const handleInputChange = (text: string) => {
     setInputValue(text);
     fetchItemDetails(text); // Send request every time input value changes
   };
-
-  // const handleInputChange = (text: string) => {
-  //   setInputValue(text);
-  //   fetchItemDetails(text); // Send request every time input value changes
-  // };
-
-  const [status, setStatus] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const animatedDotsOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const animateDots = () => {
@@ -65,52 +60,44 @@ const Scan = ({ navigation }: { navigation: any }) => {
     }
   }, [isLoading, animatedDotsOpacity]);
 
+  const fetchItemDetails = async (barcode: string) => {
+    try {
+      setStatus('Sorğu başladı');
 
-// ...
+      // Read the file content and parse JSON
+      const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
+      const fileContent = await RNFS.readFile(fileUri, 'utf8');
 
-const fetchItemDetails = async (barcode: string) => {
-  try {
-    setStatus('Sorğu başladı');
+      if (fileContent) {
+        const parsedData = JSON.parse(fileContent);
 
-    // Read the file content and parse JSON
-    const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
-    const fileContent = await RNFS.readFile(fileUri, 'utf8');
+        // Get the Items array from the parsed data
+        const itemsArray = parsedData.Item;
 
-    if (fileContent) {
-      const parsedData = JSON.parse(fileContent);
+        if (itemsArray && itemsArray.length > 0) {
+          // Find the item with the matching barcode
+          const foundItem = itemsArray.find((item: any) => item.Barcode === barcode);
 
-      // Get the Items array from the parsed data
-      const itemsArray = parsedData.Item;
-
-      if (itemsArray && itemsArray.length > 0) {
-        // Find the item with the matching barcode
-        const foundItem = itemsArray.find((item: any) => item.Barcode === barcode);
-
-        if (foundItem) {
-          console.log('Item details:', foundItem);
-          setStatus('Sorğu uğurlu oldu');
+          if (foundItem) {
+            console.log('Item details:', foundItem);
+            setStatus('Sorğu uğurlu oldu');
+          } else {
+            console.log('Item not found.');
+            setStatus('Sorğu uğursuz oldu');
+          }
         } else {
-          console.log('Item not found.');
-          setStatus('Sorğu uğursuz oldu');
+          console.log('Items array is empty or not found.');
+          setStatus('Items array is empty or not found.');
         }
       } else {
-        console.log('Items array is empty or not found.');
-        setStatus('Items array is empty or not found.');
+        console.log('JSON data not available. Please import first.');
+        setStatus('JSON data not available. Please import first.');
       }
-    } else {
-      console.log('JSON data not available. Please import first.');
-      setStatus('JSON data not available. Please import first.');
+    } catch (error) {
+      console.error('Error:', error);
+      setStatus('Sorğu alınmadı');
     }
-  } catch (error) {
-    console.error('Error:', error);
-    setStatus('Sorğu alınmadı');
-  }
-};
-
-  
-  
-
-  
+  };
 
   const Import = async () => {
     let uname = 'sa';
@@ -161,8 +148,7 @@ const fetchItemDetails = async (barcode: string) => {
       setIsLoading(false);
     }
   };
-  
-  
+
   return (
     <View style={{ flex: 1, backgroundColor: '#1F1D2B' }}>
       <View style={{ display: 'none' }}>
@@ -176,6 +162,7 @@ const fetchItemDetails = async (barcode: string) => {
           autoCapitalize="none"
         />
       </View>
+
       <View style={{ flex: 2.5, marginTop: 20, marginHorizontal: 20, marginBottom: 20, flexDirection: 'row' }}>
         <TouchableOpacity onPress={() => navigation.openDrawer()}>
           <Image
@@ -204,32 +191,28 @@ const fetchItemDetails = async (barcode: string) => {
       </View>
 
       <View style={{ flex: 25, marginBottom: 50, marginHorizontal: 20 }}>
-        <View style={{ position: 'relative' }}>
-          <AnimatedTextInput
-            editable={false}
-            value={status}
-            placeholderTextColor={'#F4F9FD'}
-            style={{
-              borderRadius: 10,
-              borderWidth: 2,
-              borderColor: '#F4F9FD',
-              width: '100%',
-              height: '100%',
-              textAlignVertical: 'top',
-              fontWeight: '500',
-              fontSize: 16,
-              color: '#F4F9FD',
-            }}
-            placeholder='Textline'
-          />
-          {isLoading && (
-            <View style={{ position: 'absolute', bottom: '88.5%', right: 230, transform: [{ translateY: -8 }] }}>
-              <Animated.Text style={{ opacity: animatedDotsOpacity, color: '#F4F9FD', fontSize: 20 }}>
-                ...
-              </Animated.Text>
-            </View>
-          )}
-        </View>
+        <AnimatedTextInput
+          editable={false}
+          value={status}
+          placeholderTextColor={'#F4F9FD'}
+          style={{
+            borderRadius: 10,
+            borderWidth: 2,
+            borderColor: '#F4F9FD',
+            width: '100%',
+            height: '100%',
+            textAlignVertical: 'top',
+            fontWeight: '500',
+            fontSize: 16,
+            color: '#F4F9FD',
+          }}
+          placeholder='Textline'
+        />
+        {isLoading && (
+          <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator size="large" color="#F4F9FD" />
+          </View>
+        )}
       </View>
     </View>
   );

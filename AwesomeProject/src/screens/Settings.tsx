@@ -26,10 +26,10 @@ const Settings = ({navigation,route }:any) => {
 </View>
 <View style={{flexDirection:'column'}}>
   <View style={{marginLeft:20}}>
-  <Text style={{fontSize:20,color:'#F4F9FD',fontWeight:"700"}}></Text>
+  <Text style={{fontSize:20,color:'#F4F9FD',fontWeight:"700"}}>Admin</Text>
   </View>
   <View style={{marginLeft:20}}>
-  <Text style={{fontSize:18,color:'#F4F9FD'}}>Duis aute irure</Text>
+  <Text style={{fontSize:18,color:'#F4F9FD'}}>rDuis aute irure</Text>
   </View>
 </View>
 </View>

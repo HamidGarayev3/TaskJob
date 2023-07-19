@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Alert, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { NavigationProp } from '@react-navigation/native';
-
+import { View, TextInput, Alert, StyleSheet, TouchableOpacity, Text, Dimensions, ActivityIndicator } from 'react-native';
 var base64 = require("base-64");
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -10,6 +7,7 @@ const windowHeight = Dimensions.get('window').height;
 const LoginScreen: React.FC = ({ navigation }: any) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
     if (!username || !password) {
@@ -22,29 +20,27 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
     let pword = "abc";
 
     try {
+      setIsLoading(true);
       const response = await fetch(`http://46.32.169.71/DEMO/hs/MobileApi/Connect`, {
         method: 'POST',
         headers: {
           Authorization: "Basic " + base64.encode(uname + ":" + pword),
-         
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          "typReport":"LoginMenu",
-          "Usr":{"Name":username,"Pass":password}
+          "typReport": "LoginMenu",
+          "Usr": { "Name": username, "Pass": password }
         }),
       });
 
-      
       if (response.ok) {
         const responseData = await response.json();
         const user = responseData.User
         if (responseData.ResulCode === '0') {
           // Login successful
-          
           console.log('Login successful');
           navigation.navigate('HomeTab', { screen: 'Settings', params: { user } });
-          
+
           const clonedResponse = response.clone(); // Clone the response before reading it
           const responseData = await clonedResponse.text(); // Parse the cloned response as text
 
@@ -61,8 +57,11 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
     } catch (error) {
       console.error('Error:', error);
       Alert.alert('Xəta', 'Giriş zamanı xəta baş verdi.');
+    } finally {
+      setIsLoading(false);
     }
   };
+
   return (
     <View style={styles.container}>
       <View style={{ marginBottom: windowHeight / 18 }}>
@@ -86,6 +85,12 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
         <TouchableOpacity onPress={handleLogin} style={styles.button}>
           <Text style={styles.buttonText}>Daxil ol</Text>
         </TouchableOpacity>
+
+        {isLoading && (
+          <View style={styles.overlay}>
+            <ActivityIndicator size="large" color="#FFFFFF" />
+          </View>
+        )}
       </View>
     </View>
   );
@@ -128,55 +133,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     alignSelf: 'center'
   },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
 });
 
 export default LoginScreen;
-
-
-
-
-
-
-
-
-
-// import React, { useState } from 'react';
-// import { View, TextInput, Alert, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
-// var base64 = require("base-64");
-// const windowWidth = Dimensions.get('window').width;
-// const windowHeight = Dimensions.get('window').height;
-
-// const LoginScreen: React.FC = ({ navigation }: any) => {
-//   const [username, setUsername] = useState('');
-//   const [password, setPassword] = useState('');
-//   const uname = "sa";
-//   const pword = "abc";
-
-//   const handleLogin = async () => {
-//     const data = {
-//       User: username,
-//       Pass: password
-//     };
-
-//     try {
-//       const response = await fetch('http://46.32.169.71/DEMO/hs/MobileApi/Connect', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//           Authorization: "Basic " + base64.encode(uname + ":" + pword),
-//         },
-//         body:JSON.stringify(data)
-//       });
-
-//       console.log('Data sent to the server');
-//       const responseData = await response.text();
-//       console.log('Server Response:', responseData);
-
-//       // Perform the desired action after sending data to the server
-//     } catch (error) {
-//       console.error('Error:', error);
-//       Alert.alert('Error', 'An error occurred while sending data to the server.');
-//     }
-//   };
-
-
