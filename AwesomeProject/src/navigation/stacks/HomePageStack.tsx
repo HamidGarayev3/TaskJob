@@ -8,6 +8,7 @@ import Home from '../../screens/ScanPage';
 import SettingsStack from './SettingsStack';
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import Service from '../../screens/Service';
+import MalMedaxil from '../../screens/MalMedaxil';
 
 const Drawer = createDrawerNavigator();
 
@@ -23,6 +24,14 @@ const ScanStack = () => {
       <Drawer.Screen
         name="Inventar"
         component={Inventar}
+        options={{
+          headerShown: false, // Hide the header
+          drawerLabel: () => null, // Hide the label in the drawer menu
+        }}
+      />
+      <Drawer.Screen
+        name="MalMedaxil"
+        component={MalMedaxil}
         options={{
           headerShown: false, // Hide the header
           drawerLabel: () => null, // Hide the label in the drawer menu

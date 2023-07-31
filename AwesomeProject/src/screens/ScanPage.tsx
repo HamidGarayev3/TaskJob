@@ -14,6 +14,7 @@ const ScanPage = ({ navigation }: any) => {
   const [StockPrice, setStockPrice] = useState('');
   const [Stock, setStock] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [itemsHashTable, setItemsHashTable] = useState<{ [key: string]: any }>({});
 
   useEffect(() => {
     if (inputRef.current) {
@@ -36,10 +37,39 @@ const ScanPage = ({ navigation }: any) => {
     fetchItemDetails(text); // Send request every time input value changes
   };
 
-  const fetchItemDetails = async (barcode: string) => {
+ const fetchItemDetails = async (barcode: string) => {
     try {
       setIsLoading(true);
       setStatus('Sorğu başladı');
+
+      // Check if the item details exist in the hash table
+      if (itemsHashTable[barcode]) {
+        const foundItem = itemsHashTable[barcode];
+        console.log('Item details:', foundItem);
+        setStatus('Sorğu uğurlu oldu');
+
+        // Set the item details in the state
+        setItemName(foundItem.Name);
+        setBarcode(foundItem.Barcode);
+        setInPrice(foundItem.InPrice);
+        setOutPrice(foundItem.OutPrice);
+        setStock(foundItem.Stock);
+        setStockPrice(foundItem.StockPrice);
+
+        // Save the item details to AsyncStorage
+        const itemDetails = {
+          itemName: foundItem.Name,
+          barcode: foundItem.Barcode,
+          inPrice: foundItem.InPrice,
+          outPrice: foundItem.OutPrice,
+          stock: foundItem.Stock,
+          stockPrice: foundItem.StockPrice,
+        };
+        await AsyncStorage.setItem('lastItemDetails', JSON.stringify(itemDetails));
+
+        setIsLoading(false);
+        return; // No need to proceed further
+      }
 
       // Read the file content and parse JSON
       const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
@@ -52,8 +82,15 @@ const ScanPage = ({ navigation }: any) => {
         const itemsArray = parsedData.Item;
 
         if (itemsArray && itemsArray.length > 0) {
-          // Find the item with the matching barcode
-          const foundItem = itemsArray.find((item: any) => item.Barcode === barcode);
+          // Convert the itemsArray to a hash table for faster lookups
+          const newItemsHashTable: { [key: string]: any } = {};
+          itemsArray.forEach((item: any) => {
+            newItemsHashTable[item.Barcode] = item;
+          });
+          setItemsHashTable(newItemsHashTable);
+
+          // Find the item with the matching barcode from the hash table
+          const foundItem = newItemsHashTable[barcode];
 
           if (foundItem) {
             console.log('Item details:', foundItem);

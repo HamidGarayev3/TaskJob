@@ -7,6 +7,7 @@ import Scan from './HomePage'
 import { Drawer } from 'react-native-paper';
 import LoginScreen from './LoginScreen'
 import { ScrollView } from 'react-native-gesture-handler'
+import MalMedaxil from './MalMedaxil'
 
 const Settings = ({navigation,route }:any) => {
   
@@ -43,7 +44,9 @@ const Settings = ({navigation,route }:any) => {
 </TouchableOpacity>
 
 <View >
-<TouchableOpacity style={{padding:7,marginHorizontal:20,borderRadius:15,marginTop:10,flexDirection:'row',justifyContent:'center',}}>
+<TouchableOpacity onPress={() =>
+      navigation.navigate('MalMedaxil')
+      } style={{padding:7,marginHorizontal:20,borderRadius:15,marginTop:10,flexDirection:'row',justifyContent:'center',}}>
 
 <View style={{flexDirection:'row',marginRight:65}}>
 <Image

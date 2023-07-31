@@ -11,7 +11,7 @@ const ScanPageStack = () => {
   return (
 <Drawer.Navigator drawerContent={props => <Settings {...props} />} >
       <Drawer.Screen
-        name="Service"
+        name="ScanPage"
         component={ScanPage}
         options={{ headerShown: false }}
       />
