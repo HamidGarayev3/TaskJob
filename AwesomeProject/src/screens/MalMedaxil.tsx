@@ -20,22 +20,17 @@ const App: React.FC = () => {
         { id: 1, translateX: useSharedValue(0) }
     ]);
 
-    const [modalVisible, setModalVisible] = useState(false);
-
-    const addCard = () => {
-        setCards(prevCards => [
-            ...prevCards, 
-            { id: prevCards.length + 1, translateX: useSharedValue(0) }
-        ]);
-        setModalVisible(false);
-    };
-
+  
     return (
         <View style={styles.appContainer}>
             <View style={styles.searchContainer}>
+                <TouchableOpacity style={{backgroundColor:'#1F1D2B',width:40,height:44,alignSelf:'center',borderWidth:1,borderColor:'white',alignContent:'center',alignItems:'center',justifyContent:'center',borderRadius:7}}>
                 <Image source={require('../assets&styles/back.png')} style={{ width: 24, height: 24 }} />
+                </TouchableOpacity>
                 <TextInput style={styles.searchInput} placeholder="Search..." placeholderTextColor="#F4F9FD"/>
+                <TouchableOpacity style={{backgroundColor:'#1F1D2B',width:40,height:44,alignSelf:'center',borderWidth:1,borderColor:'white',alignContent:'center',alignItems:'center',justifyContent:'center',borderRadius:7}}>
                 <Image source={require('../assets&styles/filter.png')} style={{ width: 24, height: 24 }} />
+                </TouchableOpacity>
             </View>
             <ScrollView style={styles.container}>
                 {cards.map((card) => {
@@ -75,7 +70,7 @@ const App: React.FC = () => {
                     return (
                         <View key={card.id} style={{ marginTop: 20 }}>
                             <Animated.View style={[styles.deleteContainer, deleteStyle]}>
-                                <TouchableOpacity>
+                                <TouchableOpacity >
                                     <Image source={require('../assets&styles/trash.png')} style={{ width: 24, height: 24 }} />
                                 </TouchableOpacity>
                             </Animated.View>
@@ -97,18 +92,10 @@ const App: React.FC = () => {
                     );
                 })}
             </ScrollView>
-            <TouchableOpacity style={styles.floatingButton} onPress={() => setModalVisible(true)}>
+            <TouchableOpacity style={styles.floatingButton} >
                 <Text style={{fontSize:30,fontWeight:'bold'}}>+</Text>
             </TouchableOpacity>
-            <Modal animationType="slide" transparent={true} visible={modalVisible}>
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <TextInput style={styles.modalInput} placeholder="Input 1" />
-                        <TextInput style={styles.modalInput} placeholder="Input 2" />
-                        <Button onPress={addCard} title="OK" />
-                    </View>
-                </View>
-            </Modal>
+            
         </View>
     );
 };
@@ -133,7 +120,7 @@ const styles = StyleSheet.create({
         marginRight: 10,
         color: '#F4F9FD',
         borderBottomColor: '#F4F9FD',
-        borderBottomWidth: 1
+        borderBottomWidth: 1,marginBottom:10
     },
     container: {
         flex: 1,
