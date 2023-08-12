@@ -9,6 +9,8 @@ import Home from '../../screens/ScanPage';
 import ScanStack from './HomePageStack';
 import { SharedComponent } from '../../components/sharedComponents';
 import MalMedaxil from '../../screens/MalMedaxil';
+import Anbarlar from '../../screens/Products';
+import Products from '../../screens/Products';
 
 const SettingsStackScreen = createNativeStackNavigator();
 const Stack = createNativeStackNavigator();
@@ -30,6 +32,12 @@ const SettingsStack = ({navigation}:any) => {
      <SettingsStackScreen.Screen
       name="MalMedaxil"
       component={MalMedaxil}
+      options={{headerShown:false}}
+    />
+
+<SettingsStackScreen.Screen
+      name="Products"
+      component={Products}
       options={{headerShown:false}}
     />
         <SettingsStackScreen.Screen

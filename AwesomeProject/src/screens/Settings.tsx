@@ -56,7 +56,9 @@ const Settings = ({navigation,route }:any) => {
 <Text style={{fontSize:16,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>Mal mədaxil</Text>
 </View>
 </TouchableOpacity>
-<TouchableOpacity style={{padding:7,marginHorizontal:50,borderRadius:15,marginTop:10,flexDirection:'row',justifyContent:'center'}}>
+<TouchableOpacity  onPress={() =>
+      navigation.navigate('MalMedaxil')
+      } style={{padding:7,marginHorizontal:50,borderRadius:15,marginTop:10,flexDirection:'row',justifyContent:'center'}}>
 
 <View style={{flexDirection:'row',marginLeft:-65}}>
 <Image

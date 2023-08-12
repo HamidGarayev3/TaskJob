@@ -2,17 +2,27 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TextInput, Image, TouchableOpacity, Alert, Animated, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
-import base64 from "base-64";
+import base64 from 'base-64';
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
-const Scan = ({ navigation }: { navigation: any }) => {
+interface Item {
+  Barcode: string;
+  // Add other properties here if needed
+}
 
+interface JsonData {
+  Item: Item[];
+  // Add other properties here if needed
+}
+
+const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<TextInput>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState('');
   const animatedDotsOpacity = useRef(new Animated.Value(0)).current;
+  const [jsonData, setJsonData] = useState<JsonData | null>(null);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -29,11 +39,6 @@ const Scan = ({ navigation }: { navigation: any }) => {
       setInputValue('');
     }
   }, [inputValue]);
-
-  const handleInputChange = (text: string) => {
-    setInputValue(text);
-    fetchItemDetails(text); // Send request every time input value changes
-  };
 
   useEffect(() => {
     const animateDots = () => {
@@ -60,23 +65,22 @@ const Scan = ({ navigation }: { navigation: any }) => {
     }
   }, [isLoading, animatedDotsOpacity]);
 
+  const handleInputChange = (text: string) => {
+    setInputValue(text);
+    fetchItemDetails(text); // Send request every time input value changes
+  };
+
   const fetchItemDetails = async (barcode: string) => {
     try {
       setStatus('Sorğu başladı');
 
-      // Read the file content and parse JSON
-      const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
-      const fileContent = await RNFS.readFile(fileUri, 'utf8');
-
-      if (fileContent) {
-        const parsedData = JSON.parse(fileContent);
-
+      if (jsonData) {
         // Get the Items array from the parsed data
-        const itemsArray = parsedData.Item;
+        const itemsArray = jsonData.Item;
 
         if (itemsArray && itemsArray.length > 0) {
           // Find the item with the matching barcode
-          const foundItem = itemsArray.find((item: any) => item.Barcode === barcode);
+          const foundItem = itemsArray.find((item: Item) => item.Barcode === barcode);
 
           if (foundItem) {
             console.log('Item details:', foundItem);
@@ -99,6 +103,21 @@ const Scan = ({ navigation }: { navigation: any }) => {
     }
   };
 
+  const getLastImportedJson = async () => {
+    try {
+      const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
+      const fileContent = await RNFS.readFile(fileUri, 'utf8');
+
+      if (fileContent) {
+        const parsedData = JSON.parse(fileContent);
+        setJsonData(parsedData);
+        // console.log('Last imported JSON data loaded:', parsedData);
+      }
+    } catch (error) {
+      console.error('Error reading JSON data:', error);
+    }
+  };
+
   const Import = async () => {
     let uname = 'sa';
     let pword = 'abc';
@@ -109,7 +128,7 @@ const Scan = ({ navigation }: { navigation: any }) => {
       const response = await fetch(`http://46.32.169.71/DEMO/hs/MobileApi/Connect`, {
         method: 'POST',
         headers: {
-          Authorization: 'Basic ' + base64.encode(uname + ':' + pword),
+          Authorization: 'Basic ' + base64.encode(`${uname}:${pword}`),
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -122,18 +141,15 @@ const Scan = ({ navigation }: { navigation: any }) => {
         setStatus('Sorğu uğurlu oldu');
 
         const jsonData = await response.json();
+        setJsonData(jsonData); // Update jsonData state with the new data
 
-        // Check if jsonData is a valid JSON object
-        if (typeof jsonData === 'object' && jsonData !== null) {
-          const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
-          await AsyncStorage.setItem(fileUri, JSON.stringify(jsonData)); // Save the JSON data to AsyncStorage
-          console.log('JSON file saved to local storage:', fileUri);
+        // Save the JSON data to AsyncStorage
+        const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
+        await RNFS.writeFile(fileUri, JSON.stringify(jsonData), 'utf8');
+        console.log('JSON file saved to local storage:', fileUri);
 
-          // Perform further actions with the JSON file
-          // You can navigate to another screen and access the file there
-        } else {
-          console.log('Invalid JSON data received:', jsonData);
-        }
+        // Load the last imported JSON data after successfully saving it
+        getLastImportedJson();
       } else {
         const errorMessage = 'Request failed. Please try again later.';
         setStatus('Sorğu uğursuz oldu');
@@ -170,7 +186,7 @@ const Scan = ({ navigation }: { navigation: any }) => {
             style={{ width: 24, height: 24 }}
           />
         </TouchableOpacity>
-        <Text style={{ marginLeft: 30, fontSize: 20, color: '#F4F9FD', fontWeight: "700" }}>Text ABC</Text>
+        <Text style={{ marginLeft: 30, fontSize: 20, color: '#F4F9FD', fontWeight: '700' }}>Text ABC</Text>
       </View>
 
       <View style={{ flex: 8.6, paddingHorizontal: 20, flexDirection: 'row', marginBottom: 50 }}>
@@ -179,14 +195,14 @@ const Scan = ({ navigation }: { navigation: any }) => {
             source={require('../assets&styles/download.png')}
             style={{ width: 30, height: 30 }}
           />
-          <Text style={{ marginLeft: 10, fontSize: 20, color: '#1F1D2B', fontWeight: "700" }}>Import</Text>
+          <Text style={{ marginLeft: 10, fontSize: 20, color: '#1F1D2B', fontWeight: '700' }}>Import</Text>
         </TouchableOpacity>
         <TouchableOpacity style={{ flex: 4.3, backgroundColor: '#F4F9FD', borderRadius: 8, flexDirection: 'row', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
           <Image
             source={require('../assets&styles/upload.png')}
             style={{ width: 30, height: 30 }}
           />
-          <Text style={{ marginLeft: 10, fontSize: 20, color: '#1F1D2B', fontWeight: "700" }}>Export</Text>
+          <Text style={{ marginLeft: 10, fontSize: 20, color: '#1F1D2B', fontWeight: '700' }}>Export</Text>
         </TouchableOpacity>
       </View>
 

@@ -4,6 +4,8 @@ import Settings from '../../screens/Settings'
 import ScanPage from '../../screens/ScanPage'
 import SettingsStack from './SettingsStack';
 import { createDrawerNavigator } from "@react-navigation/drawer";
+import Anbarlar from '../../screens/Products';
+import Products from '../../screens/Products';
 
 const Drawer = createDrawerNavigator();
 
@@ -25,6 +27,14 @@ const ScanPageStack = () => {
         }}
       />
 
+<Drawer.Screen
+        name="Products"
+        component={Products}
+        options={{
+          headerShown: false, // Hide the header
+          drawerLabel: () => null, // Hide the label in the drawer menu
+        }}
+      />
     </Drawer.Navigator>
   )
 }

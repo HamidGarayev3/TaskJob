@@ -9,13 +9,14 @@ import Animated, {
     Extrapolate,
 } from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
+import Inventar from './Inventar';
 
 type Card = {
     id: number;
     translateX: Animated.SharedValue<number>;
 };
 
-const App: React.FC = () => {
+const App: React.FC = ({navigation}:any) => {
     const [cards, setCards] = useState<Card[]>([
         { id: 1, translateX: useSharedValue(0) }
     ]);
@@ -24,7 +25,7 @@ const App: React.FC = () => {
     return (
         <View style={styles.appContainer}>
             <View style={styles.searchContainer}>
-                <TouchableOpacity style={{backgroundColor:'#1F1D2B',width:40,height:44,alignSelf:'center',borderWidth:1,borderColor:'white',alignContent:'center',alignItems:'center',justifyContent:'center',borderRadius:7}}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={{backgroundColor:'#1F1D2B',width:40,height:44,alignSelf:'center',borderWidth:1,borderColor:'white',alignContent:'center',alignItems:'center',justifyContent:'center',borderRadius:7}}>
                 <Image source={require('../assets&styles/back.png')} style={{ width: 24, height: 24 }} />
                 </TouchableOpacity>
                 <TextInput style={styles.searchInput} placeholder="Search..." placeholderTextColor="#F4F9FD"/>
@@ -92,7 +93,9 @@ const App: React.FC = () => {
                     );
                 })}
             </ScrollView>
-            <TouchableOpacity style={styles.floatingButton} >
+            <TouchableOpacity onPress={() =>
+      navigation.navigate('Inventar')
+      } style={styles.floatingButton} >
                 <Text style={{fontSize:30,fontWeight:'bold'}}>+</Text>
             </TouchableOpacity>
             

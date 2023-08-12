@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, Image, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, Image, TextInput, ActivityIndicator,Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
+import { useIsFocused,useFocusEffect } from '@react-navigation/native'; // Import useIsFocused hook
 
 const ScanPage = ({ navigation }: any) => {
   const [inputValue, setInputValue] = useState('');
@@ -16,6 +17,39 @@ const ScanPage = ({ navigation }: any) => {
   const [isLoading, setIsLoading] = useState(false);
   const [itemsHashTable, setItemsHashTable] = useState<{ [key: string]: any }>({});
 
+ useFocusEffect(
+  React.useCallback(() => {
+    // Code to run when the screen comes into focus
+    // You can add your component initialization logic here
+    // For example, you can reset your state variables
+    
+    setInputValue('');
+    setStatus('');
+    setItemName('');
+    setBarcode('');
+    setInPrice('');
+    setOutPrice('');
+    setStockPrice('');
+    setStock('');
+    setItemsHashTable({});
+
+    // Return a cleanup function that will be run when the screen goes out of focus
+    return () => {
+      // Clean up logic, if needed
+      // For example, you can reset state variables, clear timeouts, unsubscribe from subscriptions, etc.
+      setInputValue('');
+    setStatus('');
+    setItemName('');
+    setBarcode('');
+    setInPrice('');
+    setOutPrice('');
+    setStockPrice('');
+    setStock('');
+    setItemsHashTable({});
+    };
+  }, [])
+);
+
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -25,26 +59,45 @@ const ScanPage = ({ navigation }: any) => {
   useEffect(() => {
     if (inputValue) {
       console.log('Barcode:', inputValue);
-      // Perform any additional actions with the input value
-
       // Reset the input value after processing
       setInputValue('');
     }
   }, [inputValue]);
+
+  useEffect(() => {
+    createHashTable();
+  }, []);
 
   const handleInputChange = (text: string) => {
     setInputValue(text);
     fetchItemDetails(text); // Send request every time input value changes
   };
 
- const fetchItemDetails = async (barcode: string) => {
+  const createHashTable = async () => {
+    const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
+    const fileContent = await RNFS.readFile(fileUri, 'utf8');
+
+    if (fileContent) {
+      const parsedData = JSON.parse(fileContent);
+      const itemsArray = parsedData.Item;
+
+      if (itemsArray && itemsArray.length > 0) {
+        const newItemsHashTable: { [key: string]: any } = {};
+        itemsArray.forEach((item: any) => {
+          newItemsHashTable[item.Barcode] = item;
+        });
+        setItemsHashTable(newItemsHashTable);
+      }
+    }
+  };
+
+  const fetchItemDetails = async (barcode: string) => {
     try {
       setIsLoading(true);
       setStatus('Sorğu başladı');
 
-      // Check if the item details exist in the hash table
-      if (itemsHashTable[barcode]) {
-        const foundItem = itemsHashTable[barcode];
+      const foundItem = itemsHashTable[barcode];
+      if (foundItem) {
         console.log('Item details:', foundItem);
         setStatus('Sorğu uğurlu oldu');
 
@@ -66,65 +119,10 @@ const ScanPage = ({ navigation }: any) => {
           stockPrice: foundItem.StockPrice,
         };
         await AsyncStorage.setItem('lastItemDetails', JSON.stringify(itemDetails));
-
-        setIsLoading(false);
-        return; // No need to proceed further
-      }
-
-      // Read the file content and parse JSON
-      const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
-      const fileContent = await RNFS.readFile(fileUri, 'utf8');
-
-      if (fileContent) {
-        const parsedData = JSON.parse(fileContent);
-
-        // Get the Items array from the parsed data
-        const itemsArray = parsedData.Item;
-
-        if (itemsArray && itemsArray.length > 0) {
-          // Convert the itemsArray to a hash table for faster lookups
-          const newItemsHashTable: { [key: string]: any } = {};
-          itemsArray.forEach((item: any) => {
-            newItemsHashTable[item.Barcode] = item;
-          });
-          setItemsHashTable(newItemsHashTable);
-
-          // Find the item with the matching barcode from the hash table
-          const foundItem = newItemsHashTable[barcode];
-
-          if (foundItem) {
-            console.log('Item details:', foundItem);
-            setStatus('Sorğu uğurlu oldu');
-
-            // Set the item details in the state
-            setItemName(foundItem.Name);
-            setBarcode(foundItem.Barcode);
-            setInPrice(foundItem.InPrice);
-            setOutPrice(foundItem.OutPrice);
-            setStock(foundItem.Stock);
-            setStockPrice(foundItem.StockPrice);
-
-            // Save the item details to AsyncStorage
-            const itemDetails = {
-              itemName: foundItem.Name,
-              barcode: foundItem.Barcode,
-              inPrice: foundItem.InPrice,
-              outPrice: foundItem.OutPrice,
-              stock: foundItem.Stock,
-              stockPrice: foundItem.StockPrice,
-            };
-            await AsyncStorage.setItem('lastItemDetails', JSON.stringify(itemDetails));
-          } else {
-            console.log('Item not found.');
-            setStatus('Sorğu uğursuz oldu');
-          }
-        } else {
-          console.log('Items array is empty or not found.');
-          setStatus('Items array is empty or not found.');
-        }
       } else {
-        console.log('JSON data not available. Please import first.');
-        setStatus('JSON data not available. Please import first.');
+        Alert.alert('Item not found')
+        console.log('Item not found.');
+        setStatus('Sorğu uğursuz oldu');
       }
     } catch (error) {
       console.error('Error:', error);

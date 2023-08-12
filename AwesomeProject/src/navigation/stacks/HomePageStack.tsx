@@ -9,6 +9,10 @@ import SettingsStack from './SettingsStack';
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import Service from '../../screens/Service';
 import MalMedaxil from '../../screens/MalMedaxil';
+import Anbarlar from '../../screens/Products';
+import Products from '../../screens/Products';
+import Depolar from '../../screens/Depolar';
+import Techizatci from '../../screens/Techizatci';
 
 const Drawer = createDrawerNavigator();
 
@@ -61,6 +65,28 @@ const ScanStack = () => {
       <Drawer.Screen
         name="HomeScreen"
         component={Home}
+        options={{
+          headerShown: false
+        }}
+      />
+
+<Drawer.Screen
+        name="Products"
+        component={Products}
+        options={{
+          headerShown: false
+        }}
+      />
+      <Drawer.Screen
+        name="Depolar"
+        component={Depolar}
+        options={{
+          headerShown: false
+        }}
+      />
+       <Drawer.Screen
+        name="Techizatci"
+        component={Techizatci}
         options={{
           headerShown: false
         }}
