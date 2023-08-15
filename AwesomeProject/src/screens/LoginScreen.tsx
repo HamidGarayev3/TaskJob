@@ -39,7 +39,7 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
         if (responseData.ResulCode === '0') {
           // Login successful
           console.log('Login successful');
-          navigation.navigate('HomeTab', { screen: 'Settings', params: { user } });
+          navigation.navigate('HomeTab');
 
           const clonedResponse = response.clone(); // Clone the response before reading it
           const responseData = await clonedResponse.text(); // Parse the cloned response as text
@@ -51,8 +51,10 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
         }
       } else {
         const errorMessage = 'Unexpected error. Please try again later.';
-        Alert.alert('Giriş uğursuz oldu', errorMessage);
-        console.log(response.status, errorMessage);
+        const clonedResponse = response.clone(); // Clone the response before reading it
+        const responseData = await clonedResponse.text(); // Parse the cloned response as text
+        Alert.alert('Giriş uğursuz oldu', errorMessage,);
+        console.log(response.status, errorMessage,clonedResponse);
       }
     } catch (error) {
       console.error('Error:', error);

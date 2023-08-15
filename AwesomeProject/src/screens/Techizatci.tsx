@@ -3,6 +3,8 @@ import { View, StyleSheet, Text, TouchableOpacity, ScrollView, NativeScrollEvent
 import Animated from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import RNFS from 'react-native-fs';
+import { useDispatch } from 'react-redux';
+import { setSelectedStockName } from '../components/stockSlice'
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;

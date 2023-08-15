@@ -3,6 +3,7 @@ import { View, StyleSheet, Text, TouchableOpacity, ScrollView, NativeScrollEvent
 import Animated from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import RNFS from 'react-native-fs';
+import Inventar from './Inventar';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -88,7 +89,7 @@ const Products: React.FC<{ navigation: any }> = ({ navigation }) => {
     return (
         <View style={styles.appContainer}>
             <View style={styles.searchContainer}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconContainer}>
+                <TouchableOpacity onPress={() =>navigation.navigate('Inventar') }  style={styles.iconContainer}>
                     <Image source={require('../assets&styles/back.png')} style={styles.icon} />
                 </TouchableOpacity>
                 <TextInput

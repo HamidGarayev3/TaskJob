@@ -3,7 +3,8 @@ import { View, StyleSheet, Text, TouchableOpacity, ScrollView, NativeScrollEvent
 import Animated from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import RNFS from 'react-native-fs';
-
+import { useDispatch } from 'react-redux';
+import { setSelectedStockName } from '../components/stockSlice'
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
@@ -15,6 +16,14 @@ interface Item {
 import Inventar from './Inventar';
 
 const Depolar = ({ navigation }: any) => {
+
+    const dispatch = useDispatch();
+    const handleStockSelection = (stockName: string) => {
+        dispatch(setSelectedStockName(stockName)); // Dispatch the action
+        navigation.navigate('Inventar');
+      };
+  
+
     const [itemList, setItemList] = useState<Item[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -83,6 +92,8 @@ const Depolar = ({ navigation }: any) => {
         }
     };
 
+  
+
     return (
         <View style={styles.appContainer}>
             <View style={styles.searchContainer}>
@@ -102,7 +113,7 @@ const Depolar = ({ navigation }: any) => {
             <Text style={{fontSize:16,fontWeight:'700',marginLeft:20,color:'white',marginTop:20,marginBottom:10}}>Anbar</Text>
            <ScrollView onScroll={({ nativeEvent }) => handleScroll(nativeEvent)} scrollEventThrottle={16} contentContainerStyle={styles.cardContainer}>
            {itemList.map(item => (
-           <View  key={item.StockID} style={styles.cardContainer}>
+           <TouchableOpacity onPress={() => handleStockSelection(item.StockName)} key={item.StockID} style={styles.cardContainer}>
                 <PanGestureHandler>
                     <Animated.View style={[styles.card]}>
                         <TouchableOpacity activeOpacity={1} style={{ flex: 1 }}>
@@ -139,7 +150,7 @@ const Depolar = ({ navigation }: any) => {
                         </TouchableOpacity>
                     </Animated.View>
                 </PanGestureHandler>
-            </View>
+            </TouchableOpacity>
              ))}
            </ScrollView>
         </View>

@@ -21,7 +21,8 @@ import { PanGestureHandler } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 import { useIsFocused, useFocusEffect } from '@react-navigation/native';
-
+import { useSelector } from 'react-redux';
+import store from '../components/store';
 type Card = {
   id: number;
   translateX: Animated.SharedValue<number>;
@@ -29,7 +30,8 @@ type Card = {
 
 const Inventar: React.FC = ({ navigation }: any) => {
 
-    
+    const selectedStockName = useSelector((state: { stock: { selectedStockName: string } }) => state.stock.selectedStockName);
+
 
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<TextInput>(null);
@@ -186,6 +188,7 @@ const Inventar: React.FC = ({ navigation }: any) => {
     { id: 1, translateX: useSharedValue(0) }
 ]);
 
+
     return (
 <View style={styles.appContainer}>
             <View style={{ display: 'none' }}>
@@ -232,7 +235,7 @@ const Inventar: React.FC = ({ navigation }: any) => {
             <TouchableOpacity onPress={() =>
       navigation.navigate('Depolar')
       } style={styles.cardContainer}>
-                <Text style={styles.textBold}>Anbar Depo</Text>
+                <Text style={styles.textBold}>{selectedStockName}</Text>
                 <TouchableOpacity>
                     <Image
                         source={require('../assets&styles/dots.png')}
@@ -308,16 +311,16 @@ const Inventar: React.FC = ({ navigation }: any) => {
             </ScrollView>
             <View style={styles.rowContainer}>
                     <TouchableOpacity style={[styles.infoButton, styles.uiButton,{backgroundColor:'white',}]}>
-                        <Text style={[styles.uiButtonText,{color:'#1F1D2B'}]}>Info 1</Text>
+                        <Text style={[styles.uiButtonText,{color:'#1F1D2B'}]}>Ok</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.infoButton, styles.uiButton,{backgroundColor:'#22B07D',}]}>
-                        <Text style={[styles.uiButtonText,{color:'white'}]}>Info 2</Text>
+                        <Text style={[styles.uiButtonText,{color:'white'}]}>Save</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.infoButton, styles.uiButton,{backgroundColor:'#FFF6E9',}]}>
-                        <Text style={[styles.uiButtonText,{color:'#FFA523'}]}>Info 3</Text>
+                        <Text style={[styles.uiButtonText,{color:'#FFA523'}]}>Exit</Text>
                     </TouchableOpacity>
                     <TouchableOpacity  style={[styles.infoTotal,{backgroundColor:'#1F1D2B'}]}>
-                        <Text style={[styles.uiButtonText,{color:'white',fontSize:12}]}>Info 3</Text>
+                        <Text style={[styles.uiButtonText,{color:'white',fontSize:12}]}>yekun</Text>
                         <Text style={[styles.uiButtonText,{color:'white'}]}>Info 3</Text>
                     </TouchableOpacity>
                 </View>
