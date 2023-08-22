@@ -3,8 +3,13 @@ import { View, StyleSheet, Text, TouchableOpacity, ScrollView, NativeScrollEvent
 import Animated from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import RNFS from 'react-native-fs';
-import { useDispatch } from 'react-redux';
 import { setSelectedStockName } from '../components/stockSlice'
+import { useDispatch, useSelector } from 'react-redux';
+import { setSelectedPersonName } from '../components/personSlice'; // Adjust the path to your store slice
+
+
+
+
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -19,6 +24,15 @@ interface Item {
 import Inventar from './Inventar';
 
 const Techizatci = ({ navigation }: any) => {
+
+    
+
+    const dispatch = useDispatch();
+    const handlePersonNameSelection = (PersonName: string) => {
+        dispatch(setSelectedPersonName(PersonName)); // Dispatch the action
+        navigation.navigate('Inventar');
+      };
+
     const [itemList, setItemList] = useState<Item[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -106,10 +120,10 @@ const Techizatci = ({ navigation }: any) => {
             <Text style={{fontSize:16,fontWeight:'700',marginLeft:20,color:'white',marginTop:20,marginBottom:10}}>Təchizatçı</Text>
            <ScrollView onScroll={({ nativeEvent }) => handleScroll(nativeEvent)} scrollEventThrottle={16} contentContainerStyle={styles.cardContainer}>
            {itemList.map(item => (
-           <View  key={item.PersonID} style={styles.cardContainer}>
-                <PanGestureHandler>
-                    <Animated.View style={[styles.card]}>
-                        <TouchableOpacity activeOpacity={1} style={{ flex: 1 }}>
+           <TouchableOpacity onPress={() => handlePersonNameSelection(item.PersonName)}  key={item.PersonID} style={styles.cardContainer}>
+               
+                    <View style={[styles.card]}>
+                        <View  style={{ flex: 1 }}>
                             <View style={styles.halfContainer}>
                                 <View style={styles.leftHalf}>
                                     <View style={styles.topHalf}>
@@ -140,10 +154,9 @@ const Techizatci = ({ navigation }: any) => {
                                     </View>
                                 </View>
                             </View>
-                        </TouchableOpacity>
-                    </Animated.View>
-                </PanGestureHandler>
-            </View>
+                        </View>
+                    </View>
+            </TouchableOpacity>
              ))}
            </ScrollView>
         </View>

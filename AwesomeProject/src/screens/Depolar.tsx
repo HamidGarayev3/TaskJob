@@ -114,9 +114,8 @@ const Depolar = ({ navigation }: any) => {
            <ScrollView onScroll={({ nativeEvent }) => handleScroll(nativeEvent)} scrollEventThrottle={16} contentContainerStyle={styles.cardContainer}>
            {itemList.map(item => (
            <TouchableOpacity onPress={() => handleStockSelection(item.StockName)} key={item.StockID} style={styles.cardContainer}>
-                <PanGestureHandler>
-                    <Animated.View style={[styles.card]}>
-                        <TouchableOpacity activeOpacity={1} style={{ flex: 1 }}>
+                    <View style={[styles.card]}>
+                        <View  style={{ flex: 1 }}>
                             <View style={styles.halfContainer}>
                                 <View style={styles.leftHalf}>
                                     <View style={styles.topHalf}>
@@ -147,9 +146,8 @@ const Depolar = ({ navigation }: any) => {
                                     </View>
                                 </View>
                             </View>
-                        </TouchableOpacity>
-                    </Animated.View>
-                </PanGestureHandler>
+                        </View>
+                    </View>
             </TouchableOpacity>
              ))}
            </ScrollView>

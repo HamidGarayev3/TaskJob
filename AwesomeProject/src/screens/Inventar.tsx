@@ -31,6 +31,8 @@ type Card = {
 const Inventar: React.FC = ({ navigation }: any) => {
 
     const selectedStockName = useSelector((state: { stock: { selectedStockName: string } }) => state.stock.selectedStockName);
+    const selectedPersonName = useSelector((state: { person: { selectedPersonName: string } }) => state.person.selectedPersonName);
+
 
 
   const [inputValue, setInputValue] = useState('');
@@ -45,6 +47,7 @@ const Inventar: React.FC = ({ navigation }: any) => {
   const [isLoading, setIsLoading] = useState(false);
   const [itemsHashTable, setItemsHashTable] = useState<{ [key: string]: any }>({});
   const [itemList, setItemList] = useState<any[]>([]); // Maintain the list of items
+  const [cards, setCards] = useState<Card[]>([]); // Maintain the list of animated cards
 
 
  useFocusEffect(
@@ -123,6 +126,7 @@ const Inventar: React.FC = ({ navigation }: any) => {
 
   const fetchItemDetails = async (barcode: string) => {
     try {
+        
       setIsLoading(true);
       setStatus('Sorğu başladı');
 
@@ -184,9 +188,9 @@ const Inventar: React.FC = ({ navigation }: any) => {
   useEffect(() => {
     getLastItemDetails();
   }, []);
-  const [cards, setCards] = useState<Card[]>([
-    { id: 1, translateX: useSharedValue(0) }
-]);
+ ;
+
+ 
 
 
     return (
@@ -224,7 +228,7 @@ const Inventar: React.FC = ({ navigation }: any) => {
             <TouchableOpacity onPress={() =>
       navigation.navigate('Techizatci')
       } style={[styles.cardContainer,{marginBottom:20}]}>
-                <Text style={styles.textBold}>Təchizatçı</Text>
+                <Text style={styles.textBold}>{selectedPersonName}</Text>
                 <TouchableOpacity>
                     <Image
                         source={require('../assets&styles/dots.png')}
