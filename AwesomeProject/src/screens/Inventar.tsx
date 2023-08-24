@@ -28,10 +28,20 @@ type Card = {
   translateX: Animated.SharedValue<number>;
 };
 
+interface Item {
+    Barcode: string | number;
+    Name: string;
+    ID: number;
+    InPrice: number;
+    Stock: number;
+    // Add other properties as needed
+  }
+
 const Inventar: React.FC = ({ navigation }: any) => {
 
     const selectedStockName = useSelector((state: { stock: { selectedStockName: string } }) => state.stock.selectedStockName);
     const selectedPersonName = useSelector((state: { person: { selectedPersonName: string } }) => state.person.selectedPersonName);
+    // const inventoryItems = useSelector((state: RootState) => state.inventory.items);
 
 
 
@@ -299,11 +309,11 @@ const Inventar: React.FC = ({ navigation }: any) => {
                                 <Animated.View style={[styles.card, animatedStyle]}>
                                     <TouchableOpacity activeOpacity={1} style={{ flex: 1 }}>
                                         <View style={styles.topHalf}>
-                                            <Text style={styles.topHalfText1}>Top Half</Text>
-                                            <Text style={styles.topHalfText2}>Another Text</Text>
+                                            <Text style={styles.topHalfText1}>Name</Text>
+                                            <Text style={styles.topHalfText2}>Barcode</Text>
                                         </View>
                                         <View style={styles.bottomHalf}>
-                                            <View style={styles.bottomLeft}><Text style={styles.bottomLeftText}>Bottom Left</Text></View>
+                                            <View style={styles.bottomLeft}><Text style={styles.bottomLeftText}>Id</Text></View>
                                             <View style={styles.bottomRight}><Text style={styles.bottomRightText}>Bottom Right</Text></View>
                                         </View>
                                     </TouchableOpacity>

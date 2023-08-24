@@ -4,6 +4,10 @@ import Animated from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import RNFS from 'react-native-fs';
 import Inventar from './Inventar';
+import { useDispatch } from 'react-redux';
+import { addItem } from '../components/inventorySlice';
+
+
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -18,10 +22,20 @@ interface Item {
 }
 
 const Products: React.FC<{ navigation: any }> = ({ navigation }) => {
+    const dispatch = useDispatch();
+
+
+    const [searchText, setSearchText] = useState<string>(''); // State for search input text
     const [itemList, setItemList] = useState<Item[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [generatedBarcodes, setGeneratedBarcodes] = useState<number[]>([]); // Keep track of generated barcodes
+
+    const filteredItems = itemList.filter(
+        item =>
+            item.Name.toLowerCase().includes(searchText.toLowerCase()) ||
+            item.Barcode.toString().includes(searchText)
+    );
 
     useEffect(() => {
         fetchItems();
@@ -96,16 +110,21 @@ const Products: React.FC<{ navigation: any }> = ({ navigation }) => {
                     placeholderTextColor={'#F4F9FD'}
                     style={[styles.searchInput, { borderRadius: 5 }]}
                     placeholder='Type to search'
+                    value={searchText} // Bind the value to the state
+                    onChangeText={text => setSearchText(text)}
                 />
                 <TouchableOpacity style={styles.iconContainer}>
                     <Image source={require('../assets&styles/filter.png')} style={styles.icon} />
                 </TouchableOpacity>
             </View>
             <ScrollView onScroll={({ nativeEvent }) => handleScroll(nativeEvent)} scrollEventThrottle={16} contentContainerStyle={styles.cardContainer}>
-                {itemList.map(item => (
-                    <TouchableOpacity key={item.Barcode}>
-                        <Animated.View style={[styles.card]}>
-                            <TouchableOpacity activeOpacity={1} style={{ flex: 1 }}>
+                {filteredItems.map(item => (
+                    <TouchableOpacity onPress={() => {
+                        dispatch(addItem(item)); // Dispatch the action
+                        navigation.navigate('Inventar'); // Navigate back to Inventar screen
+                      }} key={item.Barcode}>
+                        <View style={[styles.card]}>
+                            <View style={{ flex: 1 }}>
                                 <View style={styles.halfContainer}>
                                     <View style={styles.leftHalf}>
                                         <View style={styles.topHalf}>
@@ -128,8 +147,8 @@ const Products: React.FC<{ navigation: any }> = ({ navigation }) => {
                                         </View>
                                     </View>
                                 </View>
-                            </TouchableOpacity>
-                        </Animated.View>
+                            </View>
+                        </View>
                     </TouchableOpacity>
                 ))}
             </ScrollView>

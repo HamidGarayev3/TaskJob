@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, Image, TextInput, ActivityIndicator,Alert
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 import { useIsFocused,useFocusEffect } from '@react-navigation/native'; // Import useIsFocused hook
+var base64 = require("base-64");
+
 
 const ScanPage = ({ navigation }: any) => {
   const [inputValue, setInputValue] = useState('');
@@ -152,6 +154,47 @@ const ScanPage = ({ navigation }: any) => {
   useEffect(() => {
     getLastItemDetails();
   }, []);
+
+
+  const handlePricePrintPress = async (type: 'Price' | 'Print') => {
+    try {
+      setIsLoading(true);
+
+      const data = {
+        TypReport: 'PriceCheker',
+        Itemid: 'MSZ00000614',
+        Typ: type,
+      };
+
+      const jsonFilePath = `${RNFS.DocumentDirectoryPath}/request.json`;
+
+      await RNFS.writeFile(jsonFilePath, JSON.stringify(data), 'utf8');
+
+      // Make the API request here using your API and headers
+      const response = await fetch('http://46.32.169.71/DEMO/hs/MobileApi/Connect', {
+        method: 'POST',
+        headers: {
+          Authorization: "Basic " + base64.encode('Admin' + ":" + '123'),
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        // Handle the success response here
+        Alert.alert('Request sent successfully');
+        await RNFS.unlink(jsonFilePath); // Delete the JSON file
+      } else {
+        // Handle the error response here
+        Alert.alert('Error sending request');
+      }
+    } catch (error) {
+      console.error('Error sending request:', error);
+      Alert.alert('Error sending request');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#1F1D2B' }}>
@@ -308,6 +351,7 @@ const ScanPage = ({ navigation }: any) => {
 
       <View style={{ flex: 3, paddingHorizontal: 5, flexDirection: 'row', marginBottom: 50 }}>
         <TouchableOpacity
+         onPress={() => handlePricePrintPress('Price')}
           style={{
             flex: 2.2,
             backgroundColor: '#F4F9FD',
@@ -322,6 +366,7 @@ const ScanPage = ({ navigation }: any) => {
           <Text style={{ marginLeft: 10, fontSize: 18, color: '#1F1D2B', fontWeight: '700' }}>Price</Text>
         </TouchableOpacity>
         <TouchableOpacity
+         onPress={() => handlePricePrintPress('Print')}
           style={{
             flex: 2.2,
             backgroundColor: '#F4F9FD',
