@@ -60,6 +60,11 @@ const Service = ({navigation}:any) => {
     fetchData();
   }, []);
 
+  const handleResetPress = () => {
+    setInputApi('');
+    setInputUsername('');
+    setInputPassword('');
+  };
   return (
     <View style={{flex:1,backgroundColor:'#1F1D2B'}}>
 
@@ -125,7 +130,7 @@ const Service = ({navigation}:any) => {
     <Text style={{fontSize: 11, color: 'black', fontWeight: "700", textAlign: 'center',alignSelf:'center',marginTop:12}}>Parametrlər</Text>
   </TouchableOpacity> */}
 
-  <TouchableOpacity style={{flex: 1, paddingHorizontal: 10, backgroundColor: '#FFA523', marginHorizontal: 5, borderRadius: 8,justifyContent:'center'}}>
+  <TouchableOpacity  onPress={handleResetPress} style={{flex: 1, paddingHorizontal: 10, backgroundColor: '#FFA523', marginHorizontal: 5, borderRadius: 8,justifyContent:'center'}}>
     <Text style={{fontSize: 16, color: 'white', fontWeight: "700", textAlign: 'center',alignSelf:'center',alignContent:'center',alignItems:'center',justifyContent:'center'}}>Sıfırlamaq</Text>
   </TouchableOpacity>
 
