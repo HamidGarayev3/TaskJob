@@ -180,6 +180,32 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
     }
   };
 
+  useEffect(() => {
+    const fetchStoredData = async () => {
+      try {
+        const savedApi = await AsyncStorage.getItem('api');
+        const savedUsername = await AsyncStorage.getItem('username');
+        const savedPassword = await AsyncStorage.getItem('password');
+
+        if (savedApi) {
+          dispatch({ type: 'service/setApi', payload: savedApi });
+        }
+
+        if (savedUsername) {
+          dispatch({ type: 'service/setUsername', payload: savedUsername });
+        }
+
+        if (savedPassword) {
+          dispatch({ type: 'service/setPassword', payload: savedPassword });
+        }
+      } catch (error) {
+        console.error('Error fetching saved data:', error);
+      }
+    };
+
+    fetchStoredData();
+  }, []);
+
   return (
     <View style={{ flex: 1, backgroundColor: '#1F1D2B' }}>
       <View style={{ display: 'none' }}>

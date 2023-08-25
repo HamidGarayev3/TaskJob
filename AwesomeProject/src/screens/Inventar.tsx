@@ -21,8 +21,10 @@ import { PanGestureHandler } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 import { useIsFocused, useFocusEffect } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
 import store from '../components/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../components/store';
+
 type Card = {
   id: number;
   translateX: Animated.SharedValue<number>;
@@ -36,14 +38,16 @@ interface Item {
     Stock: number;
     // Add other properties as needed
   }
+  
+  
 
 const Inventar: React.FC = ({ navigation }: any) => {
 
     const selectedStockName = useSelector((state: { stock: { selectedStockName: string } }) => state.stock.selectedStockName);
     const selectedPersonName = useSelector((state: { person: { selectedPersonName: string } }) => state.person.selectedPersonName);
-    // const inventoryItems = useSelector((state: RootState) => state.inventory.items);
+    const inventoryItems = useSelector((state: RootState) => state.inventory.items);
 
-
+ 
 
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<TextInput>(null);
@@ -59,7 +63,34 @@ const Inventar: React.FC = ({ navigation }: any) => {
   const [itemList, setItemList] = useState<any[]>([]); // Maintain the list of items
   const [cards, setCards] = useState<Card[]>([]); // Maintain the list of animated cards
 
+  const dispatch = useDispatch();
+  const { api, username, password } = useSelector((state: RootState) => state.service);
 
+  useEffect(() => {
+    const fetchStoredData = async () => {
+      try {
+        const savedApi = await AsyncStorage.getItem('api');
+        const savedUsername = await AsyncStorage.getItem('username');
+        const savedPassword = await AsyncStorage.getItem('password');
+
+        if (savedApi) {
+          dispatch({ type: 'service/setApi', payload: savedApi });
+        }
+
+        if (savedUsername) {
+          dispatch({ type: 'service/setUsername', payload: savedUsername });
+        }
+
+        if (savedPassword) {
+          dispatch({ type: 'service/setPassword', payload: savedPassword });
+        }
+      } catch (error) {
+        console.error('Error fetching saved data:', error);
+      }
+    };
+
+    fetchStoredData();
+  }, []);
  useFocusEffect(
   React.useCallback(() => {
     // Code to run when the screen comes into focus
@@ -264,7 +295,7 @@ const Inventar: React.FC = ({ navigation }: any) => {
                 />
             </View>
             <ScrollView style={styles.container}>
-                {cards.map((card) => {
+                {inventoryItems.map((card) => {
                     const gestureHandler = useAnimatedGestureHandler({
                         onStart: (_, ctx) => {
                             ctx.startX = card.translateX.value;

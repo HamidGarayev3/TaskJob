@@ -27,6 +27,24 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
     const serverPassword: string = 'abc'; // Replace with the actual server password
     let uname = "sa";
     let pword = "abc";
+    if (!api || !Ad || !Parol) {
+      let errorMsg = "Service ekranın tam doğru məlumatlarla doldurulduğuna əmin olun !";
+      
+      if (!api) errorMsg += "- API URL\n";
+      if (!Ad) errorMsg += "- Username\n";
+      if (!Parol) errorMsg += "- Password\n";
+      
+      Alert.alert('Validation Error', errorMsg, [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+          
+        },
+        {text: 'OK', onPress: () => console.log('OK Pressed')},
+      ] );
+      navigation.navigate('HomeTab');
+    }
 
     try {
       setIsLoading(true);
@@ -63,7 +81,16 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
         const errorMessage = 'Unexpected error. Please try again later.';
         const clonedResponse = response.clone(); // Clone the response before reading it
         const responseData = await clonedResponse.text(); // Parse the cloned response as text
-        Alert.alert('Giriş uğursuz oldu', errorMessage,);
+        let errorMsg = "Service ekranın tam doğru məlumatlarla doldurulduğuna əmin olun !";
+        Alert.alert('Validation Error', errorMsg, [
+          {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+          },
+          {text: 'OK', onPress: () => console.log('OK Pressed')},
+        ] );
+        navigation.navigate('HomeTab');
         console.log(response.status, errorMessage,clonedResponse);
       }
     } catch (error) {
