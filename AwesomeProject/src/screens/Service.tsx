@@ -1,10 +1,13 @@
-import { View, Text,Image,TouchableOpacity,Switch,Dimensions } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text,Image,TouchableOpacity,Switch,Dimensions,Alert } from 'react-native'
+import React, { useState,useEffect } from 'react'
 import { RadioButton } from 'react-native-paper';
 import 'react-native-gesture-handler';
 import { TextInput } from 'react-native-gesture-handler';
 import { useDispatch, useSelector } from 'react-redux';
 import { setApi, setUsername, setPassword } from '../components/serviceSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -21,13 +24,41 @@ const Service = ({navigation}:any) => {
   const [inputUsername, setInputUsername] = useState('');
   const [inputPassword, setInputPassword] = useState('');
 
- const handleTestPress = () => {
-  dispatch(setApi(inputApi));
-  dispatch(setUsername(inputUsername));
-  dispatch(setPassword(inputPassword));
+  const handleTestPress = async () => {
+    dispatch(setApi(inputApi));
+    dispatch(setUsername(inputUsername));
+    dispatch(setPassword(inputPassword));
+  
+    try {
+      // Save the input data to AsyncStorage
+      await AsyncStorage.setItem('api', inputApi);
+      await AsyncStorage.setItem('username', inputUsername);
+      await AsyncStorage.setItem('password', inputPassword);
+  
+      // Other logic
+      // Show an alert indicating that data is saved
+      Alert.alert('Success', 'Input data saved successfully.');
+    } catch (error) {
+      console.error('Error saving input data:', error);
+    }
+  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const savedApi = await AsyncStorage.getItem('api');
+        const savedUsername = await AsyncStorage.getItem('username');
+        const savedPassword = await AsyncStorage.getItem('password');
 
-  // Other logic
-};
+        if (savedApi) setInputApi(savedApi);
+        if (savedUsername) setInputUsername(savedUsername);
+        if (savedPassword) setInputPassword(savedPassword);
+      } catch (error) {
+        console.error('Error fetching saved input data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <View style={{flex:1,backgroundColor:'#1F1D2B'}}>

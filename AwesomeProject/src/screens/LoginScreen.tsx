@@ -1,16 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { View, TextInput, Alert, StyleSheet, TouchableOpacity, Text, Dimensions, ActivityIndicator } from 'react-native';
 var base64 = require("base-64");
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../components/store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 const LoginScreen: React.FC = ({ navigation }: any) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [Ad, setAd] = useState('');
+  const [Parol, setParol] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch();
+  const { api, username, password } = useSelector((state: RootState) => state.service);
+
+ 
 
   const handleLogin = async () => {
-    if (!username || !password) {
+    if (!Ad || !Parol) {
       Alert.alert('Doğrulama Xətası', 'Zəhmət olmasa istifadəçi adı və şifrə sahələrini doldurun.');
       return;
     }
@@ -21,15 +30,15 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
 
     try {
       setIsLoading(true);
-      const response = await fetch(`http://46.32.169.71/DEMO/hs/MobileApi/Connect`, {
+      const response = await fetch(api, {
         method: 'POST',
         headers: {
-          Authorization: "Basic " + base64.encode(uname + ":" + pword),
+          Authorization: "Basic " + base64.encode(username + ":" + password),
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           "typReport": "LoginMenu",
-          "Usr": { "Name": username, "Pass": password }
+          "Usr": { "Name": Ad, "Pass": Parol }
         }),
       });
 
@@ -65,6 +74,32 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
     }
   };
 
+  useEffect(() => {
+    const fetchStoredData = async () => {
+      try {
+        const savedApi = await AsyncStorage.getItem('api');
+        const savedUsername = await AsyncStorage.getItem('username');
+        const savedPassword = await AsyncStorage.getItem('password');
+
+        if (savedApi) {
+          dispatch({ type: 'service/setApi', payload: savedApi });
+        }
+
+        if (savedUsername) {
+          dispatch({ type: 'service/setUsername', payload: savedUsername });
+        }
+
+        if (savedPassword) {
+          dispatch({ type: 'service/setPassword', payload: savedPassword });
+        }
+      } catch (error) {
+        console.error('Error fetching saved data:', error);
+      }
+    };
+
+    fetchStoredData();
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={{ marginBottom: windowHeight / 18 }}>
@@ -72,8 +107,8 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
         <TextInput
           style={styles.input}
           placeholder="İstifadəçi adı"
-          value={username}
-          onChangeText={setUsername}
+          value={Ad}
+          onChangeText={setAd}
           placeholderTextColor={'white'}
         />
         <TextInput
@@ -81,8 +116,8 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
           placeholder="Şifrə"
           placeholderTextColor={'white'}
           secureTextEntry
-          value={password}
-          onChangeText={setPassword}
+          value={Parol}
+          onChangeText={setParol}
         />
 
         <TouchableOpacity onPress={handleLogin} style={styles.button}>
