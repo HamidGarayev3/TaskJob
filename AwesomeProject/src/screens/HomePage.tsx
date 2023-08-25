@@ -3,6 +3,8 @@ import { View, Text, TextInput, Image, TouchableOpacity, Alert, Animated, Activi
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 import base64 from 'base-64';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../components/store';
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
@@ -23,6 +25,9 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [status, setStatus] = useState('');
   const animatedDotsOpacity = useRef(new Animated.Value(0)).current;
   const [jsonData, setJsonData] = useState<JsonData | null>(null);
+
+  const dispatch = useDispatch();
+  const { api, username, password } = useSelector((state: RootState) => state.service);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -125,10 +130,10 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
     try {
       setIsLoading(true);
       setStatus('Sorğu başladı');
-      const response = await fetch(`http://46.32.169.71/DEMO/hs/MobileApi/Connect`, {
+      const response = await fetch(api, {
         method: 'POST',
         headers: {
-          Authorization: 'Basic ' + base64.encode(`${uname}:${pword}`),
+          Authorization: 'Basic ' + base64.encode(`${username}:${password}`),
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -138,6 +143,10 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
       });
 
       if (response.ok) {
+        console.log(api)
+        console.log(username)
+        console.log(password)
+
         setStatus('Sorğu uğurlu oldu');
 
         const jsonData = await response.json();
@@ -151,12 +160,18 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
         // Load the last imported JSON data after successfully saving it
         getLastImportedJson();
       } else {
+        console.log(api)
+        console.log(username)
+        console.log(password)
         const errorMessage = 'Request failed. Please try again later.';
         setStatus('Sorğu uğursuz oldu');
         Alert.alert('Import Error', errorMessage);
         console.log(response.status, errorMessage);
       }
     } catch (error) {
+      console.log(api)
+      console.log(username)
+      console.log(password)
       console.error('Error:', error);
       setStatus('Sorğu alınmadı');
       Alert.alert('Xəta', 'Giriş zamanı xəta baş verdi.');

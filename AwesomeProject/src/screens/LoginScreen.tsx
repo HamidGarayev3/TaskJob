@@ -48,6 +48,7 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
         } else {
           // Login failed
           Alert.alert('Giriş uğursuz oldu', 'Yanlış istifadəçi adı və ya şifrə.');
+          navigation.navigate('HomeTab');
         }
       } else {
         const errorMessage = 'Unexpected error. Please try again later.';
