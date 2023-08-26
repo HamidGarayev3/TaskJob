@@ -5,21 +5,24 @@ import { PanGestureHandler } from 'react-native-gesture-handler';
 import RNFS from 'react-native-fs';
 import Inventar from './Inventar';
 import { useDispatch } from 'react-redux';
-import { addItem } from '../components/inventorySlice';
+import { addItem } from '../components/inventorySlice'; // Import the new thunk action
+import { AppDispatch } from '../components/store';
 
 
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
+
+
 interface Item {
     Barcode: string | number;
     Name: string;
     ID: number;
-    InPrice:number;
-    Stock:number;
+    InPrice: number;
+    Stock: number;
     // Add other properties as needed
-}
+  }
 
 const Products: React.FC<{ navigation: any }> = ({ navigation }) => {
     const dispatch = useDispatch();
@@ -120,9 +123,9 @@ const Products: React.FC<{ navigation: any }> = ({ navigation }) => {
             <ScrollView onScroll={({ nativeEvent }) => handleScroll(nativeEvent)} scrollEventThrottle={16} contentContainerStyle={styles.cardContainer}>
                 {filteredItems.map(item => (
                     <TouchableOpacity onPress={() => {
-                        dispatch(addItem(item)); // Dispatch the action
-                        navigation.navigate('Inventar'); // Navigate back to Inventar screen
-                      }} key={item.Barcode}>
+                        dispatch(addItem(item)); // Dispatch action to add the selected item
+                        navigation.navigate('Inventar'); // Navigate to the Inventar screen
+                    }} key={item.Barcode}>
                         <View style={[styles.card]}>
                             <View style={{ flex: 1 }}>
                                 <View style={styles.halfContainer}>

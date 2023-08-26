@@ -63,7 +63,7 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
       if (response.ok) {
         const responseData = await response.json();
         const user = responseData.User
-        if (responseData.ResulCode === '0') {
+        if (responseData.Result === 'OK') {
           // Login successful
           console.log('Login successful');
           navigation.navigate('HomeTab');
@@ -75,7 +75,7 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
         } else {
           // Login failed
           Alert.alert('Giriş uğursuz oldu', 'Yanlış istifadəçi adı və ya şifrə.');
-          navigation.navigate('HomeTab');
+          // navigation.navigate('HomeTab');
         }
       } else {
         const errorMessage = 'Unexpected error. Please try again later.';

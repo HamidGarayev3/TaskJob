@@ -19,12 +19,13 @@ const index = () => {
     <Stack.Navigator initialRouteName="Login">
    
 <>
-<Stack.Screen options={{
-   headerShown: false
-}}             name="LoginScreen" component={LoginScreen} />
+
  <Stack.Screen options={{
    headerShown: false
 }}             name="HomeTab" component={HomeTab} />
+<Stack.Screen options={{
+   headerShown: false
+}}             name="LoginScreen" component={LoginScreen} />
 </>
 <Stack.Screen
     options={{

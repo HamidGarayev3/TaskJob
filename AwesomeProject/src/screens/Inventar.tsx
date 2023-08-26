@@ -23,7 +23,8 @@ import RNFS from 'react-native-fs';
 import { useIsFocused, useFocusEffect } from '@react-navigation/native';
 import store from '../components/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../components/store';
+import { RootState, AppDispatch } from '../components/store';
+
 
 type Card = {
   id: number;
@@ -46,6 +47,8 @@ const Inventar: React.FC = ({ navigation }: any) => {
     const selectedStockName = useSelector((state: { stock: { selectedStockName: string } }) => state.stock.selectedStockName);
     const selectedPersonName = useSelector((state: { person: { selectedPersonName: string } }) => state.person.selectedPersonName);
     const inventoryItems = useSelector((state: RootState) => state.inventory.items);
+    const selectedItems = useSelector((state: RootState) => state.inventory.items);
+
 
  
 
@@ -295,64 +298,36 @@ const Inventar: React.FC = ({ navigation }: any) => {
                 />
             </View>
             <ScrollView style={styles.container}>
-                {inventoryItems.map((card) => {
-                    const gestureHandler = useAnimatedGestureHandler({
-                        onStart: (_, ctx) => {
-                            ctx.startX = card.translateX.value;
-                        },
-                        onActive: (event, ctx) => {
-                            card.translateX.value = ctx.startX + event.translationX;
-                        },
-                        onEnd: () => {
-                            if (card.translateX.value < -54) {
-                                card.translateX.value = withSpring(-54);
-                            } else {
-                                card.translateX.value = withSpring(0);
-                            }
-                        },
-                    });
-
-                    const animatedStyle = useAnimatedStyle(() => {
-                        return {
-                            transform: [{ translateX: card.translateX.value }],
-                        };
-                    });
-
-                    const deleteStyle = useAnimatedStyle(() => {
-                        return {
-                            opacity: interpolate(
-                                card.translateX.value,
-                                [-54, 0],
-                                [1, 0],
-                                Extrapolate.CLAMP
-                            ),
-                        };
-                    });
-
-                    return (
-                        <View key={card.id} style={{ marginTop: 20 }}>
-                            <Animated.View style={[styles.deleteContainer, deleteStyle]}>
-                                <TouchableOpacity >
-                                    <Image source={require('../assets&styles/trash.png')} style={{ width: 24, height: 24 }} />
-                                </TouchableOpacity>
-                            </Animated.View>
-                            <PanGestureHandler onGestureEvent={gestureHandler}>
-                                <Animated.View style={[styles.card, animatedStyle]}>
-                                    <TouchableOpacity activeOpacity={1} style={{ flex: 1 }}>
+            {selectedItems.map(item => (
+                    <TouchableOpacity key={item.Barcode}>
+                        <View style={[styles.card]}>
+                            <View style={{ flex: 1 }}>
+                                <View style={styles.halfContainer}>
+                                    <View style={styles.leftHalf}>
                                         <View style={styles.topHalf}>
-                                            <Text style={styles.topHalfText1}>Name</Text>
-                                            <Text style={styles.topHalfText2}>Barcode</Text>
+                                            <Text style={styles.topHalfText2}>{item.Name}</Text>
+                                            <Text style={{fontSize:12,color:'white'}}>{item.ID}</Text>
                                         </View>
+                                        <View style={styles.horizontalDivider} />
                                         <View style={styles.bottomHalf}>
-                                            <View style={styles.bottomLeft}><Text style={styles.bottomLeftText}>Id</Text></View>
-                                            <View style={styles.bottomRight}><Text style={styles.bottomRightText}>Bottom Right</Text></View>
+                                            <Text style={{fontSize:16,color:'white'}}>{item.Barcode}</Text>
                                         </View>
-                                    </TouchableOpacity>
-                                </Animated.View>
-                            </PanGestureHandler>
+                                    </View>
+                                    <View style={styles.verticalDivider} />
+                                    <View style={styles.rightHalf}>
+                                        <View style={styles.topHalf}>
+                                            <Text style={styles.topHalfText1}>{item.Stock}</Text>
+                                        </View>
+                                        <View style={styles.horizontalDivider} />
+                                        <View style={styles.bottomHalf}>
+                                            <Text style={styles.bottomHalfText}>{item.InPrice} AZN</Text>
+                                        </View>
+                                    </View>
+                                </View>
+                            </View>
                         </View>
-                    );
-                })}
+                    </TouchableOpacity>
+                ))}
             </ScrollView>
             <View style={styles.rowContainer}>
                     <TouchableOpacity style={[styles.infoButton, styles.uiButton,{backgroundColor:'white',}]}>
@@ -382,8 +357,111 @@ const Inventar: React.FC = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  
+  cardContainer: {
+    padding: 20,
+},
+halfContainer: {
+    flex: 1,
+    flexDirection: 'row',
+},
+leftHalf: {
+    flex: 0.8,
+    borderColor: 'white',
+    flexDirection: 'column',
+},
+rightHalf: {
+    flex: 0.4,
+    flexDirection: 'column',
+
+},
+horizontalDivider: {
+    borderBottomColor: 'white',
+},
+verticalDivider: {
+    borderRightWidth: 1,
+    borderRightColor: 'white',
+},
+topHalf: {
+    flex: 0.9,
+    borderColor: 'white',
+    borderBottomWidth: 1,
+    padding: 10,
+},
+bottomHalf: {
+    flex: 0.5,
+    padding: 10,
+},
+topHalfText1: {
+    fontSize: 16,
+    color: '#F4F9FD',
+    alignContent:'center',
+    textAlign:'center',
+    marginTop:12
+},
+topHalfText2: {
+    fontSize: 14,
+    color: '#F4F9FD',
+    fontWeight: '700',
+},
+bottomHalfText: {
+    fontSize: 16,
+    color: '#F4F9FD',
+    textAlign:'center',
+    alignSelf:'center'
+},
   infoButton: {
+    cardContainer: {
+        padding: 20,
+    },
+    halfContainer: {
+        flex: 1,
+        flexDirection: 'row',
+    },
+    leftHalf: {
+        flex: 0.8,
+        borderColor: 'white',
+        flexDirection: 'column',
+    },
+    rightHalf: {
+        flex: 0.4,
+        flexDirection: 'column',
+
+    },
+    horizontalDivider: {
+        borderBottomColor: 'white',
+    },
+    verticalDivider: {
+        borderRightWidth: 1,
+        borderRightColor: 'white',
+    },
+    topHalf: {
+        flex: 0.9,
+        borderColor: 'white',
+        borderBottomWidth: 1,
+        padding: 10,
+    },
+    bottomHalf: {
+        flex: 0.5,
+        padding: 10,
+    },
+    topHalfText1: {
+        fontSize: 16,
+        color: '#F4F9FD',
+        alignContent:'center',
+        textAlign:'center',
+        marginTop:12
+    },
+    topHalfText2: {
+        fontSize: 14,
+        color: '#F4F9FD',
+        fontWeight: '700',
+    },
+    bottomHalfText: {
+        fontSize: 16,
+        color: '#F4F9FD',
+        textAlign:'center',
+        alignSelf:'center'
+    },
     backgroundColor: '#8C81FF',
     borderWidth: 1,
     borderColor: 'white',
@@ -550,6 +628,8 @@ uiButtonText: {
         borderColor:'white',
         borderRadius:8,
         flexDirection: 'column',
+        marginTop:20,
+        marginBottom:10
     },
     topHalf: {
         flex: 0.6,
