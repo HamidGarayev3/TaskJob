@@ -48,6 +48,7 @@ const Inventar: React.FC = ({ navigation }: any) => {
     const selectedPersonName = useSelector((state: { person: { selectedPersonName: string } }) => state.person.selectedPersonName);
     const inventoryItems = useSelector((state: RootState) => state.inventory.items);
     const selectedItems = useSelector((state: RootState) => state.inventory.items);
+    const [selectedItemsForSaving, setSelectedItemsForSaving] = useState<Item[]>([]);
 
 
  
@@ -148,7 +149,8 @@ const Inventar: React.FC = ({ navigation }: any) => {
   const handleInputChange = (text: string) => {
     setInputValue(text);
     fetchItemDetails(text); // Send request every time input value changes
-  };
+};
+
 
   const createHashTable = async () => {
     const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
@@ -170,47 +172,32 @@ const Inventar: React.FC = ({ navigation }: any) => {
 
   const fetchItemDetails = async (barcode: string) => {
     try {
-        
-      setIsLoading(true);
-      setStatus('Sorğu başladı');
+        setIsLoading(true);
+        setStatus('Sorğu başladı');
 
-      const foundItem = itemsHashTable[barcode];
-      if (foundItem) {
-        console.log('Item details:', foundItem);
-        setStatus('Sorğu uğurlu oldu');
-        setItemList((prevItems) => [...prevItems, foundItem]);
-
-
-        // Set the item details in the state
-        setItemName(foundItem.Name);
-        setBarcode(foundItem.Barcode);
-        setInPrice(foundItem.InPrice);
-        setOutPrice(foundItem.OutPrice);
-        setStock(foundItem.Stock);
-        setStockPrice(foundItem.StockPrice);
-
-        // Save the item details to AsyncStorage
-        const itemDetails = {
-          itemName: foundItem.Name,
-          barcode: foundItem.Barcode,
-          inPrice: foundItem.InPrice,
-          outPrice: foundItem.OutPrice,
-          stock: foundItem.Stock,
-          stockPrice: foundItem.StockPrice,
-        };
-        await AsyncStorage.setItem('lastItemDetails', JSON.stringify(itemDetails));
-      } else {
-        Alert.alert('Item not found')
-        console.log('Item not found.');
-        setStatus('Sorğu uğursuz oldu');
-      }
+        const foundItem = itemsHashTable[barcode];
+        if (foundItem) {
+            console.log('Item details:', foundItem);
+            setStatus('Sorğu uğurlu oldu');
+            setItemList((prevItems) => [...prevItems, foundItem]);
+            
+            // Add the found item to the selected items array
+            setSelectedItemsForSaving((prevSelectedItems) => [...prevSelectedItems, foundItem]);
+        } else {
+            Alert.alert('Item not found')
+            console.log('Item not found.');
+            setStatus('Sorğu uğursuz oldu');
+        }
     } catch (error) {
-      console.error('Error:', error);
-      setStatus('Sorğu alınmadı');
+        console.error('Error:', error);
+        setStatus('Sorğu alınmadı');
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
-  };
+};
+
+
+
 
   const getLastItemDetails = async () => {
     try {
@@ -235,7 +222,52 @@ const Inventar: React.FC = ({ navigation }: any) => {
  ;
 
  
+ const handleOkPress = async () => {
+    try {
+        if (selectedItems.length > 0) {
+            const currentDate = new Date().toLocaleDateString('en-US');
+            const selectedPersonId = 1; // Replace with the actual selected person ID
+            const selectedStockId = 1;  // Replace with the actual selected stock ID
+            const docSum = '99'; // Implement this function
 
+            const mallarArray = selectedItems.map(item => ({
+                IDmal: item.ID,
+                Say: item.Stock,
+                Qiymet: item.InPrice,
+                Cemi: item.Stock * item.InPrice,
+            }));
+
+            const newData = {
+                mdate: currentDate,
+                IDPerson: selectedPersonId,
+                IDAnbar: selectedStockId,
+                DocSum: docSum,
+                Mallar: mallarArray,
+            };
+
+            // Read the existing data
+            const existingData = await RNFS.readFile(`${RNFS.DocumentDirectoryPath}/qaimeler.json`, 'utf8');
+            const parsedExistingData = JSON.parse(existingData);
+
+            // Append the new data to the existing array
+            const updatedData = {
+                ...parsedExistingData,
+                data: [...parsedExistingData.data, newData],
+            };
+
+            // Save the updated data to the JSON file
+            await RNFS.writeFile(`${RNFS.DocumentDirectoryPath}/qaimeler.json`, JSON.stringify(updatedData), 'utf8');
+
+            // Clear the selected items array after saving
+            setSelectedItems([]);
+        }
+
+        // Navigate to the next screen (MalMedaxill)
+        navigation.navigate('MalMedaxill');
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
 
     return (
 <View style={styles.appContainer}>
@@ -330,7 +362,7 @@ const Inventar: React.FC = ({ navigation }: any) => {
                 ))}
             </ScrollView>
             <View style={styles.rowContainer}>
-                    <TouchableOpacity style={[styles.infoButton, styles.uiButton,{backgroundColor:'white',}]}>
+                    <TouchableOpacity onPress={handleOkPress} style={[styles.infoButton, styles.uiButton,{backgroundColor:'white',}]}>
                         <Text style={[styles.uiButtonText,{color:'#1F1D2B'}]}>Ok</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.infoButton, styles.uiButton,{backgroundColor:'#22B07D',}]}>

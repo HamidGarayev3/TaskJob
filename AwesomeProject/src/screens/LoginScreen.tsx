@@ -4,19 +4,29 @@ var base64 = require("base-64");
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../components/store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { login, logout } from '../components/authSlice'; // Import the login and logout actions
+
+
+
 
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 const LoginScreen: React.FC = ({ navigation }: any) => {
+
+  
+
+
   const [Ad, setAd] = useState('');
   const [Parol, setParol] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   const { api, username, password } = useSelector((state: RootState) => state.service);
 
- 
+  const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+  // console.log('isLoggedIn:', isLoggedIn);
+
 
   const handleLogin = async () => {
     if (!Ad || !Parol) {
@@ -64,7 +74,10 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
         const responseData = await response.json();
         const user = responseData.User
         if (responseData.Result === 'OK') {
+ 
           // Login successful
+          dispatch(login());
+          
           console.log('Login successful');
           navigation.navigate('HomeTab');
 

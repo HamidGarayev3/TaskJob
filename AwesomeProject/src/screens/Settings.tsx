@@ -8,8 +8,24 @@ import { Drawer } from 'react-native-paper';
 import LoginScreen from './LoginScreen'
 import { ScrollView } from 'react-native-gesture-handler'
 import MalMedaxil from './MalMedaxil'
+import { useDispatch,useSelector } from 'react-redux';
+import { logout } from '../components/authSlice'; // Import the logout action
+import { RootState } from '../components/store'; // Update this import path
+
+
 
 const Settings = ({navigation,route }:any) => {
+  const dispatch = useDispatch();
+
+  const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn); // Get authentication state from Redux
+
+
+  const handleLogout = () => {
+    // Dispatch the logout action
+    dispatch(logout());
+    navigation.navigate('LoginScreen')
+    // ... any other logout logic ...
+  };
   
   return (
 <ScrollView>
@@ -123,14 +139,12 @@ const Settings = ({navigation,route }:any) => {
 </View>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() =>
-      navigation.navigate('LoginScreen')
-      } style={{paddingHorizontal:40,flexDirection:'row',marginBottom:20,marginTop:100}}>
+      <TouchableOpacity onPress={handleLogout} style={{paddingHorizontal:40,flexDirection:'row',marginBottom:20,marginTop:100}}>
       <Image
         source={require('../assets&styles/logout.png')}
         style={{ width: 24, height: 24}}
       />
-      <Text style={{fontSize:16,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>Logout</Text>
+      <Text style={{fontSize:16,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}> {isLoggedIn ? 'Logout' : 'Login'}</Text>
       </TouchableOpacity>
 
 </View>
