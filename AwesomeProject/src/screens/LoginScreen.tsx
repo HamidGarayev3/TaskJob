@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../components/store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { login, logout } from '../components/authSlice'; // Import the login and logout actions
+import RNFS from 'react-native-fs';
 
 
 
@@ -77,12 +78,26 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
  
           // Login successful
           dispatch(login());
+        
+          const jsonFileName = 'settingsTabs.json';
+          const jsonFilePath = RNFS.DocumentDirectoryPath + '/' + jsonFileName;
           
+
+          // Convert the response data to JSON string
+          const jsonData = JSON.stringify(responseData);
+
+          // Write the JSON data to the file
+          await RNFS.writeFile(jsonFilePath, jsonData, 'utf8');
+
+          console.log('Response data saved to JSON file.');
+
+
+
+
           console.log('Login successful');
           navigation.navigate('HomeTab');
 
-          const clonedResponse = response.clone(); // Clone the response before reading it
-          const responseData = await clonedResponse.text(); // Parse the cloned response as text
+          // Parse the cloned response as text
 
           console.log('Response:', responseData);
         } else {

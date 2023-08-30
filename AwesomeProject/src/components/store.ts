@@ -8,6 +8,7 @@ import serviceReducer from './serviceSlice';
 import authReducer from './authSlice'; // Import the new auth reducer
 import qaimelerReducer from './qaimelerSlice';
 import settingsReducer from './settingsSlice'; // Import the settings reducer
+import selectedItemReducer from '../components/selectedItemSlice'; // Update with the actual path
 
 
 
@@ -23,6 +24,7 @@ const store = configureStore({
     person: personReducer,
     auth: authReducer, // Add the new auth reducer
     settings: settingsReducer, // Add the settings reducer
+    selectedItem: selectedItemReducer,
 
 
     // Add the new reducer

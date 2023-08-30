@@ -1,5 +1,5 @@
 import { View, Text, Image, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, { useState, useEffect, useRef } from 'react';
 import Home from './ScanPage'
 import Inventar from './Inventar'
 import Sifarish from './Sifarish'
@@ -11,25 +11,60 @@ import MalMedaxil from './MalMedaxil'
 import { useDispatch,useSelector } from 'react-redux';
 import { logout } from '../components/authSlice'; // Import the logout action
 import { RootState } from '../components/store'; // Update this import path
+import RNFS from 'react-native-fs'; // Import the rnfs library
+import { setSelectedValue } from '../components/selectedItemSlice'; 
 
 
+interface Item {
+  Mal_Mədaxil: string;
+  Id: string;
+}
+interface Item {
+  [key: string]: string;
+}
+interface SettingsData {
+  Qaimeler: Item[];
+  Senedler: Item[];
+}
 
 const Settings = ({navigation,route }:any) => {
   const dispatch = useDispatch();
 
   const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn); // Get authentication state from Redux
 
-
+  const [qaimelerData, setQaimelerData] = useState<Item[]>([]);
+  const [senedlerData, setSenedlerData] = useState<Item[]>([]);
   const handleLogout = () => {
     // Dispatch the logout action
     dispatch(logout());
     navigation.navigate('LoginScreen')
     // ... any other logout logic ...
   };
-  
+  useEffect(() => {
+    const fetchSettingsData = async () => {
+      try {
+        const jsonFilePath = RNFS.DocumentDirectoryPath + '/settingsTabs.json';
+        const fileContent = await RNFS.readFile(jsonFilePath, 'utf8');
+        const settingsData = JSON.parse(fileContent);
+
+        if (settingsData && settingsData.Qaimeler) {
+          setQaimelerData(settingsData.Qaimeler);
+        }
+
+        if (settingsData && settingsData.Senedler) {
+          setSenedlerData(settingsData.Senedler);
+        }
+      } catch (error) {
+        console.error('Error fetching settings data:', error);
+      }
+    };
+
+    fetchSettingsData();
+  }, []);
   return (
-<ScrollView>
-<View style={{flex:1,backgroundColor:'#1F1D2B'}}>
+    <View style={{flex:1,backgroundColor:'#1F1D2B'}}>
+      <ScrollView>
+<View >
 
              
 <View style={{flexDirection:'row',paddingHorizontal:20,marginVertical:35}}>
@@ -51,93 +86,111 @@ const Settings = ({navigation,route }:any) => {
 </View>
 </View>
 
-<TouchableOpacity style={{backgroundColor:'#3A3D4A',padding:10,flexDirection:'row',justifyContent:'center',marginHorizontal:20,borderRadius:15}}>
-<Text style={{fontSize:16,color:'#F4F9FD',fontWeight:"700"}}>Qaimələr</Text>
-<Image
-  source={require('../assets&styles/qaime.png')}
-  style={{ width: 24, height: 24,marginLeft:100}}
-/>
-</TouchableOpacity>
 
-<View >
-<TouchableOpacity onPress={() =>
-      navigation.navigate('MalMedaxil')
-      } style={{padding:7,marginHorizontal:20,borderRadius:15,marginTop:10,flexDirection:'row',justifyContent:'center',}}>
-
-<View style={{flexDirection:'row',marginRight:65}}>
-<Image
-  source={require('../assets&styles/plus.png')}
-  style={{ width: 24, height: 24,}}
-/>
-<Text style={{fontSize:16,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>Mal mədaxil</Text>
-</View>
-</TouchableOpacity>
-<TouchableOpacity  onPress={() =>
-      navigation.navigate('MalMedaxil')
-      } style={{padding:7,marginHorizontal:50,borderRadius:15,marginTop:10,flexDirection:'row',justifyContent:'center'}}>
-
-<View style={{flexDirection:'row',marginLeft:-65}}>
-<Image
-        source={require('../assets&styles/minus.png')}
-        style={{ width: 24, height: 24,}}
+{isLoggedIn && (
+  <>
+    <TouchableOpacity style={{padding:10,backgroundColor:'#3A3D4A',marginHorizontal:20,borderRadius:15,marginTop:20,flexDirection:'row',justifyContent:'center'}}>
+      <Text style={{fontSize:16,color:'#F4F9FD',fontWeight:"700"}}>Qaimələr</Text>
+      <Image
+        source={require('../assets&styles/doc.png')}
+        style={{ width: 24, height: 24,marginLeft:100}}
       />
-      <Text style={{fontSize:16,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>Mal məxaric</Text>
-</View>
-      </TouchableOpacity>
-      <TouchableOpacity style={{padding:7,marginHorizontal:50,borderRadius:15,marginTop:10,flexDirection:'row',justifyContent:'center'}}>
+    </TouchableOpacity>
 
-<View style={{flexDirection:'row',marginLeft:-65}}>
-<Image
-        source={require('../assets&styles/plus.png')}
-        style={{ width: 24, height: 24,}}
+    {qaimelerData.map((item, index) => (
+      <TouchableOpacity
+        key={index}
+        onPress={() => {
+          const selectedKey = Object.keys(item)[0];
+          const selectedValue = item[selectedKey];
+          dispatch(setSelectedValue(selectedValue)); // Dispatch the selected value
+          navigation.navigate('MalMedaxil');
+        }}
+        style={{ padding: 7, marginHorizontal: 20, borderRadius: 15, marginTop: 10, flexDirection: 'row', justifyContent: 'center', }}>
+
+        <View style={{ flexDirection: 'row', marginRight: 65 }}>
+          <Image
+            source={require('../assets&styles/plus.png')}
+            style={{ width: 24, height: 24 }}
+          />
+           {Object.keys(item).map((key) => (
+                        <View key={key} style={{ flexDirection: 'row' }}>
+                          <Text
+                            style={{
+                              fontSize: 16,
+                              color: '#F4F9FD',
+                              fontWeight: '700',
+                              marginLeft: 10,
+                            }}>
+                            {key}:
+                          </Text>
+                          <Text
+                            style={{
+                              fontSize: 16,
+                              color: '#F4F9FD',
+                              fontWeight: '700',
+                            }}>
+                            {' '}
+                            {item[key]}
+                          </Text>
+                        </View>
+                      ))}
+        </View>
+      </TouchableOpacity>
+    ))}
+
+    <TouchableOpacity style={{padding:10,backgroundColor:'#3A3D4A',marginHorizontal:20,borderRadius:15,marginTop:20,flexDirection:'row',justifyContent:'center'}}>
+      <Text style={{fontSize:16,color:'#F4F9FD',fontWeight:"700"}}>Sənədlər</Text>
+      <Image
+        source={require('../assets&styles/doc.png')}
+        style={{ width: 24, height: 24,marginLeft:100}}
       />
-      <Text style={{fontSize:16,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>Mal Mədaxil</Text>
-</View>
+    </TouchableOpacity>
+
+    {senedlerData.map((item, index) => (
+      <TouchableOpacity
+      onPress={() => {
+        const selectedKey = Object.keys(item)[0];
+        const selectedValue = item[selectedKey];
+        dispatch(setSelectedValue(selectedValue)); // Dispatch the selected value
+        navigation.navigate('MalMedaxil');
+      }}
+        style={{ padding: 7, marginHorizontal: 20, borderRadius: 15, marginTop: 10, flexDirection: 'row', justifyContent: 'center', }}>
+
+        <View style={{ flexDirection: 'row', marginRight: 65 }}>
+          <Image
+            source={require('../assets&styles/plus.png')}
+            style={{ width: 24, height: 24 }}
+          />
+           {Object.keys(item).map((key) => (
+                        <View key={key} style={{ flexDirection: 'row' }}>
+                          <Text
+                            style={{
+                              fontSize: 16,
+                              color: '#F4F9FD',
+                              fontWeight: '700',
+                              marginLeft: 10,
+                            }}>
+                            {key}:
+                          </Text>
+                          <Text
+                            style={{
+                              fontSize: 16,
+                              color: '#F4F9FD',
+                              fontWeight: '700',
+                            }}>
+                            {' '}
+                            {item[key]}
+                          </Text>
+                        </View>
+                      ))}
+        </View>
       </TouchableOpacity>
-      <TouchableOpacity style={{padding:7,marginHorizontal:50,borderRadius:15,marginTop:10,flexDirection:'row',justifyContent:'center'}}>
+    ))}
+  </>
+)}
 
-<View style={{flexDirection:'row',marginLeft:-65}}>
-<Image
-        source={require('../assets&styles/minus.png')}
-        style={{ width: 24, height: 24,}}
-      />
-      <Text style={{fontSize:16,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>Mal məxaric</Text>
-</View>
-      </TouchableOpacity>
-</View>
-<TouchableOpacity style={{padding:10,backgroundColor:'#3A3D4A',marginHorizontal:20,borderRadius:15,marginTop:20,flexDirection:'row',justifyContent:'center'}}>
-<Text style={{fontSize:16,color:'#F4F9FD',fontWeight:"700"}}>Sənədlər</Text>
-<Image
-  source={require('../assets&styles/doc.png')}
-  style={{ width: 24, height: 24,marginLeft:100}}
-/>
-</TouchableOpacity>
-
-<TouchableOpacity onPress={() =>
-      navigation.navigate('Inventar')
-      }  style={{padding:7,borderRadius:15,marginTop:10,flexDirection:'row',justifyContent:'center'}}>
-
-<View style={{flexDirection:'row',marginRight:85}}>
-<Image
-        source={require('../assets&styles/plusminus.png')}
-        style={{ width: 24, height: 24,}}
-      />
-      <Text style={{fontSize:16,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>İnventar</Text>
-</View>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() =>
-      navigation.navigate('Sifarish')
-      }  style={{padding:7,marginHorizontal:20,borderRadius:15,marginTop:10,flexDirection:'row',justifyContent:'center'}}>
-
-<View style={{flexDirection:'row',marginRight:78}}>
-<Image
-        source={require('../assets&styles/percent.png')}
-        style={{ width: 24, height: 24,}}
-      />
-      <Text style={{fontSize:16,color:'#F4F9FD',fontWeight:"700",marginLeft:10}}>Sifarişlər</Text>
-</View>
-      </TouchableOpacity>
+     
 
       <TouchableOpacity onPress={handleLogout} style={{paddingHorizontal:40,flexDirection:'row',marginBottom:20,marginTop:100}}>
       <Image
@@ -149,6 +202,8 @@ const Settings = ({navigation,route }:any) => {
 
 </View>
 </ScrollView>
+    </View>
+
   )
 }
 

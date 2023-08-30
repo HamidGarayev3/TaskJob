@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, } from 'react';
 import { ScrollView, View, StyleSheet, Text, TouchableOpacity, Image, TextInput, Modal, Button, Alert } from 'react-native';
 import Animated, {
     useAnimatedGestureHandler,
@@ -11,6 +11,11 @@ import Animated, {
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import Inventar from './Inventar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import RNFS from 'react-native-fs';
+import { setSelectedPerson } from '../components/personSlice'; // Update the import path
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '../components/store';
+
 
 type Card = {
     id: number;
@@ -23,46 +28,73 @@ const App: React.FC = ({navigation}:any) => {
     ]);
     const [jsonCreated, setJsonCreated] = useState(false);
 
+    const selectedItem = useSelector((state: RootState) => state.selectedItem.selectedItem);
+    const dispatch = useDispatch();
+
+// Whenever you want to update the selected person's data
+const handleSelectPerson = (name: string, id: string) => {
+    dispatch(setSelectedPerson({ name, id }));
+};
 
     useEffect(() => {
-        // Check if the JSON file "qaimeler" already exists in AsyncStorage
-        AsyncStorage.getItem('qaimeler')
-            .then((existingJson) => {
-                if (existingJson) {
-                    console.log('JSON file already exists:', existingJson);
+        const filePath = `${RNFS.DocumentDirectoryPath}/qaimeler.json`;
+    
+        RNFS.exists(filePath)
+            .then(exists => {
+                if (exists) {
+                    console.log('JSON file already exists:', filePath);
                     setJsonCreated(true);
+                    RNFS.readFile(filePath, 'utf8')
+                    .then(content => {
+                        console.log('JSON file content:', content);
+                        // Here you can parse and use the content as needed
+                    })
+                    .catch(error => {
+                        console.error('Error reading JSON file content:', error);
+                    });
                 } else {
                     // Your JSON data structure
                     const jsonData = {
-                        Medaxil: [
-                            {
-                                doc1: {
-                                    mdate: '01.01.0001',
-                                    IDPerson: 'KM000001',
-                                    IDAnbar: 'MS000001',
-                                    DocSum: 50.0,
-                                    Mallar: [
-                                        {
-                                            IDmal: 'KM0000001',
-                                            Say: 10,
-                                            Qiymet: 2.5,
-                                            Cemi: 25.0,
-                                        },
-                                    ],
-                                },
-                            },
-                            // ... other documents
+                        "Medaxil":
+                        [
+                        {"doc1":{"mdate":"01.01.0001","IDPerson":"KM000001","IDAnbar" :"MS000001","DocSum"  :50.00,"Mallar"  :[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}},
+                        {"doc2":{"mdate":"01.01.0001","IDPerson":"KM000002","IDAnbar" :"MS000001","DocSum"  :100.00,"Mallar"  :[{"IDmal":"KM0000002","Say":20,"Qiymet":2.50,"Cemi":25.00}]}}
+                        
                         ],
-                        // ... other sections
-                    };
-
+                        "Mexaric":
+                        [
+                        {"doc1":{"mdate":"01.01.0001","IDPerson":"KM000001","IDAnbar" :"MS000001","DocSum"  :50.00,"Mallar"  :[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}},
+                        {"doc2":{"mdate":"01.01.0001","IDPerson":"KM000002","IDAnbar" :"MS000001","DocSum"  :100.00,"Mallar"  :[{"IDmal":"KM0000002","Say":20,"Qiymet":2.50,"Cemi":25.00}]}}
+                        ],
+                        "Satis":
+                        [
+                        {"doc1":{"mdate":"01.01.0001","IDPerson":"KM000001","IDAnbar" :"MS000001","DocSum"  :50.00,"Mallar"  :[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}},
+                        {"doc2":{"mdate":"01.01.0001","IDPerson":"KM000002","IDAnbar" :"MS000001","DocSum"  :100.00,"Mallar"  :[{"IDmal":"KM0000002","Say":20,"Qiymet":2.50,"Cemi":25.00}]}}
+                        ],
+                        "Invertar":
+                        [
+                        {"doc1":{"mdate":"01.01.0001","IDAnbar":"MS000001","DocSum":50.00,"Mallar":[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}},
+                        {"doc2":{"mdate":"01.01.0001","IDAnbar":"MS000001","DocSum":50.00,"Mallar":[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}}
+                        ],
+                        "Yerdeyisme":
+                        [
+                        {"doc1":{"mdate":"01.01.0001","IDAnbarOUT":"MS000001","IDAnbarIn":"MS000002","DocSum":50.00,"Mallar":[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}},
+                        {"doc2":{"mdate":"01.01.0001","IDAnbar":"MS000001","DocSum":50.00,"Mallar":[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}}
+                        ],
+                        "mDest":
+                        [
+                        {"doc1":{"IDest":"2400000000001","DocSum":50.00,"Mallar":[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}},
+                        {"doc2":{"IDest":"2400000000002","DocSum":50.00,"Mallar":[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}}
+                        ]
+                        }
+    
                     // Convert JSON data to a string
                     const jsonString = JSON.stringify(jsonData);
-
-                    // Create and save the JSON file to AsyncStorage
-                    AsyncStorage.setItem('qaimeler', jsonString)
+    
+                    // Create and save the JSON file using RNFS
+                    RNFS.writeFile(filePath, jsonString, 'utf8')
                         .then(() => {
-                            console.log('JSON file created and saved successfully');
+                            console.log('JSON file created and saved successfully:', filePath);
                             setJsonCreated(true);
                         })
                         .catch((error) => {
@@ -85,6 +117,7 @@ const App: React.FC = ({navigation}:any) => {
   
     return (
         <View style={styles.appContainer}>
+            
             <View style={styles.searchContainer}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={{backgroundColor:'#1F1D2B',width:40,height:44,alignSelf:'center',borderWidth:1,borderColor:'white',alignContent:'center',alignItems:'center',justifyContent:'center',borderRadius:7}}>
                 <Image source={require('../assets&styles/back.png')} style={{ width: 24, height: 24 }} />

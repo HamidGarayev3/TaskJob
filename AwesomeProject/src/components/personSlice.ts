@@ -1,25 +1,26 @@
-// personSlice.ts
-
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface PersonState {
     selectedPersonName: string;
+    selectedPersonID: string; // Add the selectedPersonID field
 }
 
 const initialState: PersonState = {
     selectedPersonName: '',
+    selectedPersonID: '', // Set initial ID value
 };
 
 const personSlice = createSlice({
     name: 'person',
     initialState,
     reducers: {
-        setSelectedPersonName: (state, action: PayloadAction<string>) => {
-            state.selectedPersonName = action.payload;
+        setSelectedPerson: (state, action: PayloadAction<{ name: string; id: string }>) => {
+            state.selectedPersonName = action.payload.name;
+            state.selectedPersonID = action.payload.id;
         },
     },
 });
 
-export const { setSelectedPersonName } = personSlice.actions;
+export const { setSelectedPerson } = personSlice.actions;
 
 export default personSlice.reducer;

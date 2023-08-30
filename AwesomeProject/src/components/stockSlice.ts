@@ -1,16 +1,26 @@
-// stockSlice.ts
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { createSlice } from '@reduxjs/toolkit';
+interface StockState {
+    selectedStockName: string;
+    selectedStockID: string;
+}
+
+const initialState: StockState = {
+    selectedStockName: '',
+    selectedStockID: '',
+};
 
 const stockSlice = createSlice({
-  name: 'stock',
-  initialState: { selectedStockName: '' },
-  reducers: {
-    setSelectedStockName: (state, action) => {
-      state.selectedStockName = action.payload;
+    name: 'stock',
+    initialState,
+    reducers: {
+        setSelectedStock: (state, action: PayloadAction<{ name: string; id: string }>) => {
+            state.selectedStockName = action.payload.name;
+            state.selectedStockID = action.payload.id;
+        },
     },
-  },
 });
 
-export const { setSelectedStockName } = stockSlice.actions;
+export const { setSelectedStock } = stockSlice.actions;
+
 export default stockSlice.reducer;

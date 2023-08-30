@@ -206,6 +206,65 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
     fetchStoredData();
   }, []);
 
+  const handleExport = async () => {
+    try {
+      setIsLoading(true);
+      setStatus('Export başladı');
+  
+      const fileUri = `${RNFS.DocumentDirectoryPath}/qaimeler.json`;
+  
+      // Read the content of the JSON file
+      const fileContent = await RNFS.readFile(fileUri, 'utf8');
+  
+      // Check if the file content is available
+      if (fileContent) {
+        // Parse the JSON content
+        const jsonData = JSON.parse(fileContent);
+  
+        // Prepare the request body as per your API structure
+        const requestBody = {
+          TypReport: 'Documents',
+          Doc: [jsonData],
+        };
+  
+        // Send the request
+        const response = await fetch('http://46.32.169.71/DEMO/hs/MobileApi/Connect', {
+          method: 'POST',
+          headers: {
+            Authorization: 'Basic ' + base64.encode(`'sa':'abc'`),
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        });
+  
+        if (response.ok) {
+          console.log('Export successful');
+  
+          // Delete the JSON file from local storage
+          await RNFS.unlink(fileUri);
+          console.log('JSON file deleted:', fileUri);
+  
+          setStatus('Export uğurlu oldu');
+        } else {
+          console.log('Export failed');
+          setStatus('Export uğursuz oldu');
+          Alert.alert('Export Error', 'Request failed. Please try again later.');
+          console.log(response.status);
+        }
+      } else {
+        console.log('JSON file content not available.');
+        setStatus('JSON file content not available.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setStatus('Export alınmadı');
+      Alert.alert('Error', 'An error occurred during export.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  
   return (
     <View style={{ flex: 1, backgroundColor: '#1F1D2B' }}>
       <View style={{ display: 'none' }}>
@@ -238,7 +297,7 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
           />
           <Text style={{ marginLeft: 10, fontSize: 20, color: '#1F1D2B', fontWeight: '700' }}>Import</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={{ flex: 4.3, backgroundColor: '#F4F9FD', borderRadius: 8, flexDirection: 'row', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
+        <TouchableOpacity  onPress={handleExport} style={{ flex: 4.3, backgroundColor: '#F4F9FD', borderRadius: 8, flexDirection: 'row', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
           <Image
             source={require('../assets&styles/upload.png')}
             style={{ width: 30, height: 30 }}

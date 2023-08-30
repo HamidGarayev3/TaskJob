@@ -4,25 +4,23 @@ import Animated from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import RNFS from 'react-native-fs';
 import { useDispatch } from 'react-redux';
-import { setSelectedStockName } from '../components/stockSlice'
+import { setSelectedStock } from '../components/stockSlice';
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 interface Item {
-    StockID: string ;
+    StockID: string;
     StockName: string;
-
 }
 import Inventar from './Inventar';
 
 const Depolar = ({ navigation }: any) => {
 
     const dispatch = useDispatch();
-    const handleStockSelection = (stockName: string) => {
-        dispatch(setSelectedStockName(stockName)); // Dispatch the action
+    const handleStockSelection = (stockName: string, stockID: string) => {
+        dispatch(setSelectedStock({ name: stockName, id: stockID }));
         navigation.navigate('Inventar');
-      };
-  
+    };
 
     const [itemList, setItemList] = useState<Item[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(1);

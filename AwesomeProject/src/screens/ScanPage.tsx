@@ -162,7 +162,7 @@ const ScanPage = ({ navigation }: any) => {
 
       const data = {
         TypReport: 'PriceCheker',
-        Itemid: 'MSZ00000614',
+        Itemid: barcode,
         Typ: type,
       };
 

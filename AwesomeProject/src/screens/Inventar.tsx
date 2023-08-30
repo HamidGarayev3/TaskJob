@@ -24,6 +24,9 @@ import { useIsFocused, useFocusEffect } from '@react-navigation/native';
 import store from '../components/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../components/store';
+import MalMedaxil from '../screens/MalMedaxil'
+import { setSelectedPerson } from '../components/personSlice'; // Update the import path
+
 
 
 type Card = {
@@ -49,9 +52,10 @@ const Inventar: React.FC = ({ navigation }: any) => {
     const inventoryItems = useSelector((state: RootState) => state.inventory.items);
     const selectedItems = useSelector((state: RootState) => state.inventory.items);
     const [selectedItemsForSaving, setSelectedItemsForSaving] = useState<Item[]>([]);
+    const selectedPersonID = useSelector((state: RootState) => state.person.selectedPersonID);
+    const selectedStockID = useSelector((state: RootState) => state.stock.selectedStockID);
+    const selectedValue = useSelector((state: RootState) => state.selectedItem.selectedValue);
 
-
- 
 
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<TextInput>(null);
@@ -68,6 +72,8 @@ const Inventar: React.FC = ({ navigation }: any) => {
   const [cards, setCards] = useState<Card[]>([]); // Maintain the list of animated cards
 
   const dispatch = useDispatch();
+
+  
   const { api, username, password } = useSelector((state: RootState) => state.service);
 
   useEffect(() => {
@@ -226,8 +232,8 @@ const Inventar: React.FC = ({ navigation }: any) => {
     try {
         if (selectedItems.length > 0) {
             const currentDate = new Date().toLocaleDateString('en-US');
-            const selectedPersonId = 1; // Replace with the actual selected person ID
-            const selectedStockId = 1;  // Replace with the actual selected stock ID
+            
+            
             const docSum = '99'; // Implement this function
 
             const mallarArray = selectedItems.map(item => ({
@@ -239,35 +245,54 @@ const Inventar: React.FC = ({ navigation }: any) => {
 
             const newData = {
                 mdate: currentDate,
-                IDPerson: selectedPersonId,
-                IDAnbar: selectedStockId,
+                IDPerson: selectedPersonID,
+                IDAnbar: selectedStockID,
                 DocSum: docSum,
                 Mallar: mallarArray,
             };
 
+            // Log the path to check if it's correct
+            console.log('Document Directory Path:', RNFS.DocumentDirectoryPath);
+
             // Read the existing data
-            const existingData = await RNFS.readFile(`${RNFS.DocumentDirectoryPath}/qaimeler.json`, 'utf8');
+            const filePath = `${RNFS.DocumentDirectoryPath}/qaimeler.json`;
+            const existingData = await RNFS.readFile(filePath, 'utf8');
             const parsedExistingData = JSON.parse(existingData);
 
-            // Append the new data to the existing array
+            // Update the Medaxil array with the new data
+            const nextDocNumber = Object.keys(parsedExistingData.Medaxil).length + 1;
+            const newDocKey = `doc${nextDocNumber}`;
+
+            // Create a new data object with the doc key
+            const newDataWithDocKey = {
+                [newDocKey]: newData,
+            };
+
+            // Update the Medaxil array with the new data
+            const updatedMedaxil = {
+                ...parsedExistingData.Medaxil,
+                ...newDataWithDocKey,
+            };
+
             const updatedData = {
                 ...parsedExistingData,
-                data: [...parsedExistingData.data, newData],
+                Medaxil: updatedMedaxil,
             };
 
             // Save the updated data to the JSON file
-            await RNFS.writeFile(`${RNFS.DocumentDirectoryPath}/qaimeler.json`, JSON.stringify(updatedData), 'utf8');
+            await RNFS.writeFile(filePath, JSON.stringify(updatedData), 'utf8');
 
             // Clear the selected items array after saving
-            setSelectedItems([]);
+            
         }
 
         // Navigate to the next screen (MalMedaxill)
-        navigation.navigate('MalMedaxill');
+        navigation.navigate('MalMedaxil');
     } catch (error) {
         console.error('Error:', error);
     }
 };
+
 
     return (
 <View style={styles.appContainer}>
@@ -282,6 +307,7 @@ const Inventar: React.FC = ({ navigation }: any) => {
           autoCapitalize="none"
         />
       </View>
+      <Text style={{fontSize:50,color:'white'}}>{selectedValue}</Text>
             <View style={styles.searchContainer}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconButton}>
                 <Image source={require('../assets&styles/back.png')} style={{ width: 24, height: 24 }} />

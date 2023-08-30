@@ -3,9 +3,8 @@ import { View, StyleSheet, Text, TouchableOpacity, ScrollView, NativeScrollEvent
 import Animated from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import RNFS from 'react-native-fs';
-import { setSelectedStockName } from '../components/stockSlice'
 import { useDispatch, useSelector } from 'react-redux';
-import { setSelectedPersonName } from '../components/personSlice'; // Adjust the path to your store slice
+import { setSelectedPerson } from '../components/personSlice';
 
 
 
@@ -25,7 +24,9 @@ import Inventar from './Inventar';
 
 const Techizatci = ({ navigation }: any) => {
 
-    
+    const handleSelectPerson = (name: string, id: number) => {
+        dispatch(setSelectedPerson({ name, id }));
+    };
 
     const dispatch = useDispatch();
     const handlePersonNameSelection = (PersonName: string) => {
@@ -120,7 +121,11 @@ const Techizatci = ({ navigation }: any) => {
             <Text style={{fontSize:16,fontWeight:'700',marginLeft:20,color:'white',marginTop:20,marginBottom:10}}>Təchizatçı</Text>
            <ScrollView onScroll={({ nativeEvent }) => handleScroll(nativeEvent)} scrollEventThrottle={16} contentContainerStyle={styles.cardContainer}>
            {itemList.map(item => (
-           <TouchableOpacity onPress={() => handlePersonNameSelection(item.PersonName)}  key={item.PersonID} style={styles.cardContainer}>
+           <TouchableOpacity  onPress={() => {
+            // Replace 'PersonName' and 'PersonID' with actual values
+            handleSelectPerson(item.PersonName, item.PersonID);
+            navigation.navigate('Inventar'); // Navigate to the screen where person is selected
+        }}  key={item.PersonID} style={styles.cardContainer}>
                
                     <View style={[styles.card]}>
                         <View  style={{ flex: 1 }}>
