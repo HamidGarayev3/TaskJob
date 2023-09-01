@@ -1,11 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface SelectedItemState {
-  selectedValue: string | null; // Update with the actual type
+  selectedValue: string ; // Update with the actual type
 }
 
 const initialState: SelectedItemState = {
-  selectedValue: null,
+  selectedValue: '',
 };
 
 const selectedItemSlice = createSlice({

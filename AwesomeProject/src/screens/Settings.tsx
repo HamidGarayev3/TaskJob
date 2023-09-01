@@ -150,9 +150,9 @@ const Settings = ({navigation,route }:any) => {
     {senedlerData.map((item, index) => (
       <TouchableOpacity
       onPress={() => {
+        
         const selectedKey = Object.keys(item)[0];
-        const selectedValue = item[selectedKey];
-        dispatch(setSelectedValue(selectedValue)); // Dispatch the selected value
+        dispatch(setSelectedValue(selectedKey)); // Dispatch the selected value
         navigation.navigate('MalMedaxil');
       }}
         style={{ padding: 7, marginHorizontal: 20, borderRadius: 15, marginTop: 10, flexDirection: 'row', justifyContent: 'center', }}>

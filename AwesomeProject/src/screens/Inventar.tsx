@@ -230,68 +230,74 @@ const Inventar: React.FC = ({ navigation }: any) => {
  
  const handleOkPress = async () => {
     try {
-        if (selectedItems.length > 0) {
-            const currentDate = new Date().toLocaleDateString('en-US');
-            
-            
-            const docSum = '99'; // Implement this function
-
-            const mallarArray = selectedItems.map(item => ({
-                IDmal: item.ID,
-                Say: item.Stock,
-                Qiymet: item.InPrice,
-                Cemi: item.Stock * item.InPrice,
-            }));
-
-            const newData = {
-                mdate: currentDate,
-                IDPerson: selectedPersonID,
-                IDAnbar: selectedStockID,
-                DocSum: docSum,
-                Mallar: mallarArray,
-            };
-
-            // Log the path to check if it's correct
-            console.log('Document Directory Path:', RNFS.DocumentDirectoryPath);
-
-            // Read the existing data
-            const filePath = `${RNFS.DocumentDirectoryPath}/qaimeler.json`;
-            const existingData = await RNFS.readFile(filePath, 'utf8');
-            const parsedExistingData = JSON.parse(existingData);
-
-            // Update the Medaxil array with the new data
-            const nextDocNumber = Object.keys(parsedExistingData.Medaxil).length + 1;
-            const newDocKey = `doc${nextDocNumber}`;
-
-            // Create a new data object with the doc key
-            const newDataWithDocKey = {
-                [newDocKey]: newData,
-            };
-
-            // Update the Medaxil array with the new data
-            const updatedMedaxil = {
-                ...parsedExistingData.Medaxil,
-                ...newDataWithDocKey,
-            };
-
-            const updatedData = {
-                ...parsedExistingData,
-                Medaxil: updatedMedaxil,
-            };
-
-            // Save the updated data to the JSON file
-            await RNFS.writeFile(filePath, JSON.stringify(updatedData), 'utf8');
-
-            // Clear the selected items array after saving
-            
+      if (selectedItems.length > 0) {
+        const currentDate = new Date().toLocaleDateString('en-US');
+  
+        const docSum = '99'; // Implement this function
+  
+        const mallarArray = selectedItems.map(item => ({
+          IDmal: item.ID,
+          Say: item.Stock,
+          Qiymet: item.InPrice,
+          Cemi: item.Stock * item.InPrice,
+        }));
+  
+        const newData = {
+          mdate: currentDate,
+          IDPerson: selectedPersonID,
+          IDAnbar: selectedStockID,
+          DocSum: docSum,
+          Mallar: mallarArray,
+        };
+  
+        // Log the path to check if it's correct
+        console.log('Document Directory Path:', RNFS.DocumentDirectoryPath);
+  
+        // Read the existing data
+        const filePath = `${RNFS.DocumentDirectoryPath}/qaimeler.json`;
+        const existingData = await RNFS.readFile(filePath, 'utf8');
+        console.log('Existing Data:', existingData); // Debug line
+        const parsedExistingData = JSON.parse(existingData);
+        console.log('Parsed Existing Data:', parsedExistingData); // Debug line
+  
+        // Ensure selectedValue is defined
+        if (!selectedValue) {
+          console.error('Error: selectedValue is not defined.');
+          return;
         }
-
-        // Navigate to the next screen (MalMedaxill)
-        navigation.navigate('MalMedaxil');
+  
+        // Create a new data object with the doc key
+        const newDocKey = `doc${Object.keys(parsedExistingData[selectedValue]).length + 1}`;
+        const newDataWithDocKey = {
+          [newDocKey]: newData,
+        };
+  
+        // Update the selected array with the new data
+        const updatedSelectedArray = {
+          ...parsedExistingData[selectedValue],
+          ...newDataWithDocKey,
+        };
+  
+        // Update the existing data with the new selected array
+        const updatedData = {
+          ...parsedExistingData,
+          [selectedValue]: updatedSelectedArray,
+        };
+  
+        // Save the updated data to the JSON file
+        await RNFS.writeFile(filePath, JSON.stringify(updatedData), 'utf8');
+  
+        // Clear the selected items array after saving
+      }
+  
+      // Navigate to the next screen (MalMedaxil)
+      navigation.navigate('MalMedaxil');
     } catch (error) {
-        console.error('Error:', error);
+      console.error('Error:', error);
     }
-};
+  };
+  
+  
 
 
     return (

@@ -55,13 +55,13 @@ const handleSelectPerson = (name: string, id: string) => {
                 } else {
                     // Your JSON data structure
                     const jsonData = {
-                        "Medaxil":
+                        "Mal_Mədaxil":
                         [
                         {"doc1":{"mdate":"01.01.0001","IDPerson":"KM000001","IDAnbar" :"MS000001","DocSum"  :50.00,"Mallar"  :[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}},
                         {"doc2":{"mdate":"01.01.0001","IDPerson":"KM000002","IDAnbar" :"MS000001","DocSum"  :100.00,"Mallar"  :[{"IDmal":"KM0000002","Say":20,"Qiymet":2.50,"Cemi":25.00}]}}
                         
                         ],
-                        "Mexaric":
+                        "Mal_Məxaric":
                         [
                         {"doc1":{"mdate":"01.01.0001","IDPerson":"KM000001","IDAnbar" :"MS000001","DocSum"  :50.00,"Mallar"  :[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}},
                         {"doc2":{"mdate":"01.01.0001","IDPerson":"KM000002","IDAnbar" :"MS000001","DocSum"  :100.00,"Mallar"  :[{"IDmal":"KM0000002","Say":20,"Qiymet":2.50,"Cemi":25.00}]}}
@@ -71,12 +71,12 @@ const handleSelectPerson = (name: string, id: string) => {
                         {"doc1":{"mdate":"01.01.0001","IDPerson":"KM000001","IDAnbar" :"MS000001","DocSum"  :50.00,"Mallar"  :[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}},
                         {"doc2":{"mdate":"01.01.0001","IDPerson":"KM000002","IDAnbar" :"MS000001","DocSum"  :100.00,"Mallar"  :[{"IDmal":"KM0000002","Say":20,"Qiymet":2.50,"Cemi":25.00}]}}
                         ],
-                        "Invertar":
+                        "İnvertar":
                         [
                         {"doc1":{"mdate":"01.01.0001","IDAnbar":"MS000001","DocSum":50.00,"Mallar":[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}},
                         {"doc2":{"mdate":"01.01.0001","IDAnbar":"MS000001","DocSum":50.00,"Mallar":[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}}
                         ],
-                        "Yerdeyisme":
+                        "Yerdəyişmə":
                         [
                         {"doc1":{"mdate":"01.01.0001","IDAnbarOUT":"MS000001","IDAnbarIn":"MS000002","DocSum":50.00,"Mallar":[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}},
                         {"doc2":{"mdate":"01.01.0001","IDAnbar":"MS000001","DocSum":50.00,"Mallar":[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}}

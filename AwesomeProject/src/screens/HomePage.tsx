@@ -248,6 +248,8 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
         } else {
           console.log('Export failed');
           setStatus('Export uğursuz oldu');
+          await RNFS.unlink(fileUri);
+          console.log('JSON file deleted:', fileUri);
           Alert.alert('Export Error', 'Request failed. Please try again later.');
           console.log(response.status);
         }
