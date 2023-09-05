@@ -8,6 +8,8 @@ import {
     Image,
     TextInput,
     Alert,
+    Modal,
+  Pressable,
 } from 'react-native';
 import Animated, {
     useAnimatedGestureHandler,
@@ -35,14 +37,13 @@ type Card = {
 };
 
 interface Item {
-    Barcode: string | number;
-    Name: string;
-    ID: number;
-    InPrice: number;
-    Stock: number;
-    // Add other properties as needed
-  }
-  
+  Barcode: string | number;
+  Name: string;
+  ID: number;
+  InPrice: number;
+  Stock: number;
+  Say: number; // Add the Say property here
+}
   
 
 const Inventar: React.FC = ({ navigation }: any) => {
@@ -51,12 +52,15 @@ const Inventar: React.FC = ({ navigation }: any) => {
     const selectedPersonName = useSelector((state: { person: { selectedPersonName: string } }) => state.person.selectedPersonName);
     const inventoryItems = useSelector((state: RootState) => state.inventory.items);
     const selectedItems = useSelector((state: RootState) => state.inventory.items);
-    const [selectedItemsForSaving, setSelectedItemsForSaving] = useState<Item[]>([]);
     const selectedPersonID = useSelector((state: RootState) => state.person.selectedPersonID);
     const selectedStockID = useSelector((state: RootState) => state.stock.selectedStockID);
-    const selectedValue = useSelector((state: RootState) => state.selectedItem.selectedValue);
+    const selectedValue = useSelector((state: RootState) => state.selectedItem.selectedValue)
+    const [selectedItemIndex, setSelectedItemIndex] = useState(-1);
+    const [modalVisible, setModalVisible] = useState(false);
 
 
+
+    
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<TextInput>(null);
   const [status, setStatus] = useState('');
@@ -176,31 +180,38 @@ const Inventar: React.FC = ({ navigation }: any) => {
     }
   };
 
+  const [selectedItemsForSaving, setSelectedItemsForSaving] = useState<Item[]>([]);
+
+  // ...
+  
   const fetchItemDetails = async (barcode: string) => {
     try {
-        setIsLoading(true);
-        setStatus('Sorğu başladı');
-
-        const foundItem = itemsHashTable[barcode];
-        if (foundItem) {
-            console.log('Item details:', foundItem);
-            setStatus('Sorğu uğurlu oldu');
-            setItemList((prevItems) => [...prevItems, foundItem]);
-            
-            // Add the found item to the selected items array
-            setSelectedItemsForSaving((prevSelectedItems) => [...prevSelectedItems, foundItem]);
-        } else {
-            Alert.alert('Item not found')
-            console.log('Item not found.');
-            setStatus('Sorğu uğursuz oldu');
-        }
+      setIsLoading(true);
+      setStatus('Sorğu başladı');
+  
+      const foundItem = itemsHashTable[barcode];
+      if (foundItem) {
+        console.log('Item details:', foundItem);
+        setStatus('Sorğu uğurlu oldu');
+        setItemList((prevItems) => [...prevItems, foundItem]);
+  
+        // Add the found item to the selected items array with Say set to 1
+        setSelectedItemsForSaving((prevSelectedItems) => [
+          ...prevSelectedItems,
+          { ...foundItem, Say: 1 },
+        ]);
+      } else {
+        Alert.alert('Item not found');
+        console.log('Item not found.');
+        setStatus('Sorğu uğursuz oldu');
+      }
     } catch (error) {
-        console.error('Error:', error);
-        setStatus('Sorğu alınmadı');
+      console.error('Error:', error);
+      setStatus('Sorğu alınmadı');
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
-};
+  };
 
 
 
@@ -235,13 +246,12 @@ const Inventar: React.FC = ({ navigation }: any) => {
   
         const docSum = '99'; // Implement this function
   
-        const mallarArray = selectedItems.map(item => ({
+        const mallarArray = selectedItems.map((item) => ({
           IDmal: item.ID,
-          Say: item.Stock,
+          Say: item.Say, // Use the Say property from selectedItemsForSaving
           Qiymet: item.InPrice,
           Cemi: item.Stock * item.InPrice,
         }));
-  
         const newData = {
           mdate: currentDate,
           IDPerson: selectedPersonID,
@@ -258,7 +268,9 @@ const Inventar: React.FC = ({ navigation }: any) => {
         const existingData = await RNFS.readFile(filePath, 'utf8');
         console.log('Existing Data:', existingData); // Debug line
         const parsedExistingData = JSON.parse(existingData);
-        console.log('Parsed Existing Data:', parsedExistingData); // Debug line
+        console.log('Parsed Existing Data:', parsedExistingData);
+        parsedExistingData.map
+        // Debug line
   
         // Ensure selectedValue is defined
         if (!selectedValue) {
@@ -271,19 +283,21 @@ const Inventar: React.FC = ({ navigation }: any) => {
         const newDataWithDocKey = {
           [newDocKey]: newData,
         };
+        
   
         // Update the selected array with the new data
         const updatedSelectedArray = {
           ...parsedExistingData[selectedValue],
           ...newDataWithDocKey,
         };
-  
+        
         // Update the existing data with the new selected array
         const updatedData = {
           ...parsedExistingData,
           [selectedValue]: updatedSelectedArray,
         };
-  
+
+        console.log('New Data',updatedData)
         // Save the updated data to the JSON file
         await RNFS.writeFile(filePath, JSON.stringify(updatedData), 'utf8');
   
@@ -298,7 +312,53 @@ const Inventar: React.FC = ({ navigation }: any) => {
   };
   
   
+  
+  
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
+  // ... Other code ...
+
+  // Function to open the pop-up
+  const openPopup = (index: number) => {
+    setSelectedItemIndex(index);
+    setIsPopupOpen(true);
+  };
+
+  // Function to handle input change
+  // const handleInputChangee = (text: string) => {
+  //   setInputValue(text);
+  // };
+
+  // Function to update the Say property and close the pop-up
+  const updateSayProperty = () => {
+    if (selectedItemIndex !== -1) {
+      const updatedItems = [...selectedItemsForSaving]; // Create a new array
+      const selectedItem = updatedItems[selectedItemIndex];
+      const newSayValue = parseInt(modalInputValue, 10); // Convert modalInputValue to a number
+      if (!isNaN(newSayValue)) {
+        // Update the Say property of the selected item in the new array
+        const updatedSelectedItem = { ...selectedItem, Say: newSayValue };
+        updatedItems[selectedItemIndex] = updatedSelectedItem;
+        setSelectedItemsForSaving(updatedItems); // Update selectedItemsForSaving with the new array
+        setModalInputValue(''); // Clear input in the modal
+        console.log(updatedSelectedItem)
+        console.log(updatedItems)
+      }
+      setIsPopupOpen(false); // Close the pop-up
+    }
+    
+  };
+  
+  
+  
+  const closePopup = () => {
+    setInputValue('');
+    setIsPopupOpen(false);
+  };
+  
+
+  // Function to close the pop-up
+  const [modalInputValue, setModalInputValue] = useState('');
 
     return (
 <View style={styles.appContainer}>
@@ -362,37 +422,55 @@ const Inventar: React.FC = ({ navigation }: any) => {
                 />
             </View>
             <ScrollView style={styles.container}>
-            {selectedItems.map(item => (
-                    <TouchableOpacity key={item.Barcode}>
-                        <View style={[styles.card]}>
-                            <View style={{ flex: 1 }}>
-                                <View style={styles.halfContainer}>
-                                    <View style={styles.leftHalf}>
-                                        <View style={styles.topHalf}>
-                                            <Text style={styles.topHalfText2}>{item.Name}</Text>
-                                            <Text style={{fontSize:12,color:'white'}}>{item.ID}</Text>
-                                        </View>
-                                        <View style={styles.horizontalDivider} />
-                                        <View style={styles.bottomHalf}>
-                                            <Text style={{fontSize:16,color:'white'}}>{item.Barcode}</Text>
-                                        </View>
-                                    </View>
-                                    <View style={styles.verticalDivider} />
-                                    <View style={styles.rightHalf}>
-                                        <View style={styles.topHalf}>
-                                            <Text style={styles.topHalfText1}>{item.Stock}</Text>
-                                        </View>
-                                        <View style={styles.horizontalDivider} />
-                                        <View style={styles.bottomHalf}>
-                                            <Text style={styles.bottomHalfText}>{item.InPrice} AZN</Text>
-                                        </View>
-                                    </View>
-                                </View>
-                            </View>
-                        </View>
-                    </TouchableOpacity>
-                ))}
+            {selectedItems.map((item, index) => (
+  <TouchableOpacity key={item.Barcode} onPress={() => openPopup(index)}>
+    <View style={[styles.card]}>
+      <View style={{ flex: 1 }}>
+        <View style={styles.halfContainer}>
+          <View style={styles.leftHalf}>
+            <View style={styles.topHalf}>
+              <Text style={styles.topHalfText2}>{item.Name}</Text>
+              <Text style={{ fontSize: 12, color: 'white' }}>{item.ID.toString()}</Text>
+            </View>
+            <View style={styles.horizontalDivider} />
+            <View style={styles.bottomHalf}>
+              <Text style={{ fontSize: 16, color: 'white' }}>{item.Barcode}</Text>
+            </View>
+          </View>
+          <View style={styles.verticalDivider} />
+          <View style={styles.rightHalf}>
+            <View style={styles.topHalf}>
+              <Text style={styles.topHalfText1}>{item.Stock}</Text>
+            </View>
+            <View style={styles.horizontalDivider} />
+            <View style={styles.bottomHalf}>
+              <Text style={styles.bottomHalfText}>{item.InPrice} AZN</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    </View>
+  </TouchableOpacity>
+  
+))}
+     
+
             </ScrollView>
+            <Modal visible={isPopupOpen} transparent animationType="slide">
+  <View style={styles.centeredView}>
+    <View style={styles.modalView}>
+      <Text>Enter Say:</Text>
+      <TextInput
+              style={styles.modalInput}
+              value={modalInputValue}
+              onChangeText={(text) => setModalInputValue(text)} // Update modalInputValue state
+              keyboardType="numeric"
+            />
+      <TouchableOpacity onPress={updateSayProperty}><Text>OK</Text></TouchableOpacity>
+      <TouchableOpacity onPress={closePopup}><Text>Cancel</Text></TouchableOpacity>
+    </View>
+  </View>
+</Modal>
             <View style={styles.rowContainer}>
                     <TouchableOpacity onPress={handleOkPress} style={[styles.infoButton, styles.uiButton,{backgroundColor:'white',}]}>
                         <Text style={[styles.uiButtonText,{color:'#1F1D2B'}]}>Ok</Text>

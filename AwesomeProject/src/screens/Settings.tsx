@@ -13,7 +13,7 @@ import { logout } from '../components/authSlice'; // Import the logout action
 import { RootState } from '../components/store'; // Update this import path
 import RNFS from 'react-native-fs'; // Import the rnfs library
 import { setSelectedValue } from '../components/selectedItemSlice'; 
-
+import { isPressed } from '../components/settingsSlice';
 
 interface Item {
   Mal_Mədaxil: string;
@@ -102,8 +102,9 @@ const Settings = ({navigation,route }:any) => {
         key={index}
         onPress={() => {
           const selectedKey = Object.keys(item)[0];
-          const selectedValue = item[selectedKey];
-          dispatch(setSelectedValue(selectedValue)); // Dispatch the selected value
+          dispatch(setSelectedValue(selectedKey));
+          dispatch(isPressed())
+          // Dispatch the selected value
           navigation.navigate('MalMedaxil');
         }}
         style={{ padding: 7, marginHorizontal: 20, borderRadius: 15, marginTop: 10, flexDirection: 'row', justifyContent: 'center', }}>
@@ -152,7 +153,9 @@ const Settings = ({navigation,route }:any) => {
       onPress={() => {
         
         const selectedKey = Object.keys(item)[0];
-        dispatch(setSelectedValue(selectedKey)); // Dispatch the selected value
+        dispatch(setSelectedValue(selectedKey));
+        dispatch(isPressed())
+        // Dispatch the selected value
         navigation.navigate('MalMedaxil');
       }}
         style={{ padding: 7, marginHorizontal: 20, borderRadius: 15, marginTop: 10, flexDirection: 'row', justifyContent: 'center', }}>

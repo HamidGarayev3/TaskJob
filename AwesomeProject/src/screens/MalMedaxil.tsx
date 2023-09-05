@@ -29,6 +29,8 @@ const App: React.FC = ({navigation}:any) => {
     const [jsonCreated, setJsonCreated] = useState(false);
 
     const selectedItem = useSelector((state: RootState) => state.selectedItem.selectedItem);
+    const isPressed = useSelector((state: RootState) => state.settings.pressed); // Get authentication state from Redux
+
     const dispatch = useDispatch();
 
 // Whenever you want to update the selected person's data
@@ -105,7 +107,7 @@ const handleSelectPerson = (name: string, id: string) => {
             .catch((error) => {
                 console.error('Error checking JSON file:', error);
             });
-    }, []);
+    }, [isPressed]);
 
     const showAlert = () => {
         Alert.alert(

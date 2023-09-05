@@ -7,6 +7,7 @@ interface Item {
   ID: number;
   InPrice: number;
   Stock: number;
+  Say:number
   // Add other properties as needed
 }
 

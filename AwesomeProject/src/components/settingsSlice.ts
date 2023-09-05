@@ -17,11 +17,13 @@ export interface QaimelerItem {
 interface SettingsState {
   qaimelerItems: QaimelerItem[];
   senedlerItems: SenedlerItem[];
+  pressed:boolean
 }
 
 const initialState: SettingsState = {
   qaimelerItems: [],
   senedlerItems: [],
+  pressed:false
 };
 
 const settingsSlice = createSlice({
@@ -34,10 +36,13 @@ const settingsSlice = createSlice({
     setSenedlerItems: (state, action: PayloadAction<SenedlerItem[]>) => {
       state.senedlerItems = action.payload;
     },
+    isPressed:(state)=>{
+      state.pressed= !state.pressed
+    }
     // ... other reducers if needed
   },
 });
 
-export const { setQaimelerItems, setSenedlerItems } = settingsSlice.actions;
+export const { setQaimelerItems, setSenedlerItems,isPressed } = settingsSlice.actions;
 
 export default settingsSlice.reducer;
