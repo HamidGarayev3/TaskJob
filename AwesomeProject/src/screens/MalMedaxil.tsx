@@ -1,5 +1,5 @@
 import React, { useState, useEffect, } from 'react';
-import { ScrollView, View, StyleSheet, Text, TouchableOpacity, Image, TextInput, Modal, Button, Alert } from 'react-native';
+import { ScrollView, View, StyleSheet, Text, TouchableOpacity, Image, TextInput, Modal, Button, Alert,FlatList } from 'react-native';
 import Animated, {
     useAnimatedGestureHandler,
     useAnimatedStyle,
@@ -17,26 +17,47 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../components/store';
 
 
-type Card = {
-    id: number;
-    translateX: Animated.SharedValue<number>;
-};
+
+type CardData = {
+    PersonName: string;
+    PersonId: string;
+    DocSum: number;
+  };
 
 const App: React.FC = ({navigation}:any) => {
-    const [cards, setCards] = useState<Card[]>([
-        { id: 1, translateX: useSharedValue(0) }
-    ]);
+  
     const [jsonCreated, setJsonCreated] = useState(false);
 
-    const selectedItem = useSelector((state: RootState) => state.selectedItem.selectedItem);
     const isPressed = useSelector((state: RootState) => state.settings.pressed); // Get authentication state from Redux
-
+    const selectedValue = useSelector((state: RootState) => state.selectedItem.selectedValue);
+    const [cardData, setCardData] = useState<CardData[]>([]);
     const dispatch = useDispatch();
 
 // Whenever you want to update the selected person's data
 const handleSelectPerson = (name: string, id: string) => {
     dispatch(setSelectedPerson({ name, id }));
 };
+
+
+useEffect(() => {
+    // Load data from the JSON file based on the selected tab
+    const loadData = async () => {
+      try {
+        const filePath = `${RNFS.DocumentDirectoryPath}/qaimeler.json`;
+        const fileContent = await RNFS.readFile(filePath, 'utf8');
+        const jsonData = JSON.parse(fileContent);
+
+        // Get the data for the selected tab
+        const tabData: CardData[] = jsonData[selectedValue] || [];
+
+        setCardData(tabData);
+      } catch (error) {
+        console.error('Error reading JSON file:', error);
+      }
+    };
+
+    loadData();
+  }, [selectedValue]);
 
     useEffect(() => {
         const filePath = `${RNFS.DocumentDirectoryPath}/qaimeler.json`;
@@ -129,38 +150,41 @@ const handleSelectPerson = (name: string, id: string) => {
                 <Image source={require('../assets&styles/filter.png')} style={{ width: 24, height: 24 }} />
                 </TouchableOpacity>
             </View>
-            <ScrollView style={styles.container}>
-            {cards.map(item => (
-                    <TouchableOpacity key={item.PersonId}>
-                        <View style={[styles.card]}>
-                            <View style={{ flex: 1 }}>
-                                <View style={styles.halfContainer}>
-                                    <View style={styles.leftHalf}>
-                                        <View style={styles.topHalf}>
-                                            <Text style={styles.topHalfText2}>{item.PersonName}</Text>
-                                            <Text style={{fontSize:12,color:'white'}}>{item.PersonName}</Text>
-                                        </View>
-                                        <View style={styles.horizontalDivider} />
-                                        <View style={styles.bottomHalf}>
-                                            <Text style={{fontSize:16,color:'white'}}>{item.StockName}</Text>
-                                        </View>
-                                    </View>
-                                    <View style={styles.verticalDivider} />
-                                    <View style={styles.rightHalf}>
-                                        <View style={styles.topHalf}>
-                                            <Text style={styles.topHalfText1}>{item.StockName}</Text>
-                                        </View>
-                                        <View style={styles.horizontalDivider} />
-                                        <View style={styles.bottomHalf}>
-                                            <Text style={styles.bottomHalfText}>{item.PersonName} AZN</Text>
-                                        </View>
-                                    </View>
-                                </View>
-                            </View>
-                        </View>
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
+            <FlatList
+        data={cardData}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => (
+          <TouchableOpacity>
+            {/* Your card rendering code here */}
+            <View style={[styles.card]}>
+              <View style={{ flex: 1 }}>
+                <View style={styles.halfContainer}>
+                  <View style={styles.leftHalf}>
+                    <View style={styles.topHalf}>
+                      <Text style={styles.topHalfText2}>{item.PersonName}</Text>
+                      <Text style={{ fontSize: 12, color: 'white' }}>{item.PersonName}</Text>
+                    </View>
+                    <View style={styles.horizontalDivider} />
+                    <View style={styles.bottomHalf}>
+                      <Text style={{ fontSize: 16, color: 'white' }}>{item.DocSum} AZN</Text>
+                    </View>
+                  </View>
+                  <View style={styles.verticalDivider} />
+                  <View style={styles.rightHalf}>
+                    <View style={styles.topHalf}>
+                      <Text style={styles.topHalfText1}>{item.PersonId}</Text>
+                    </View>
+                    <View style={styles.horizontalDivider} />
+                    <View style={styles.bottomHalf}>
+                      <Text style={styles.bottomHalfText}>{item.PersonName}</Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </TouchableOpacity>
+        )}
+      />
             <TouchableOpacity onPress={() =>
       navigation.navigate('Inventar')
       } style={styles.floatingButton} >

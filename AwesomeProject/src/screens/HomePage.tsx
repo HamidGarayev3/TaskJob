@@ -224,14 +224,14 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
         // Prepare the request body as per your API structure
         const requestBody = {
           TypReport: 'Documents',
-          Doc: [jsonData],
+          Doc: fileContent.toString(),
         };
   
         // Send the request
-        const response = await fetch('http://46.32.169.71/DEMO/hs/MobileApi/Connect', {
+        const response = await fetch(api, {
           method: 'POST',
           headers: {
-            Authorization: 'Basic ' + base64.encode(`'sa':'abc'`),
+            Authorization: 'Basic ' + base64.encode(`${username}:${password}`),
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(requestBody),
@@ -241,17 +241,19 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
           console.log('Export successful');
   
           // Delete the JSON file from local storage
-          await RNFS.unlink(fileUri);
+          // await RNFS.unlink(fileUri);
           console.log('JSON file deleted:', fileUri);
   
           setStatus('Export uğurlu oldu');
+          console.log(jsonData)
         } else {
           console.log('Export failed');
           setStatus('Export uğursuz oldu');
-          await RNFS.unlink(fileUri);
+          // await RNFS.unlink(fileUri);
           console.log('JSON file deleted:', fileUri);
           Alert.alert('Export Error', 'Request failed. Please try again later.');
           console.log(response.status);
+          console.log(jsonData)
         }
       } else {
         console.log('JSON file content not available.');
