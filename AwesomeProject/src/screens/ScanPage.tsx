@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, Image, TextInput, ActivityIndicator,Alert
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 import { useIsFocused,useFocusEffect } from '@react-navigation/native'; // Import useIsFocused hook
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../components/store';
 var base64 = require("base-64");
 
 
@@ -155,6 +157,7 @@ const ScanPage = ({ navigation }: any) => {
     getLastItemDetails();
   }, []);
 
+  const { api, username, password } = useSelector((state: RootState) => state.service);
 
   const handlePricePrintPress = async (type: 'Price' | 'Print') => {
     try {
@@ -171,10 +174,10 @@ const ScanPage = ({ navigation }: any) => {
       await RNFS.writeFile(jsonFilePath, JSON.stringify(data), 'utf8');
 
       // Make the API request here using your API and headers
-      const response = await fetch('http://46.32.169.71/DEMO/hs/MobileApi/Connect', {
+      const response = await fetch(api, {
         method: 'POST',
         headers: {
-          Authorization: "Basic " + base64.encode('Admin' + ":" + '123'),
+          Authorization: "Basic " + base64.encode(username + ":" + password),
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),

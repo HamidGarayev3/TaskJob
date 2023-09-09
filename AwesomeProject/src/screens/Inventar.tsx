@@ -28,6 +28,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../components/store';
 import MalMedaxil from '../screens/MalMedaxil'
 import { setSelectedPerson } from '../components/personSlice'; // Update the import path
+import { updateSay } from '../components/inventorySlice'; // Update the path as needed
 
 
 
@@ -329,21 +330,14 @@ const Inventar: React.FC = ({ navigation }: any) => {
   // Function to update the Say property and close the pop-up
   const updateSayProperty = () => {
     if (selectedItemIndex !== -1) {
-      const updatedItems = [...selectedItemsForSaving]; // Create a new array
-      const selectedItem = updatedItems[selectedItemIndex];
       const newSayValue = parseInt(modalInputValue, 10); // Convert modalInputValue to a number
       if (!isNaN(newSayValue)) {
-        // Update the Say property of the selected item in the new array
-        const updatedSelectedItem = { ...selectedItem, Say: newSayValue };
-        updatedItems[selectedItemIndex] = updatedSelectedItem;
-        setSelectedItemsForSaving(updatedItems); // Update selectedItemsForSaving with the new array
+        // Dispatch the action to update the "Say" property
+        dispatch(updateSay({ itemId: selectedItems[selectedItemIndex].ID, newSay: newSayValue }));
         setModalInputValue(''); // Clear input in the modal
-        console.log(updatedSelectedItem)
-        console.log(updatedItems)
+        setIsPopupOpen(false); // Close the pop-up
       }
-      setIsPopupOpen(false); // Close the pop-up
     }
-    
   };
   
   

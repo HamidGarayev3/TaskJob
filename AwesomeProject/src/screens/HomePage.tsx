@@ -218,13 +218,13 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
   
       // Check if the file content is available
       if (fileContent) {
-        // Parse the JSON content
-        const jsonData = JSON.parse(fileContent);
+        // Remove all forward slashes from the JSON content
+        const jsonString = JSON.stringify(JSON.parse(fileContent));
   
         // Prepare the request body as per your API structure
         const requestBody = {
           TypReport: 'Documents',
-          Doc: fileContent.toString(),
+          Doc: jsonString,
         };
   
         // Send the request
@@ -239,21 +239,23 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
   
         if (response.ok) {
           console.log('Export successful');
+          console.log('Sent File-',jsonString);
   
           // Delete the JSON file from local storage
           // await RNFS.unlink(fileUri);
           console.log('JSON file deleted:', fileUri);
   
           setStatus('Export uğurlu oldu');
-          console.log(jsonData)
+          console.log(JSON.parse(fileContent)); // Parse the JSON content here
         } else {
           console.log('Export failed');
+          console.log('Sent File-',jsonString);
           setStatus('Export uğursuz oldu');
           // await RNFS.unlink(fileUri);
           console.log('JSON file deleted:', fileUri);
           Alert.alert('Export Error', 'Request failed. Please try again later.');
           console.log(response.status);
-          console.log(jsonData)
+          console.log(JSON.parse(fileContent)); // Parse the JSON content here
         }
       } else {
         console.log('JSON file content not available.');
@@ -267,6 +269,7 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
       setIsLoading(false);
     }
   };
+  
   
   
   return (
