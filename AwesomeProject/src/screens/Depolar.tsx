@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, ScrollView, NativeScrollEvent, Dimensions,TextInput,Image } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView, NativeScrollEvent, Dimensions,TextInput,Image,FlatList } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import RNFS from 'react-native-fs';
@@ -26,7 +26,14 @@ const Depolar = ({ navigation }: any) => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [generatedBarcodes, setGeneratedBarcodes] = useState<number[]>([]); // Keep track of generated barcodes
+    const [searchText, setSearchText] = useState<string>(''); // State for search input text
 
+
+    const filteredItems = itemList.filter(
+        item =>
+          item.StockName.toLowerCase().includes(searchText.toLowerCase()) ||
+          item.StockID.toString().includes(searchText),
+      );
     useEffect(() => {
         fetchItems();
     }, []);
@@ -102,6 +109,8 @@ const Depolar = ({ navigation }: any) => {
                     placeholderTextColor={'#F4F9FD'}
                     style={[styles.searchInput, { borderRadius: 5 }]}
                     placeholder='Type to search'
+                    value={searchText} // Bind the value to the state
+          onChangeText={text => setSearchText(text)}
                 />
                 <TouchableOpacity style={styles.iconContainer}>
                     <Image source={require('../assets&styles/filter.png')} style={styles.icon} />
@@ -109,9 +118,13 @@ const Depolar = ({ navigation }: any) => {
             </View>
 
             <Text style={{fontSize:16,fontWeight:'700',marginLeft:20,color:'white',marginTop:20,marginBottom:10}}>Anbar</Text>
-           <ScrollView onScroll={({ nativeEvent }) => handleScroll(nativeEvent)} scrollEventThrottle={16} contentContainerStyle={styles.cardContainer}>
-           {itemList.map(item => (
-           <TouchableOpacity onPress={() => handleStockSelection(item.StockName)} key={item.StockID} style={styles.cardContainer}>
+            <FlatList
+        initialNumToRender={10} 
+        data={filteredItems}
+        renderItem={({item}) => (
+           
+          
+           <TouchableOpacity onPress={() => handleStockSelection(item.StockName,item.StockID)} key={item.StockID} style={styles.cardContainer}>
                     <View style={[styles.card]}>
                         <View  style={{ flex: 1 }}>
                             <View style={styles.halfContainer}>
@@ -147,8 +160,8 @@ const Depolar = ({ navigation }: any) => {
                         </View>
                     </View>
             </TouchableOpacity>
-             ))}
-           </ScrollView>
+    )}
+           />
         </View>
     );
 };

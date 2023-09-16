@@ -213,18 +213,18 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
   
       const fileUri = `${RNFS.DocumentDirectoryPath}/qaimeler.json`;
   
-      // Read the content of the JSON file
-      const fileContent = await RNFS.readFile(fileUri, 'utf8');
+      // Check if the file exists
+      const fileExists = await RNFS.exists(fileUri);
   
-      // Check if the file content is available
-      if (fileContent) {
-        // Remove all forward slashes from the JSON content
-        const jsonString = JSON.stringify(JSON.parse(fileContent));
+      if (fileExists) {
+        // Clear the content of the JSON file (overwrite it with an empty JSON object)
+        await RNFS.writeFile(fileUri, '{}', 'utf8');
   
         // Prepare the request body as per your API structure
         const requestBody = {
           TypReport: 'Documents',
-          Doc: jsonString,
+          // Send an empty object since the file is now cleared
+          Doc: {},
         };
   
         // Send the request
@@ -234,32 +234,25 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
             Authorization: 'Basic ' + base64.encode(`${username}:${password}`),
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(requestBody),
+          body: JSON.stringify(requestBody), // Send as JSON
         });
   
         if (response.ok) {
           console.log('Export successful');
-          console.log('Sent File-',jsonString);
-  
-          // Delete the JSON file from local storage
-          // await RNFS.unlink(fileUri);
-          console.log('JSON file deleted:', fileUri);
-  
           setStatus('Export uğurlu oldu');
-          console.log(JSON.parse(fileContent)); // Parse the JSON content here
+          console.log('File content cleared.');
+  
+          // No need to delete the JSON file since it's already cleared.
+  
         } else {
           console.log('Export failed');
-          console.log('Sent File-',jsonString);
           setStatus('Export uğursuz oldu');
-          // await RNFS.unlink(fileUri);
-          console.log('JSON file deleted:', fileUri);
           Alert.alert('Export Error', 'Request failed. Please try again later.');
           console.log(response.status);
-          console.log(JSON.parse(fileContent)); // Parse the JSON content here
         }
       } else {
-        console.log('JSON file content not available.');
-        setStatus('JSON file content not available.');
+        console.log('JSON file does not exist.');
+        setStatus('JSON file does not exist.');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -269,6 +262,8 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
       setIsLoading(false);
     }
   };
+  
+  
   
   
   

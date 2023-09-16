@@ -19,12 +19,33 @@ import { RootState, AppDispatch } from '../components/store';
 
 
 type CardData = {
+    key: string; // Add the key property for uniqueness
     PersonName: string;
     PersonId: string;
     DocSum: number;
-  };
+    StockId: string;
+};
+  type DocData = {
+    mdate: string;
+    IDPerson: string;
+    IDAnbar: string;
+    DocSum: number;
+    PersonName:string,
+    StockName:string
+    Mallar: {
+        IDmal: string;
+        Say: number;
+        Qiymet: number | string; // This can be both a number or a string based on your JSON
+        Cemi: number | null; // This can be both a number or null based on your JSON
+    }[];
+};
+type DocObject = {
+    [key: string]: DocData;
+};
 
 const App: React.FC = ({navigation}:any) => {
+
+    
   
     const [jsonCreated, setJsonCreated] = useState(false);
 
@@ -32,103 +53,141 @@ const App: React.FC = ({navigation}:any) => {
     const selectedValue = useSelector((state: RootState) => state.selectedItem.selectedValue);
     const [cardData, setCardData] = useState<CardData[]>([]);
     const dispatch = useDispatch();
+    const isOkPressed = useSelector((state: RootState) => state.inventar.isOkPressed);
+    const [refresh, setRefresh] = useState(false); // Add a state variable for refresh
 
 // Whenever you want to update the selected person's data
 const handleSelectPerson = (name: string, id: string) => {
     dispatch(setSelectedPerson({ name, id }));
 };
+const generateRandomId = () => {
+    return Math.random().toString(36).substring(7);
+  };
+  
 
-
-useEffect(() => {
+  useEffect(() => {
+    // Check if the JSON file exists
+    const filePath = `${RNFS.DocumentDirectoryPath}/qaimeler.json`;
+    RNFS.exists(filePath)
+      .then((exists) => {
+        if (!exists) {
+          console.warn('JSON file does not exist:', filePath);
+  
+          // If the JSON file doesn't exist, create it with an empty object
+          const jsonData = {};
+          const jsonString = JSON.stringify(jsonData);
+          RNFS.writeFile(filePath, jsonString, 'utf8')
+            .then(() => {
+              console.log('JSON file created and saved successfully:', filePath);
+              setJsonCreated(true);
+            })
+            .catch((error) => {
+              console.error('Error creating JSON file:', error);
+            });
+        } else {
+          console.log('JSON file exists:', filePath);
+          setJsonCreated(true);
+        }
+      })
+      .catch((error) => {
+        console.error('Error checking JSON file:', error);
+      });
+  
+    // Set the component as mounted when it's first mounted
+    setMounted(true);
+  }, [selectedValue]); // This will run only once when the component mounts
+  
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    // Set the component as mounted when it's first mounted
+    setMounted(true);
+  }, [selectedValue]);
+  
+  useEffect(() => {
     // Load data from the JSON file based on the selected tab
     const loadData = async () => {
       try {
         const filePath = `${RNFS.DocumentDirectoryPath}/qaimeler.json`;
         const fileContent = await RNFS.readFile(filePath, 'utf8');
         const jsonData = JSON.parse(fileContent);
-
-        // Get the data for the selected tab
-        const tabData: CardData[] = jsonData[selectedValue] || [];
-
+  
+        // Ensure selectedValue is defined
+        if (!selectedValue) {
+          console.error('Error: selectedValue is not defined.');
+          return;
+        }
+  
+        // Initialize the data for the selected tab if it doesn't exist
+        if (!jsonData[selectedValue]) {
+          jsonData[selectedValue] = [];
+        }
+  
+        const tabData = [];
+  
+        // Check if jsonData[selectedValue] is an array
+        if (Array.isArray(jsonData[selectedValue])) {
+          tabData.push(
+            ...jsonData[selectedValue].map((docObject: DocData) => {
+              const key = generateRandomId();
+              return {
+                key: key,
+                PersonName: docObject.IDPerson,
+                PersonId: docObject.IDPerson,
+                DocSum: docObject.DocSum,
+                StockId: docObject.IDAnbar,
+              };
+            })
+          );
+        } else {
+          // Handle the case when jsonData[selectedValue] is an object
+          const docKeys = Object.keys(jsonData[selectedValue]);
+          if (docKeys.length > 0) {
+            docKeys.forEach((key) => {
+              const docObject = jsonData[selectedValue][key];
+              const subData = Object.values<DocData>(docObject);
+              tabData.push(
+                ...subData.map((doc: DocData) => {
+                  const subKey = generateRandomId();
+                  return {
+                    key: subKey,
+                    PersonName: doc.IDPerson,
+                    PersonId: doc.IDPerson,
+                    DocSum: doc.DocSum,
+                    StockId: doc.IDAnbar,
+                  };
+                })
+              );
+            });
+          }
+        }
+  
+        // Set cardData using the accumulated tabData
         setCardData(tabData);
       } catch (error) {
         console.error('Error reading JSON file:', error);
       }
     };
+  
+    // Load data when the component is mounted, selectedValue changes, or isOkPressed is true
+    if (mounted || selectedValue || isOkPressed) {
+      loadData();
+    }
+  }, [selectedValue, isOkPressed, mounted]);
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-    loadData();
-  }, [selectedValue]);
+  
 
-    useEffect(() => {
-        const filePath = `${RNFS.DocumentDirectoryPath}/qaimeler.json`;
-    
-        RNFS.exists(filePath)
-            .then(exists => {
-                if (exists) {
-                    console.log('JSON file already exists:', filePath);
-                    setJsonCreated(true);
-                    RNFS.readFile(filePath, 'utf8')
-                    .then(content => {
-                        console.log('JSON file content:', content);
-                        // Here you can parse and use the content as needed
-                    })
-                    .catch(error => {
-                        console.error('Error reading JSON file content:', error);
-                    });
-                } else {
-                    // Your JSON data structure
-                    const jsonData = {
-                        "Mal_Mədaxil":
-                        [
-                        {"doc1":{"mdate":"01.01.0001","IDPerson":"KM000001","IDAnbar" :"MS000001","DocSum"  :50.00,"Mallar"  :[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}},
-                        {"doc2":{"mdate":"01.01.0001","IDPerson":"KM000002","IDAnbar" :"MS000001","DocSum"  :100.00,"Mallar"  :[{"IDmal":"KM0000002","Say":20,"Qiymet":2.50,"Cemi":25.00}]}}
-                        
-                        ],
-                        "Mal_Məxaric":
-                        [
-                        {"doc1":{"mdate":"01.01.0001","IDPerson":"KM000001","IDAnbar" :"MS000001","DocSum"  :50.00,"Mallar"  :[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}},
-                        {"doc2":{"mdate":"01.01.0001","IDPerson":"KM000002","IDAnbar" :"MS000001","DocSum"  :100.00,"Mallar"  :[{"IDmal":"KM0000002","Say":20,"Qiymet":2.50,"Cemi":25.00}]}}
-                        ],
-                        "Satis":
-                        [
-                        {"doc1":{"mdate":"01.01.0001","IDPerson":"KM000001","IDAnbar" :"MS000001","DocSum"  :50.00,"Mallar"  :[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}},
-                        {"doc2":{"mdate":"01.01.0001","IDPerson":"KM000002","IDAnbar" :"MS000001","DocSum"  :100.00,"Mallar"  :[{"IDmal":"KM0000002","Say":20,"Qiymet":2.50,"Cemi":25.00}]}}
-                        ],
-                        "İnvertar":
-                        [
-                        {"doc1":{"mdate":"01.01.0001","IDAnbar":"MS000001","DocSum":50.00,"Mallar":[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}},
-                        {"doc2":{"mdate":"01.01.0001","IDAnbar":"MS000001","DocSum":50.00,"Mallar":[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}}
-                        ],
-                        "Yerdəyişmə":
-                        [
-                        {"doc1":{"mdate":"01.01.0001","IDAnbarOUT":"MS000001","IDAnbarIn":"MS000002","DocSum":50.00,"Mallar":[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}},
-                        {"doc2":{"mdate":"01.01.0001","IDAnbar":"MS000001","DocSum":50.00,"Mallar":[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}}
-                        ],
-                        "mDest":
-                        [
-                        {"doc1":{"IDest":"2400000000001","DocSum":50.00,"Mallar":[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}},
-                        {"doc2":{"IDest":"2400000000002","DocSum":50.00,"Mallar":[{"IDmal":"KM0000001","Say":10,"Qiymet":2.50,"Cemi":25.00}]}}
-                        ]
-                        }
-    
-                    // Convert JSON data to a string
-                    const jsonString = JSON.stringify(jsonData);
-    
-                    // Create and save the JSON file using RNFS
-                    RNFS.writeFile(filePath, jsonString, 'utf8')
-                        .then(() => {
-                            console.log('JSON file created and saved successfully:', filePath);
-                            setJsonCreated(true);
-                        })
-                        .catch((error) => {
-                            console.error('Error creating JSON file:', error);
-                        });
-                }
-            })
-            .catch((error) => {
-                console.error('Error checking JSON file:', error);
-            });
-    }, [isPressed]);
+  
+  
 
     const showAlert = () => {
         Alert.alert(
@@ -150,49 +209,55 @@ useEffect(() => {
                 <Image source={require('../assets&styles/filter.png')} style={{ width: 24, height: 24 }} />
                 </TouchableOpacity>
             </View>
-            <FlatList
-        data={cardData}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <TouchableOpacity>
-            {/* Your card rendering code here */}
-            <View style={[styles.card]}>
-              <View style={{ flex: 1 }}>
-                <View style={styles.halfContainer}>
-                  <View style={styles.leftHalf}>
-                    <View style={styles.topHalf}>
-                      <Text style={styles.topHalfText2}>{item.PersonName}</Text>
-                      <Text style={{ fontSize: 12, color: 'white' }}>{item.PersonName}</Text>
+            <View style={{paddingHorizontal:20}}>
+            {cardData.length > 0 ? ( // Conditionally render based on cardData length
+        <FlatList
+          data={cardData}
+          keyExtractor={(item) => item.key}
+          renderItem={({ item }) => (
+            <TouchableOpacity>
+              {/* Your card rendering code here */}
+              <View style={[styles.card]}>
+                <View style={{ flex: 1 }}>
+                  <View style={styles.halfContainer}>
+                    <View style={styles.leftHalf}>
+                      <View style={styles.topHalf}>
+                        <Text style={styles.topHalfText2}>{item.StockId}</Text>
+                        <Text style={{ fontSize: 12, color: 'white' }}>{item.PersonId}</Text>
+                      </View>
+                      <View style={styles.horizontalDivider} />
+                      <View style={styles.bottomHalf}>
+                        <Text style={{ fontSize: 16, color: 'white' }}>{item.DocSum} AZN</Text>
+                      </View>
                     </View>
-                    <View style={styles.horizontalDivider} />
-                    <View style={styles.bottomHalf}>
-                      <Text style={{ fontSize: 16, color: 'white' }}>{item.DocSum} AZN</Text>
-                    </View>
-                  </View>
-                  <View style={styles.verticalDivider} />
-                  <View style={styles.rightHalf}>
-                    <View style={styles.topHalf}>
-                      <Text style={styles.topHalfText1}>{item.PersonId}</Text>
-                    </View>
-                    <View style={styles.horizontalDivider} />
-                    <View style={styles.bottomHalf}>
-                      <Text style={styles.bottomHalfText}>{item.PersonName}</Text>
+                    <View style={styles.verticalDivider} />
+                    <View style={styles.rightHalf}>
+                      <View style={styles.topHalf}>
+                        <Text style={styles.topHalfText1}>{item.PersonId}</Text>
+                      </View>
+                      <View style={styles.horizontalDivider} />
+                      <View style={styles.bottomHalf}>
+                        <Text style={styles.bottomHalfText}>{item.PersonName}</Text>
+                      </View>
                     </View>
                   </View>
                 </View>
               </View>
-            </View>
-          </TouchableOpacity>
-        )}
-      />
-            <TouchableOpacity onPress={() =>
-      navigation.navigate('Inventar')
-      } style={styles.floatingButton} >
-                <Text style={{fontSize:30,fontWeight:'bold'}}>+</Text>
             </TouchableOpacity>
-            
+          )}
+        />
+      ) : (
+        // Render a message or an empty view when cardData is empty
+        <View>
+          <Text >No data available.</Text>
         </View>
-    );
+      )}
+    </View>
+    <TouchableOpacity onPress={() => navigation.navigate('Inventar')} style={styles.floatingButton}>
+      <Text style={{ fontSize: 30, fontWeight: 'bold' }}>+</Text>
+    </TouchableOpacity>
+  </View>
+);
 };
 
 
@@ -354,6 +419,7 @@ const styles = StyleSheet.create({
         borderColor:'white',
         borderRadius:8,
         flexDirection: 'column',
+        marginBottom:20
     },
     topHalf: {
         flex: 0.6,

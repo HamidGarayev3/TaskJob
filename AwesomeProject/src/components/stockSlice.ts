@@ -17,10 +17,13 @@ const stockSlice = createSlice({
         setSelectedStock: (state, action: PayloadAction<{ name: string; id: string }>) => {
             state.selectedStockName = action.payload.name;
             state.selectedStockID = action.payload.id;
-        },
+        }, resetSelectedStock: (state) => {
+            state.selectedStockName = '';
+            state.selectedStockID = '';
+          },
     },
 });
 
-export const { setSelectedStock } = stockSlice.actions;
+export const { setSelectedStock,resetSelectedStock } = stockSlice.actions;
 
 export default stockSlice.reducer;

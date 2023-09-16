@@ -10,6 +10,7 @@ import qaimelerReducer from './qaimelerSlice';
 import settingsReducer from './settingsSlice'; // Import the settings reducer
 import selectedItemReducer from '../components/selectedItemSlice'; // Update with the actual path
 import selectedSayReducer from './selectedSaySlice';
+import inventarReducer from './inventarSlice';
 
 
 
@@ -26,6 +27,7 @@ const store = configureStore({
     settings: settingsReducer, // Add the settings reducer
     selectedItem: selectedItemReducer,
     selectedSay: selectedSayReducer,
+    inventar: inventarReducer,
 
     // Add the new reducer
     // other reducers...

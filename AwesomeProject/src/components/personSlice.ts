@@ -17,10 +17,16 @@ const personSlice = createSlice({
         setSelectedPerson: (state, action: PayloadAction<{ name: string; id: string }>) => {
             state.selectedPersonName = action.payload.name;
             state.selectedPersonID = action.payload.id;
-        },
+            
+        },resetSelectedPerson: (state) => {
+            state.selectedPersonName = '';
+            state.selectedPersonID = '';
+          },
     },
 });
 
-export const { setSelectedPerson } = personSlice.actions;
+
+export const { setSelectedPerson,resetSelectedPerson } = personSlice.actions;
+
 
 export default personSlice.reducer;

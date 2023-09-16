@@ -37,10 +37,13 @@ const inventorySlice = createSlice({
         itemToUpdate.Say = newSay;
       }
     },
+    clearItems: (state) => {
+      state.items = [];
+    },
     // Other reducer cases...
   },
 });
 
-export const { addItem, updateSay } = inventorySlice.actions;
+export const { addItem, updateSay,clearItems } = inventorySlice.actions;
 
 export default inventorySlice.reducer;

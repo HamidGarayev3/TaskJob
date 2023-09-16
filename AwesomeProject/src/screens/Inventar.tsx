@@ -27,8 +27,11 @@ import store from '../components/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../components/store';
 import MalMedaxil from '../screens/MalMedaxil'
-import { setSelectedPerson } from '../components/personSlice'; // Update the import path
+import { resetSelectedPerson, setSelectedPerson } from '../components/personSlice'; // Update the import path
 import { updateSay } from '../components/inventorySlice'; // Update the path as needed
+import { setOkPressed } from '../components/inventarSlice';
+import { clearItems  } from '../components/inventorySlice'; // Update the path as needed
+import { resetSelectedStock } from '../components/stockSlice';
 
 
 
@@ -238,9 +241,20 @@ const Inventar: React.FC = ({ navigation }: any) => {
     getLastItemDetails();
   }, []);
  ;
+ const resetAllStates = () => {
+  // Reset selectedPersonName and selectedStockName
+  dispatch(resetSelectedPerson());
+  dispatch(resetSelectedStock());
 
+  // Reset selectedItems (assuming you want to clear the items array)
+  dispatch(clearItems()); // Define this action in your inventorySlice
+  // Add more state resets if needed
+};
  
- const handleOkPress = async () => {
+ 
+  
+  
+const handleOkPress = async () => {
   try {
     if (selectedItems.length > 0) {
       const currentDate = new Date().toLocaleDateString('en-US');
@@ -263,55 +277,67 @@ const Inventar: React.FC = ({ navigation }: any) => {
       // Log the path to check if it's correct
       console.log('Document Directory Path:', RNFS.DocumentDirectoryPath);
 
-      // Read the existing data
-      const filePath = `${RNFS.DocumentDirectoryPath}/qaimeler.json`;
-      const existingData = await RNFS.readFile(filePath, 'utf8');
-      console.log('Existing Data:', existingData); // Debug line
-      const parsedExistingData = JSON.parse(existingData);
-      console.log('Parsed Existing Data:', parsedExistingData);
-
       // Ensure selectedValue is defined
       if (!selectedValue) {
         console.error('Error: selectedValue is not defined.');
         return;
       }
 
-      // Create a new data object with the doc key
-      const newDocKey = `doc${Object.keys(parsedExistingData[selectedValue]).length + 1}`;
+      // Read the existing data
+      let existingData = '{}'; // Initialize with an empty object
+      const filePath = `${RNFS.DocumentDirectoryPath}/qaimeler.json`;
+      const fileContent = await RNFS.readFile(filePath, 'utf8');
+      if (fileContent) {
+        existingData = fileContent;
+      }
+      console.log('Existing Data Before Save:', existingData); // Debug line
+      const parsedExistingData = JSON.parse(existingData);
+      console.log('Parsed Existing Data Before Save:', parsedExistingData);
+
+      // Find or create an array based on the selectedValue
+      if (!parsedExistingData[selectedValue]) {
+        parsedExistingData[selectedValue] = [];
+      }
+
+      // Create a new data object with a unique key (e.g., doc1, doc2)
+      const newDocKey = `doc${parsedExistingData[selectedValue].length + 1}`;
       const newDataWithDocKey = {
         [newDocKey]: newData,
       };
 
-      // Update the selected array with the new data
-      const updatedSelectedArray = {
-        ...parsedExistingData[selectedValue],
-        ...newDataWithDocKey,
-      };
+      // Push the new data object into the array
+      parsedExistingData[selectedValue].push(newDataWithDocKey);
 
-      // Update the existing data with the new selected array
-      const updatedData = {
-        ...parsedExistingData,
-        [selectedValue]: updatedSelectedArray,
-      };
-
-      console.log('New Data', updatedData);
       // Save the updated data to the JSON file
-      await RNFS.writeFile(filePath, JSON.stringify(updatedData), 'utf8');
+      await RNFS.writeFile(filePath, JSON.stringify(parsedExistingData), 'utf8');
 
       // Clear the selected items array after saving
+      dispatch(setOkPressed(true));
       setSelectedItemsForSaving([]);
-    }
+      resetAllStates();
 
-    // Navigate to the next screen (MalMedaxil)
-    navigation.navigate('MalMedaxil');
+      // Read the existing data again to get the updated data
+      const updatedFileContent = await RNFS.readFile(filePath, 'utf8');
+      if (updatedFileContent) {
+        console.log('Existing Data After Save:', updatedFileContent);
+        const updatedParsedData = JSON.parse(updatedFileContent);
+        console.log('Parsed Existing Data After Save:', updatedParsedData);
+      }
+
+      // Navigate to the next screen (MalMedaxil) after saving
+      navigation.navigate('MalMedaxil');
+    }
   } catch (error) {
     console.error('Error:', error);
   }
 };
-  
-  
-  
-  
+
+
+
+
+
+
+
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   // ... Other code ...
@@ -364,12 +390,11 @@ const Inventar: React.FC = ({ navigation }: any) => {
           autoCapitalize="none"
         />
       </View>
-      <Text style={{fontSize:50,color:'white'}}>{selectedValue}</Text>
             <View style={styles.searchContainer}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconButton}>
                 <Image source={require('../assets&styles/back.png')} style={{ width: 24, height: 24 }} />
                 </TouchableOpacity>
-                <TextInput style={styles.searchInput} placeholder="Search..." placeholderTextColor="#F4F9FD"/>
+               
                 <TouchableOpacity style={styles.iconButton}>
                 <Image source={require('../assets&styles/filter.png')} style={{ width: 24, height: 24 }} />
                 </TouchableOpacity>
@@ -463,7 +488,7 @@ const Inventar: React.FC = ({ navigation }: any) => {
   </View>
 </Modal>
             <View style={styles.rowContainer}>
-                    <TouchableOpacity onPress={handleOkPress} style={[styles.infoButton, styles.uiButton,{backgroundColor:'white',}]}>
+                    <TouchableOpacity onPress={() => { handleOkPress(); resetAllStates(); }} style={[styles.infoButton, styles.uiButton,{backgroundColor:'white',}]}>
                         <Text style={[styles.uiButtonText,{color:'#1F1D2B'}]}>Ok</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.infoButton, styles.uiButton,{backgroundColor:'#22B07D',}]}>

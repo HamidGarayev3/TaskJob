@@ -43,6 +43,12 @@ const Techizatci = ({navigation}: any) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [generatedBarcodes, setGeneratedBarcodes] = useState<number[]>([]); // Keep track of generated barcodes
+  const [searchText, setSearchText] = useState<string>(''); // State for search input text
+  const filteredItems = itemList.filter(
+    item =>
+      item.PersonName.toLowerCase().includes(searchText.toLowerCase()) ||
+      item.PersonID.toString().includes(searchText),
+  );
 
   useEffect(() => {
     fetchItems();
@@ -126,6 +132,8 @@ const Techizatci = ({navigation}: any) => {
           placeholderTextColor={'#F4F9FD'}
           style={[styles.searchInput, {borderRadius: 5}]}
           placeholder="Type to search"
+          value={searchText} // Bind the value to the state
+          onChangeText={text => setSearchText(text)}
         />
         <TouchableOpacity style={styles.iconContainer}>
           <Image
@@ -148,7 +156,7 @@ const Techizatci = ({navigation}: any) => {
       </Text>
       <FlatList
         initialNumToRender={10}
-        data={itemList}
+        data={filteredItems}
         renderItem={({item}) => (
           <TouchableOpacity
             onPress={() => {
