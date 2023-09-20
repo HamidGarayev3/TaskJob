@@ -21,6 +21,7 @@ const Depolar = ({ navigation }: any) => {
         dispatch(setSelectedStock({ name: stockName, id: stockID }));
         navigation.navigate('Inventar');
     };
+   
 
     const [itemList, setItemList] = useState<Item[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(1);

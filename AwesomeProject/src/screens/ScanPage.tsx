@@ -6,6 +6,7 @@ import { useIsFocused,useFocusEffect } from '@react-navigation/native'; // Impor
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../components/store';
 var base64 = require("base-64");
+import { setScanTabActive } from '../components/tabSlice';
 
 
 const ScanPage = ({ navigation }: any) => {
@@ -20,45 +21,52 @@ const ScanPage = ({ navigation }: any) => {
   const [Stock, setStock] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [itemsHashTable, setItemsHashTable] = useState<{ [key: string]: any }>({});
+  const isScanTabActive = useSelector((state: RootState) => state.tab.scanTabActive);
+  
+  // Use the useIsFocused hook to determine if the screen is focused
+  const isScreenFocused = useIsFocused();
 
- useFocusEffect(
-  React.useCallback(() => {
-    // Code to run when the screen comes into focus
-    // You can add your component initialization logic here
-    // For example, you can reset your state variables
-    
-    setInputValue('');
-    setStatus('');
-    setItemName('');
-    setBarcode('');
-    setInPrice('');
-    setOutPrice('');
-    setStockPrice('');
-    setStock('');
-    setItemsHashTable({});
+  const [rerenderKey, setRerenderKey] = useState(0);
 
-    // Return a cleanup function that will be run when the screen goes out of focus
-    return () => {
-      // Clean up logic, if needed
-      // For example, you can reset state variables, clear timeouts, unsubscribe from subscriptions, etc.
-      setInputValue('');
-    setStatus('');
-    setItemName('');
-    setBarcode('');
-    setInPrice('');
-    setOutPrice('');
-    setStockPrice('');
-    setStock('');
-    setItemsHashTable({});
-    };
-  }, [])
-);
+  // useEffect(() => {
+  //   // Add a focus event listener to the navigation
+  //   const unsubscribe = navigation.addListener('focus', () => {
+  //     // Focus the TextInput when the screen comes into focus
+  //     if (inputRef.current) {
+  //       inputRef.current.focus();
+  //     }
+  //   });
 
+  //   // Return the cleanup function to unsubscribe from the event listener
+  //   return unsubscribe;
+  // }, [navigation,isScreenFocused]);
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     // Clear input value when the screen comes into focus
+  //     setInputValue('');
+  //     // Focus the input when the screen comes into focus
+  //     if (inputRef.current) {
+  //       inputRef.current.focus();
+  //     }
+  //     console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+  //   }, [isScreenFocused])
+  // );
+
+  // Move the search logic to this useEffect, which triggers on inputValue changes
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
+    if (inputValue) {
+      console.log('Barcode:', inputValue);
+      // Reset the input value after processing
+      setInputValue('');
+      fetchItemDetails(inputValue); // Send request every time input value changes
     }
-  }, []);
+  }, [inputValue]);
+useEffect(() => {
+  if (inputRef.current) {
+    inputRef.current.focus();
+    console.log('yeahh')
+  }
+}, [isScreenFocused]);
 
   useEffect(() => {
     if (inputValue) {
@@ -73,9 +81,25 @@ const ScanPage = ({ navigation }: any) => {
   }, []);
 
   const handleInputChange = (text: string) => {
+    console.log('Input Value Changed:', text);
+  
     setInputValue(text);
-    fetchItemDetails(text); // Send request every time input value changes
+  
+    // Move the fetchItemDetails call to a separate useEffect
   };
+  useEffect(() => {
+    createHashTable();
+  }, []);
+  useEffect(() => {
+    if (inputValue) {
+      console.log('Barcode:', inputValue);
+      // Reset the input value after processing
+      setInputValue('');
+      fetchItemDetails(inputValue); // Send request every time input value changes
+    }
+  }, [inputValue]);
+
+
 
   const createHashTable = async () => {
     const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
@@ -155,7 +179,7 @@ const ScanPage = ({ navigation }: any) => {
 
   useEffect(() => {
     getLastItemDetails();
-  }, []);
+  }, [inputValue]);
 
   const { api, username, password } = useSelector((state: RootState) => state.service);
 
@@ -198,7 +222,15 @@ const ScanPage = ({ navigation }: any) => {
       setIsLoading(false);
     }
   };
+  const handleInputFocus = () => {
+    console.log('active')
+  };
 
+  const handleInputBlur = () => {
+    console.log('passiveee')
+
+  };
+ 
   return (
     <View style={{ flex: 1, backgroundColor: '#1F1D2B' }}>
       <View style={{ display: 'none' }}>
@@ -210,6 +242,10 @@ const ScanPage = ({ navigation }: any) => {
           underlineColorAndroid="transparent"
           autoCorrect={false}
           autoCapitalize="none"
+          onFocus={handleInputFocus} // Add onFocus event handler
+          onBlur={handleInputBlur}
+          autoFocus={true}
+          
         />
       </View>
 

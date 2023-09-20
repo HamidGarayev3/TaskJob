@@ -217,14 +217,14 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
       const fileExists = await RNFS.exists(fileUri);
   
       if (fileExists) {
-        // Clear the content of the JSON file (overwrite it with an empty JSON object)
-        await RNFS.writeFile(fileUri, '{}', 'utf8');
+        // Read the content of the JSON file
+        const fileContent = await RNFS.readFile(fileUri, 'utf8');
   
         // Prepare the request body as per your API structure
         const requestBody = {
           TypReport: 'Documents',
-          // Send an empty object since the file is now cleared
-          Doc: {},
+          // Send the content of the JSON file
+          Doc: JSON.parse(fileContent),
         };
   
         // Send the request
@@ -240,9 +240,14 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
         if (response.ok) {
           console.log('Export successful');
           setStatus('Export uğurlu oldu');
-          console.log('File content cleared.');
+          console.log('File content sent to the server.');
   
-          // No need to delete the JSON file since it's already cleared.
+          // Clear the content of the JSON file (overwrite it with an empty JSON object) after a successful send
+          
+          // You can choose to delete the JSON file after a successful export
+          // await RNFS.unlink(fileUri);
+          await RNFS.writeFile(fileUri, '{}', 'utf8');
+
   
         } else {
           console.log('Export failed');
@@ -262,6 +267,7 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
       setIsLoading(false);
     }
   };
+  
   
   
   

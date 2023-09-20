@@ -60,7 +60,7 @@ const Settings = ({navigation,route }:any) => {
     };
 
     fetchSettingsData();
-  }, []);
+  }, [isLoggedIn]);
   return (
     <View style={{flex:1,backgroundColor:'#1F1D2B'}}>
       <ScrollView>

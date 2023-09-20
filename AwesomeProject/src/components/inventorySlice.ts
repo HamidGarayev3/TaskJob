@@ -40,10 +40,14 @@ const inventorySlice = createSlice({
     clearItems: (state) => {
       state.items = [];
     },
+    deleteItem: (state, action) => {
+      // Remove the item with the specified ID from the items array
+      state.items = state.items.filter((item) => item.ID !== action.payload);
+    },
     // Other reducer cases...
   },
 });
 
-export const { addItem, updateSay,clearItems } = inventorySlice.actions;
+export const { addItem, updateSay,clearItems,deleteItem } = inventorySlice.actions;
 
 export default inventorySlice.reducer;

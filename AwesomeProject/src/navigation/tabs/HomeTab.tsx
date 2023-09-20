@@ -1,5 +1,4 @@
 import { View, Text } from 'react-native'
-import React from 'react'
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Home from '../../screens/ScanPage';
 import Inventar from '../../screens/Inventar';
@@ -13,10 +12,29 @@ import TestScan from '../../screens/TestScan';
 import LoginScreen from '../../screens/LoginScreen';
 import ServiceStack from '../stacks/ServiceStack';
 import ScanPageStack from '../stacks/ScanPageStack';
+import React, { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { setScanTabActive } from '../../components/tabSlice';
+import { useNavigation, useRoute } from '@react-navigation/native'; // Import these hooks
+import { useIsFocused } from '@react-navigation/native';
 
 const Tab = createBottomTabNavigator();
 
 const HomeTab = () => {
+
+    // Set up a listener for the tabPress event on the "Scan" tab
+    const isScanTabFocused = useIsFocused();
+  const dispatch = useDispatch();
+  const route = useRoute();
+
+  useEffect(() => {
+    // Check if the current route name corresponds to the "Scan" tab
+    if (route.name === 'Scan' && isScanTabFocused) {
+      dispatch(setScanTabActive(true));
+    } else {
+      dispatch(setScanTabActive(false));
+    }
+  }, [dispatch, isScanTabFocused, route]);
   return (
     <Tab.Navigator  initialRouteName="HomePage"  >
 
@@ -31,6 +49,7 @@ const HomeTab = () => {
             tabBarShowLabel: false,
             headerShown:false,
             tabBarStyle:{backgroundColor:'#1F1D2B',height:56}
+            
         }} />
     <Tab.Screen
         options={{

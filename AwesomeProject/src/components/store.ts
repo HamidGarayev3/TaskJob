@@ -11,7 +11,8 @@ import settingsReducer from './settingsSlice'; // Import the settings reducer
 import selectedItemReducer from '../components/selectedItemSlice'; // Update with the actual path
 import selectedSayReducer from './selectedSaySlice';
 import inventarReducer from './inventarSlice';
-
+import tabReducer from '../components/tabSlice'
+import malMedaxilReducer from '../components/malMedaxilSlice'; // Update with the correct path
 
 
 
@@ -28,6 +29,8 @@ const store = configureStore({
     selectedItem: selectedItemReducer,
     selectedSay: selectedSayReducer,
     inventar: inventarReducer,
+    tab: tabReducer,
+    malMedaxil: malMedaxilReducer,
 
     // Add the new reducer
     // other reducers...

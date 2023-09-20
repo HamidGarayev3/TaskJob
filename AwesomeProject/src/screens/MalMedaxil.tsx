@@ -15,7 +15,8 @@ import RNFS from 'react-native-fs';
 import { setSelectedPerson } from '../components/personSlice'; // Update the import path
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../components/store';
-
+import { setPlusButtonPressed } from '../components/malMedaxilSlice'; // Up
+import { useIsFocused,useFocusEffect } from '@react-navigation/native'; // Import useIsFocused hook
 
 
 type CardData = {
@@ -45,7 +46,53 @@ type DocObject = {
 
 const App: React.FC = ({navigation}:any) => {
 
-    
+  const isScreenFocused = useIsFocused();
+
+  const [showCardModal, setShowCardModal] = useState(false);
+  const [selectedCard, setSelectedCard] = useState<CardData | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const handleCardPress = (card: CardData) => {
+    setSelectedCard(card);
+    setShowCardModal(true);
+  };
+
+  const handleDeleteCard = () => {
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    // Perform the deletion action here
+    if (selectedCard) {
+      // Remove the selected card from your data source (cardData)
+      const updatedCardData = cardData.filter((card) => card.key !== selectedCard.key);
+      setCardData(updatedCardData);
+
+      // Close both modals
+      setShowCardModal(false);
+      setShowDeleteModal(false);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    // Close only the delete confirmation modal
+    setShowDeleteModal(false);
+  };
+
+  const handleCancel = () => {
+    setSelectedCard(null);
+    setModalVisible(false);
+  };
+
+  const isPlusButtonPressed = useSelector(
+    (state: { malMedaxil: { isPlusButtonPressed: boolean } }) => state.malMedaxil.isPlusButtonPressed
+  );
+
+  const handlePlusButtonPress = () => {
+    // Dispatch the action to indicate that the "+" button was pressed
+    dispatch(setPlusButtonPressed(true));
+    navigation.navigate('Inventar');
+  };
   
     const [jsonCreated, setJsonCreated] = useState(false);
 
@@ -95,14 +142,14 @@ const generateRandomId = () => {
   
     // Set the component as mounted when it's first mounted
     setMounted(true);
-  }, [selectedValue]); // This will run only once when the component mounts
+  }, [selectedValue,isScreenFocused]); // This will run only once when the component mounts
   
   const [mounted, setMounted] = useState(false);
   
   useEffect(() => {
     // Set the component as mounted when it's first mounted
     setMounted(true);
-  }, [selectedValue]);
+  }, [selectedValue,isOkPressed,isScreenFocused]);
   
   useEffect(() => {
     // Load data from the JSON file based on the selected tab
@@ -170,10 +217,10 @@ const generateRandomId = () => {
     };
   
     // Load data when the component is mounted, selectedValue changes, or isOkPressed is true
-    if (mounted || selectedValue || isOkPressed) {
+    if ( isScreenFocused) {
       loadData();
     }
-  }, [selectedValue, isOkPressed, mounted]);
+  }, [selectedValue, isOkPressed, mounted,isScreenFocused]);
   
   
   
@@ -253,7 +300,7 @@ const generateRandomId = () => {
         </View>
       )}
     </View>
-    <TouchableOpacity onPress={() => navigation.navigate('Inventar')} style={styles.floatingButton}>
+    <TouchableOpacity onPress={() => handlePlusButtonPress()} style={styles.floatingButton}>
       <Text style={{ fontSize: 30, fontWeight: 'bold' }}>+</Text>
     </TouchableOpacity>
   </View>

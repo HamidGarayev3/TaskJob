@@ -30,8 +30,9 @@ import MalMedaxil from '../screens/MalMedaxil'
 import { resetSelectedPerson, setSelectedPerson } from '../components/personSlice'; // Update the import path
 import { updateSay } from '../components/inventorySlice'; // Update the path as needed
 import { setOkPressed } from '../components/inventarSlice';
-import { clearItems  } from '../components/inventorySlice'; // Update the path as needed
+import { clearItems,addItem,deleteItem  } from '../components/inventorySlice'; // Update the path as needed
 import { resetSelectedStock } from '../components/stockSlice';
+import { setPlusButtonPressed } from '../components/malMedaxilSlice'; // Update with the correct path
 
 
 
@@ -63,8 +64,19 @@ const Inventar: React.FC = ({ navigation }: any) => {
     const [modalVisible, setModalVisible] = useState(false);
 
 
-
-    
+    const isPlusButtonPressed = useSelector(
+      (state: { malMedaxil: { isPlusButtonPressed: boolean } }) => state.malMedaxil.isPlusButtonPressed
+    );
+    useEffect(() => {
+      // Check if the plus button was pressed in MalMedaxil
+      if (isPlusButtonPressed && inputRef.current) {
+        // Set focus to the input field
+        inputRef.current.focus();
+  
+        // Reset the flag to avoid keeping focus on next renders
+        dispatch(setPlusButtonPressed(false));
+      }
+    }, [isPlusButtonPressed]);
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<TextInput>(null);
   const [status, setStatus] = useState('');
@@ -78,6 +90,48 @@ const Inventar: React.FC = ({ navigation }: any) => {
   const [itemsHashTable, setItemsHashTable] = useState<{ [key: string]: any }>({});
   const [itemList, setItemList] = useState<any[]>([]); // Maintain the list of items
   const [cards, setCards] = useState<Card[]>([]); // Maintain the list of animated cards
+
+
+
+
+
+
+
+  const [deleteEditModalVisible, setDeleteEditModalVisible] = useState(false);
+
+  // Function to open the delete/edit modal
+  const openDeleteEditModal = (index: number) => {
+    setSelectedItemIndex(index);
+    setDeleteEditModalVisible(true);
+  };
+
+  // Function to close the delete/edit modal
+  const closeDeleteEditModal = () => {
+    setDeleteEditModalVisible(false);
+  };
+
+  // Function to handle delete action
+  const handleDeleteItem = () => {
+    if (selectedItemIndex !== -1) {
+      // Dispatch the deleteItem action with the selected item's ID
+      dispatch(deleteItem(selectedItems[selectedItemIndex].ID));
+      closeDeleteEditModal();
+    }
+  };
+
+  // Function to handle edit action
+  const handleEditItem = () => {
+    if (selectedItemIndex !== -1) {
+      // Close the delete/edit modal
+      closeDeleteEditModal();
+
+      // Open the Say edit modal for the selected item's index
+      openPopup(selectedItemIndex);
+    }
+  };
+
+
+
 
   const dispatch = useDispatch();
 
@@ -160,10 +214,21 @@ const Inventar: React.FC = ({ navigation }: any) => {
     createHashTable();
   }, []);
 
-  const handleInputChange = (text: string) => {
+ const handleInputChange = (text: string) => {
+    console.log('Input Value Changed:', text);
+  
     setInputValue(text);
-    fetchItemDetails(text); // Send request every time input value changes
-};
+  
+    // Move the fetchItemDetails call to a separate useEffect
+  };
+  
+  useEffect(() => {7.
+    if (inputValue) {
+      console.log('Barcode:', inputValue);
+      // Reset the input value after processing
+      setInputValue('');
+    }
+  }, [inputValue]);
 
 
   const createHashTable = async () => {
@@ -189,33 +254,45 @@ const Inventar: React.FC = ({ navigation }: any) => {
   // ...
   
   const fetchItemDetails = async (barcode: string) => {
-    try {
-      setIsLoading(true);
-      setStatus('Sorğu başladı');
-  
-      const foundItem = itemsHashTable[barcode];
-      if (foundItem) {
-        console.log('Item details:', foundItem);
-        setStatus('Sorğu uğurlu oldu');
-        setItemList((prevItems) => [...prevItems, foundItem]);
-  
-        // Add the found item to the selected items array with Say set to 1
-        setSelectedItemsForSaving((prevSelectedItems) => [
-          ...prevSelectedItems,
-          { ...foundItem, Say: 1 },
-        ]);
+  try {
+    setIsLoading(true);
+    setStatus('Sorğu başladı');
+
+    const foundItem = itemsHashTable[barcode];
+    if (foundItem) {
+      console.log('Item details:', foundItem);
+      setStatus('Sorğu uğurlu oldu');
+
+      // Check if the item already exists in selectedItems
+      const existingItemIndex = selectedItems.findIndex((item) => item.ID === foundItem.ID);
+
+      if (existingItemIndex !== -1) {
+        // Item already exists, increment the Say property by 1
+        const updatedItems = [...selectedItems];
+        updatedItems[existingItemIndex].Say += 1;
+
+        // Dispatch the updated selectedItems array
+        dispatch({ type: 'inventory/updateSay', payload: updatedItems });
       } else {
-        Alert.alert('Item not found');
-        console.log('Item not found.');
-        setStatus('Sorğu uğursuz oldu');
+        // Item does not exist, add it to selectedItems with Say set to 1
+        dispatch({ type: 'inventory/addItem', payload: { ...foundItem, Say: 1 } });
       }
-    } catch (error) {
-      console.error('Error:', error);
-      setStatus('Sorğu alınmadı');
-    } finally {
-      setIsLoading(false);
+
+      setItemList((prevItems) => [...prevItems, foundItem]);
+    } else {
+      Alert.alert('Item not found');
+      console.log('Item not found.');
+      setStatus('Sorğu uğursuz oldu');
     }
-  };
+  } catch (error) {
+    console.error('Error:', error);
+    setStatus('Sorğu alınmadı');
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+  
 
 
 
@@ -239,7 +316,16 @@ const Inventar: React.FC = ({ navigation }: any) => {
 
   useEffect(() => {
     getLastItemDetails();
-  }, []);
+  }, [inputValue]);
+
+  useEffect(() => {
+    if (inputValue) {
+      console.log('Barcode:', inputValue);
+      // Reset the input value after processing
+      setInputValue('');
+      fetchItemDetails(inputValue); // Send request every time input value changes
+    }
+  }, [inputValue]);
  ;
  const resetAllStates = () => {
   // Reset selectedPersonName and selectedStockName
@@ -299,14 +385,8 @@ const handleOkPress = async () => {
         parsedExistingData[selectedValue] = [];
       }
 
-      // Create a new data object with a unique key (e.g., doc1, doc2)
-      const newDocKey = `doc${parsedExistingData[selectedValue].length + 1}`;
-      const newDataWithDocKey = {
-        [newDocKey]: newData,
-      };
-
-      // Push the new data object into the array
-      parsedExistingData[selectedValue].push(newDataWithDocKey);
+      // Push the new data object into the array without "doc" key
+      parsedExistingData[selectedValue].push(newData);
 
       // Save the updated data to the JSON file
       await RNFS.writeFile(filePath, JSON.stringify(parsedExistingData), 'utf8');
@@ -332,10 +412,89 @@ const handleOkPress = async () => {
   }
 };
 
+const Save = async () => {
+  try {
+    if (selectedItems.length > 0) {
+      const currentDate = new Date().toLocaleDateString('en-US');
+      const docSum = '99'; // Implement this function
+
+      const mallarArray = selectedItems.map((item) => ({
+        IDmal: item.ID,
+        Say: item.Say,
+        Qiymet: item.InPrice,
+        Cemi: item.Say * item.InPrice, // Calculate the Cemi property
+      }));
+      const newData = {
+        mdate: currentDate,
+        IDPerson: selectedPersonID,
+        IDAnbar: selectedStockID,
+        DocSum: docSum,
+        Mallar: mallarArray,
+      };
+
+      // Log the path to check if it's correct
+      console.log('Document Directory Path:', RNFS.DocumentDirectoryPath);
+
+      // Ensure selectedValue is defined
+      if (!selectedValue) {
+        console.error('Error: selectedValue is not defined.');
+        return;
+      }
+
+      // Read the existing data
+      let existingData = '{}'; // Initialize with an empty object
+      const filePath = `${RNFS.DocumentDirectoryPath}/qaimeler.json`;
+      const fileContent = await RNFS.readFile(filePath, 'utf8');
+      if (fileContent) {
+        existingData = fileContent;
+      }
+      console.log('Existing Data Before Save:', existingData); // Debug line
+      const parsedExistingData = JSON.parse(existingData);
+      console.log('Parsed Existing Data Before Save:', parsedExistingData);
+
+      // Find or create an array based on the selectedValue
+      if (!parsedExistingData[selectedValue]) {
+        parsedExistingData[selectedValue] = [];
+      }
+
+      // Push the new data object into the array without "doc" key
+      parsedExistingData[selectedValue].push(newData);
+
+      // Save the updated data to the JSON file
+      await RNFS.writeFile(filePath, JSON.stringify(parsedExistingData), 'utf8');
+
+      // Clear the selected items array after saving
+      dispatch(setOkPressed(true));
+      setSelectedItemsForSaving([]);
+      
+
+      // Read the existing data again to get the updated data
+      const updatedFileContent = await RNFS.readFile(filePath, 'utf8');
+      if (updatedFileContent) {
+        console.log('Existing Data After Save:', updatedFileContent);
+        const updatedParsedData = JSON.parse(updatedFileContent);
+        console.log('Parsed Existing Data After Save:', updatedParsedData);
+      }
+
+      // Navigate to the next screen (MalMedaxil) after saving
+  
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+const Exit = async () => {
+  navigation.navigate('MalMedaxil');
+
+};
 
 
 
 
+
+const [changeSayModalVisible, setChangeSayModalVisible] = useState(false);
+const [selectedItemForModal, setSelectedItemForModal] = useState<Item | null>(null);
 
 
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -376,6 +535,8 @@ const handleOkPress = async () => {
 
   // Function to close the pop-up
   const [modalInputValue, setModalInputValue] = useState('');
+
+  
 
     return (
 <View style={styles.appContainer}>
@@ -439,7 +600,7 @@ const handleOkPress = async () => {
             </View>
             <ScrollView style={styles.container}>
             {selectedItems.map((item, index) => (
-  <TouchableOpacity key={item.Barcode} onPress={() => openPopup(index)}>
+  <TouchableOpacity key={item.Barcode} onPress={() => openDeleteEditModal(index)}>
     <View style={[styles.card]}>
       <View style={{ flex: 1 }}>
         <View style={styles.halfContainer}>
@@ -456,7 +617,7 @@ const handleOkPress = async () => {
           <View style={styles.verticalDivider} />
           <View style={styles.rightHalf}>
             <View style={styles.topHalf}>
-              <Text style={styles.topHalfText1}>{item.Stock}</Text>
+              <Text style={styles.topHalfText1}>{item.Say}</Text>
             </View>
             <View style={styles.horizontalDivider} />
             <View style={styles.bottomHalf}>
@@ -472,6 +633,22 @@ const handleOkPress = async () => {
      
 
             </ScrollView>
+            <Modal visible={deleteEditModalVisible} transparent animationType="slide">
+  <View style={styles.centeredView}>
+    <View style={styles.modalView}>
+      <Text style={styles.modalTitle}>Options for the selected item:</Text>
+      <TouchableOpacity style={styles.optionButton} onPress={handleDeleteItem}>
+        <Text style={styles.optionButtonText}>Delete</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.optionButton} onPress={handleEditItem}>
+        <Text style={styles.optionButtonText}>Edit</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.cancelButton} onPress={closeDeleteEditModal}>
+        <Text style={styles.cancelButtonText}>Cancel</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
             <Modal visible={isPopupOpen} transparent animationType="slide">
   <View style={styles.centeredView}>
     <View style={styles.modalView}>
@@ -488,19 +665,16 @@ const handleOkPress = async () => {
   </View>
 </Modal>
             <View style={styles.rowContainer}>
-                    <TouchableOpacity onPress={() => { handleOkPress(); resetAllStates(); }} style={[styles.infoButton, styles.uiButton,{backgroundColor:'white',}]}>
+                    <TouchableOpacity onPress={() => { handleOkPress(); resetAllStates(); navigation.navigate('MalMedaxil') }} style={[styles.infoButton, styles.uiButton,{backgroundColor:'white',}]}>
                         <Text style={[styles.uiButtonText,{color:'#1F1D2B'}]}>Ok</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.infoButton, styles.uiButton,{backgroundColor:'#22B07D',}]}>
+                    <TouchableOpacity onPress={() => { Save();Alert.alert('Data Saved') }} style={[styles.infoButton, styles.uiButton,{backgroundColor:'#22B07D',}]}>
                         <Text style={[styles.uiButtonText,{color:'white'}]}>Save</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.infoButton, styles.uiButton,{backgroundColor:'#FFF6E9',}]}>
+                    <TouchableOpacity onPress={()=> {resetAllStates(); navigation.navigate('MalMedaxil')}} style={[styles.infoButton, styles.uiButton,{backgroundColor:'#FFF6E9',}]}>
                         <Text style={[styles.uiButtonText,{color:'#FFA523'}]}>Exit</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity  style={[styles.infoTotal,{backgroundColor:'#1F1D2B'}]}>
-                        <Text style={[styles.uiButtonText,{color:'white',fontSize:12}]}>yekun</Text>
-                        <Text style={[styles.uiButtonText,{color:'white'}]}>Info 3</Text>
-                    </TouchableOpacity>
+                  
                 </View>
     
             <TouchableOpacity
@@ -515,6 +689,49 @@ const handleOkPress = async () => {
 };
 
 const styles = StyleSheet.create({
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+  },
+  modalView: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+    elevation: 5, // Shadow on Android
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  optionButton: {
+    backgroundColor: "#22B07D", // Green
+    padding: 10,
+    width: 150,
+    alignItems: "center",
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  optionButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  cancelButton: {
+    backgroundColor: "#FF6347", // Red
+    padding: 10,
+    width: 150,
+    alignItems: "center",
+    borderRadius: 5,
+  },
+  cancelButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
   cardContainer: {
     padding: 20,
 },
