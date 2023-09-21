@@ -1,4 +1,4 @@
-import React, { useState, useEffect, } from 'react';
+import React, { useState, useEffect,useRef } from 'react';
 import { ScrollView, View, StyleSheet, Text, TouchableOpacity, Image, TextInput, Modal, Button, Alert,FlatList } from 'react-native';
 import Animated, {
     useAnimatedGestureHandler,
@@ -47,6 +47,25 @@ type DocObject = {
 const App: React.FC = ({navigation}:any) => {
 
   const isScreenFocused = useIsFocused();
+  const [focusState, setFocusState] = useState(false); // Focus state
+  
+  const componentRef = useRef<FlatList | null>(null);
+
+  useEffect(() => {
+    if (isScreenFocused) {
+      console.log('Screen is focused');
+      setFocusState(true);
+
+      if (componentRef.current) {
+        componentRef.current.scrollToOffset({ animated: false, offset: 0 });
+      }
+    } else {
+      console.log('Screen is not focused');
+      setFocusState(false);
+    }
+  }, [isScreenFocused]);
+ 
+
 
   const [showCardModal, setShowCardModal] = useState(false);
   const [selectedCard, setSelectedCard] = useState<CardData | null>(null);
@@ -61,27 +80,32 @@ const App: React.FC = ({navigation}:any) => {
     setShowDeleteModal(true);
   };
 
+  const handleEdit = () => {
+    setShowDeleteModal(false);
+    navigation.navigate('Inventar')
+  };
+
   const handleConfirmDelete = () => {
-    // Perform the deletion action here
     if (selectedCard) {
-      // Remove the selected card from your data source (cardData)
+      // Remove the selected card from cardData
       const updatedCardData = cardData.filter((card) => card.key !== selectedCard.key);
       setCardData(updatedCardData);
-
-      // Close both modals
+  
+      // Close both modals and reset selectedCard
+      setSelectedCard(null);
       setShowCardModal(false);
       setShowDeleteModal(false);
     }
-  };
-
-  const handleCancelDelete = () => {
-    // Close only the delete confirmation modal
+    setSelectedCard(null);
+    setShowCardModal(false);
     setShowDeleteModal(false);
   };
+  
 
   const handleCancel = () => {
     setSelectedCard(null);
-    setModalVisible(false);
+    setShowCardModal(false);
+    setShowDeleteModal(false);
   };
 
   const isPlusButtonPressed = useSelector(
@@ -149,6 +173,7 @@ const generateRandomId = () => {
   useEffect(() => {
     // Set the component as mounted when it's first mounted
     setMounted(true);
+    console.log('ok pressed')
   }, [selectedValue,isOkPressed,isScreenFocused]);
   
   useEffect(() => {
@@ -217,8 +242,10 @@ const generateRandomId = () => {
     };
   
     // Load data when the component is mounted, selectedValue changes, or isOkPressed is true
-    if ( isScreenFocused) {
+    if ( isOkPressed) {
       loadData();
+    }else{
+      loadData()
     }
   }, [selectedValue, isOkPressed, mounted,isScreenFocused]);
   
@@ -228,13 +255,94 @@ const generateRandomId = () => {
   
   
   
-  
+  const loadData = async () => {
+    try {
+      const filePath = `${RNFS.DocumentDirectoryPath}/qaimeler.json`;
+      const fileContent = await RNFS.readFile(filePath, 'utf8');
+      const jsonData = JSON.parse(fileContent);
+
+      // Ensure selectedValue is defined
+      if (!selectedValue) {
+        console.error('Error: selectedValue is not defined.');
+        return;
+      }
+
+      // Initialize the data for the selected tab if it doesn't exist
+      if (!jsonData[selectedValue]) {
+        jsonData[selectedValue] = [];
+      }
+
+      const tabData = [];
+
+      // Check if jsonData[selectedValue] is an array
+      if (Array.isArray(jsonData[selectedValue])) {
+        tabData.push(
+          ...jsonData[selectedValue].map((docObject: DocData) => {
+            const key = generateRandomId();
+            return {
+              key: key,
+              PersonName: docObject.IDPerson,
+              PersonId: docObject.IDPerson,
+              DocSum: docObject.DocSum,
+              StockId: docObject.IDAnbar,
+            };
+          })
+        );
+      } else {
+        // Handle the case when jsonData[selectedValue] is an object
+        const docKeys = Object.keys(jsonData[selectedValue]);
+        if (docKeys.length > 0) {
+          docKeys.forEach((key) => {
+            const docObject = jsonData[selectedValue][key];
+            const subData = Object.values<DocData>(docObject);
+            tabData.push(
+              ...subData.map((doc: DocData) => {
+                const subKey = generateRandomId();
+                return {
+                  key: subKey,
+                  PersonName: doc.IDPerson,
+                  PersonId: doc.IDPerson,
+                  DocSum: doc.DocSum,
+                  StockId: doc.IDAnbar,
+                };
+              })
+            );
+          });
+        }
+      }
+
+      // Set cardData using the accumulated tabData
+      setCardData(tabData);
+    } catch (error) {
+      console.error('Error reading JSON file:', error);
+    }
+  };
   
 
   
 
   
-  
+
+  // ...
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (isScreenFocused) {
+        console.log('Screen is focused');
+        setFocusState(true);
+
+        if (componentRef.current) {
+          componentRef.current.scrollToOffset({ animated: false, offset: 0 });
+        }
+
+        // Load data when the screen is focused
+        loadData();
+      } else {
+        console.log('Screen is not focused');
+        setFocusState(false);
+      }
+    }, [isScreenFocused])
+  );
 
     const showAlert = () => {
         Alert.alert(
@@ -257,12 +365,13 @@ const generateRandomId = () => {
                 </TouchableOpacity>
             </View>
             <View style={{paddingHorizontal:20}}>
-            {cardData.length > 0 ? ( // Conditionally render based on cardData length
+            {focusState &&  cardData.length > 0 ? ( // Conditionally render based on cardData length
         <FlatList
+        ref={(ref) => (componentRef.current = ref)}
           data={cardData}
           keyExtractor={(item) => item.key}
           renderItem={({ item }) => (
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => handleCardPress(item)}>
               {/* Your card rendering code here */}
               <View style={[styles.card]}>
                 <View style={{ flex: 1 }}>
@@ -299,6 +408,22 @@ const generateRandomId = () => {
           <Text >No data available.</Text>
         </View>
       )}
+      <Modal visible={showCardModal} transparent animationType="slide">
+  <View style={styles.centeredView}>
+    <View style={styles.modalView}>
+      <Text style={styles.modalTitle}>Options for the selected item:</Text>
+      <TouchableOpacity style={styles.optionButton} onPress={handleConfirmDelete}>
+        <Text style={styles.optionButtonText}>Delete</Text>
+      </TouchableOpacity>
+      {/* <TouchableOpacity style={styles.optionButton} onPress={handleEdit}>
+        <Text style={styles.optionButtonText}>Edit</Text>
+      </TouchableOpacity> */}
+      <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
+        <Text style={styles.cancelButtonText}>Cancel</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
     </View>
     <TouchableOpacity onPress={() => handlePlusButtonPress()} style={styles.floatingButton}>
       <Text style={{ fontSize: 30, fontWeight: 'bold' }}>+</Text>
@@ -310,6 +435,49 @@ const generateRandomId = () => {
 
 
 const styles = StyleSheet.create({
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+  },
+  modalView: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+    elevation: 5, // Shadow on Android
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  optionButton: {
+    backgroundColor: "#22B07D", // Green
+    padding: 10,
+    width: 150,
+    alignItems: "center",
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  optionButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  cancelButton: {
+    backgroundColor: "#FF6347", // Red
+    padding: 10,
+    width: 150,
+    alignItems: "center",
+    borderRadius: 5,
+  },
+  cancelButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
     cardContainer: {
         padding: 20,
     },

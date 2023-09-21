@@ -130,7 +130,24 @@ const Inventar: React.FC = ({ navigation }: any) => {
     }
   };
 
+  const isScreenFocused = useIsFocused();
 
+  const [focusState, setFocusState] = useState(false); // Focus state
+
+  useEffect(() => {
+    if (isScreenFocused) {
+      // When the screen is focused, set focusState to true
+      setFocusState(true);
+
+      // Focus the TextInput when the screen comes into focus
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    } else {
+      // When the screen is unfocused, set focusState to false
+      setFocusState(false);
+    }
+  }, [isScreenFocused]);
 
 
   const dispatch = useDispatch();
@@ -282,6 +299,7 @@ const Inventar: React.FC = ({ navigation }: any) => {
     } else {
       Alert.alert('Item not found');
       console.log('Item not found.');
+      setFocusState(true)
       setStatus('Sorğu uğursuz oldu');
     }
   } catch (error) {
@@ -541,6 +559,7 @@ const [selectedItemForModal, setSelectedItemForModal] = useState<Item | null>(nu
     return (
 <View style={styles.appContainer}>
             <View style={{ display: 'none' }}>
+            {focusState && (
         <TextInput
           ref={inputRef}
           value={inputValue}
@@ -549,7 +568,9 @@ const [selectedItemForModal, setSelectedItemForModal] = useState<Item | null>(nu
           underlineColorAndroid="transparent"
           autoCorrect={false}
           autoCapitalize="none"
+          autoFocus={true}
         />
+      )}
       </View>
             <View style={styles.searchContainer}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconButton}>

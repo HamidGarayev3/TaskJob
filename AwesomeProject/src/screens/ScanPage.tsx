@@ -61,12 +61,22 @@ const ScanPage = ({ navigation }: any) => {
       fetchItemDetails(inputValue); // Send request every time input value changes
     }
   }, [inputValue]);
-useEffect(() => {
-  if (inputRef.current) {
-    inputRef.current.focus();
-    console.log('yeahh')
-  }
-}, [isScreenFocused]);
+  const [focusState, setFocusState] = useState(false); // Focus state
+
+  useEffect(() => {
+    if (isScreenFocused) {
+      // When the screen is focused, set focusState to true
+      setFocusState(true);
+
+      // Focus the TextInput when the screen comes into focus
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    } else {
+      // When the screen is unfocused, set focusState to false
+      setFocusState(false);
+    }
+  }, [isScreenFocused]);
 
   useEffect(() => {
     if (inputValue) {
@@ -234,6 +244,7 @@ useEffect(() => {
   return (
     <View style={{ flex: 1, backgroundColor: '#1F1D2B' }}>
       <View style={{ display: 'none' }}>
+      {focusState && (
         <TextInput
           ref={inputRef}
           value={inputValue}
@@ -242,11 +253,11 @@ useEffect(() => {
           underlineColorAndroid="transparent"
           autoCorrect={false}
           autoCapitalize="none"
-          onFocus={handleInputFocus} // Add onFocus event handler
+          onFocus={handleInputFocus}
           onBlur={handleInputBlur}
           autoFocus={true}
-          
         />
+      )}
       </View>
 
       <View style={{ flex: 1, flexDirection: 'row', paddingHorizontal: 20, marginTop: 20 }}>
