@@ -85,22 +85,58 @@ const App: React.FC = ({navigation}:any) => {
     navigation.navigate('Inventar')
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (selectedCard) {
       // Remove the selected card from cardData
       const updatedCardData = cardData.filter((card) => card.key !== selectedCard.key);
       setCardData(updatedCardData);
-  
-      // Close both modals and reset selectedCard
-      setSelectedCard(null);
-      setShowCardModal(false);
-      setShowDeleteModal(false);
+
+      // Update the JSON file by removing the selected card's data
+      try {
+        const filePath = `${RNFS.DocumentDirectoryPath}/qaimeler.json`;
+        const fileContent = await RNFS.readFile(filePath, 'utf8');
+        const jsonData = JSON.parse(fileContent);
+
+        // Ensure selectedValue is defined
+        if (!selectedValue) {
+          console.error('Error: selectedValue is not defined.');
+          return;
+        }
+
+        // Check if jsonData[selectedValue] is an array
+        if (Array.isArray(jsonData[selectedValue])) {
+          // Find the index of the selected card in the JSON data
+          const indexToRemove = jsonData[selectedValue].findIndex(
+            (docObject: DocData) =>
+              docObject.IDPerson === selectedCard.PersonId &&
+              docObject.IDAnbar === selectedCard.StockId &&
+              docObject.DocSum === selectedCard.DocSum
+          );
+
+          if (indexToRemove !== -1) {
+            // Remove the item from the array
+            jsonData[selectedValue].splice(indexToRemove, 1);
+
+            // Save the updated JSON data back to the file
+            const updatedJsonString = JSON.stringify(jsonData);
+            await RNFS.writeFile(filePath, updatedJsonString, 'utf8');
+          }
+        }
+
+        // Close both modals and reset selectedCard
+        setSelectedCard(null);
+        setShowCardModal(false);
+        setShowDeleteModal(false);
+      } catch (error) {
+        console.error('Error updating JSON file:', error);
+        Alert.alert('Error deleting card');
+      }
     }
+
     setSelectedCard(null);
     setShowCardModal(false);
     setShowDeleteModal(false);
   };
-  
 
   const handleCancel = () => {
     setSelectedCard(null);
@@ -322,7 +358,76 @@ const generateRandomId = () => {
   
 
   
-
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const filePath = `${RNFS.DocumentDirectoryPath}/qaimeler.json`;
+        const fileContent = await RNFS.readFile(filePath, 'utf8');
+        const jsonData = JSON.parse(fileContent);
+  
+        // Ensure selectedValue is defined
+        if (!selectedValue) {
+          console.error('Error: selectedValue is not defined.');
+          return;
+        }
+  
+        // Initialize the data for the selected tab if it doesn't exist
+        if (!jsonData[selectedValue]) {
+          jsonData[selectedValue] = [];
+        }
+  
+        const tabData = [];
+  
+        // Check if jsonData[selectedValue] is an array
+        if (Array.isArray(jsonData[selectedValue])) {
+          tabData.push(
+            ...jsonData[selectedValue].map((docObject: DocData) => {
+              const key = generateRandomId();
+              return {
+                key: key,
+                PersonName: docObject.IDPerson,
+                PersonId: docObject.IDPerson,
+                DocSum: docObject.DocSum,
+                StockId: docObject.IDAnbar,
+              };
+            })
+          );
+        } else {
+          // Handle the case when jsonData[selectedValue] is an object
+          const docKeys = Object.keys(jsonData[selectedValue]);
+          if (docKeys.length > 0) {
+            docKeys.forEach((key) => {
+              const docObject = jsonData[selectedValue][key];
+              const subData = Object.values<DocData>(docObject);
+              tabData.push(
+                ...subData.map((doc: DocData) => {
+                  const subKey = generateRandomId();
+                  return {
+                    key: subKey,
+                    PersonName: doc.IDPerson,
+                    PersonId: doc.IDPerson,
+                    DocSum: doc.DocSum,
+                    StockId: doc.IDAnbar,
+                  };
+                })
+              );
+            });
+          }
+        }
+  
+        // Set cardData using the accumulated tabData
+        setCardData(tabData);
+        console.log('Data loaded successfully');
+      } catch (error) {
+        console.error('Error reading JSON file:', error);
+      }
+    };
+  
+    // Load data when the component is mounted and when the screen is focused
+    if (isScreenFocused) {
+      loadData();
+    }
+  }, [selectedValue, isScreenFocused, isOkPressed]);
   
 
   // ...
@@ -367,7 +472,7 @@ const generateRandomId = () => {
                 </TouchableOpacity>
             </View>
             <View style={{paddingHorizontal:20}}>
-            {focusState &&  cardData.length > 0 ? ( // Conditionally render based on cardData length
+            {isOkPressed &&  cardData.length > 0 ? ( // Conditionally render based on cardData length
         <FlatList
         ref={(ref) => (componentRef.current = ref)}
           data={cardData}
