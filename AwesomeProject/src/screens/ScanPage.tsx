@@ -10,11 +10,12 @@ import { setScanTabActive } from '../components/tabSlice';
 
 
 const ScanPage = ({ navigation }: any) => {
-  const [inputValue, setInputValue] = useState('');
+  let [inputValue, setInputValue] = useState('');
   const inputRef = useRef<TextInput>(null);
   const [status, setStatus] = useState('');
   const [itemName, setItemName] = useState('');
   const [barcode, setBarcode] = useState('');
+  const [Id, setId] = useState('');
   const [InPrice, setInPrice] = useState('');
   const [OutPrice, setOutPrice] = useState('');
   const [StockPrice, setStockPrice] = useState('');
@@ -75,8 +76,9 @@ const ScanPage = ({ navigation }: any) => {
     } else {
       // When the screen is unfocused, set focusState to false
       setFocusState(false);
+      
     }
-  }, [isScreenFocused]);
+  }, [isScreenFocused, inputValue]);
 
   useEffect(() => {
     if (inputValue) {
@@ -90,11 +92,12 @@ const ScanPage = ({ navigation }: any) => {
     createHashTable();
   }, []);
 
-  const handleInputChange = (text: string) => {
+  let handleInputChange = (text: string) => {
     console.log('Input Value Changed:', text);
   
     setInputValue(text);
-  
+    console.log("setting input value here");
+    
     // Move the fetchItemDetails call to a separate useEffect
   };
   useEffect(() => {
@@ -105,6 +108,8 @@ const ScanPage = ({ navigation }: any) => {
       console.log('Barcode:', inputValue);
       // Reset the input value after processing
       setInputValue('');
+      console.log("calling the dog");
+      
       fetchItemDetails(inputValue); // Send request every time input value changes
     }
   }, [inputValue]);
@@ -133,7 +138,7 @@ const ScanPage = ({ navigation }: any) => {
     try {
       setIsLoading(true);
       setStatus('Sorğu başladı');
-
+      console.log(barcode, "im here")
       const foundItem = itemsHashTable[barcode];
       if (foundItem) {
         console.log('Item details:', foundItem);
@@ -146,6 +151,7 @@ const ScanPage = ({ navigation }: any) => {
         setOutPrice(foundItem.OutPrice);
         setStock(foundItem.Stock);
         setStockPrice(foundItem.StockPrice);
+        setId(foundItem.ID)
 
         // Save the item details to AsyncStorage
         const itemDetails = {
@@ -158,8 +164,11 @@ const ScanPage = ({ navigation }: any) => {
         };
         await AsyncStorage.setItem('lastItemDetails', JSON.stringify(itemDetails));
       } else {
+        
         Alert.alert('Item not found')
         console.log('Item not found.');
+        
+        //const clearItem =foundItem('')
         setStatus('Sorğu uğursuz oldu');
       }
     } catch (error) {
@@ -199,8 +208,9 @@ const ScanPage = ({ navigation }: any) => {
 
       const data = {
         TypReport: 'PriceCheker',
-        Itemid: barcode,
+        Itemid: Id,
         Typ: type,
+        
       };
 
       const jsonFilePath = `${RNFS.DocumentDirectoryPath}/request.json`;
@@ -220,6 +230,7 @@ const ScanPage = ({ navigation }: any) => {
       if (response.ok) {
         // Handle the success response here
         Alert.alert('Request sent successfully');
+        console.log(Id)
         await RNFS.unlink(jsonFilePath); // Delete the JSON file
       } else {
         // Handle the error response here

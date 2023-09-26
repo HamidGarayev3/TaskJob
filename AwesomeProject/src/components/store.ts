@@ -13,6 +13,7 @@ import selectedSayReducer from './selectedSaySlice';
 import inventarReducer from './inventarSlice';
 import tabReducer from '../components/tabSlice'
 import malMedaxilReducer from '../components/malMedaxilSlice'; // Update with the correct path
+import selectedCardReducer from '../components/SelectedCardSlice'; // Import the new reducer
 
 
 
@@ -31,6 +32,7 @@ const store = configureStore({
     inventar: inventarReducer,
     tab: tabReducer,
     malMedaxil: malMedaxilReducer,
+    selectedCard: selectedCardReducer, // Add the new reducer
 
     // Add the new reducer
     // other reducers...

@@ -236,6 +236,7 @@ const generateRandomId = () => {
   
         // Set cardData using the accumulated tabData
         setCardData(tabData);
+        console.log('adddddddddddddddddd')
       } catch (error) {
         console.error('Error reading JSON file:', error);
       }
@@ -247,7 +248,8 @@ const generateRandomId = () => {
     }else{
       loadData()
     }
-  }, [selectedValue, isOkPressed, mounted,isScreenFocused]);
+   
+  }, [selectedValue,isOkPressed]);
   
   
   
@@ -341,7 +343,7 @@ const generateRandomId = () => {
         console.log('Screen is not focused');
         setFocusState(false);
       }
-    }, [isScreenFocused])
+    }, [isScreenFocused,isOkPressed])
   );
 
     const showAlert = () => {
@@ -415,9 +417,9 @@ const generateRandomId = () => {
       <TouchableOpacity style={styles.optionButton} onPress={handleConfirmDelete}>
         <Text style={styles.optionButtonText}>Delete</Text>
       </TouchableOpacity>
-      {/* <TouchableOpacity style={styles.optionButton} onPress={handleEdit}>
+      <TouchableOpacity style={styles.optionButton} onPress={handleEdit}>
         <Text style={styles.optionButtonText}>Edit</Text>
-      </TouchableOpacity> */}
+      </TouchableOpacity>
       <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
         <Text style={styles.cancelButtonText}>Cancel</Text>
       </TouchableOpacity>

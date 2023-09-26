@@ -92,10 +92,146 @@ const Inventar: React.FC = ({ navigation }: any) => {
   const [cards, setCards] = useState<Card[]>([]); // Maintain the list of animated cards
 
 
+ 
+
+
+// Use the useIsFocused hook to determine if the screen is focused
+const isScreenFocused = useIsFocused();
+useEffect(() => {
+  if (isScreenFocused) {
+    // When the screen is focused, set focusState to true
+    setFocusState(true);
+
+    // Focus the TextInput when the screen comes into focus
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  } else {
+    // When the screen is unfocused, set focusState to false
+    setFocusState(false);
+    
+  }
+}, [isScreenFocused, inputValue]);
+const [rerenderKey, setRerenderKey] = useState(0);
+
+// useEffect(() => {
+//   // Add a focus event listener to the navigation
+//   const unsubscribe = navigation.addListener('focus', () => {
+//     // Focus the TextInput when the screen comes into focus
+//     if (inputRef.current) {
+//       inputRef.current.focus();
+//     }
+//   });
+
+//   // Return the cleanup function to unsubscribe from the event listener
+//   return unsubscribe;
+// }, [navigation,isScreenFocused]);
+// useFocusEffect(
+//   React.useCallback(() => {
+//     // Clear input value when the screen comes into focus
+//     setInputValue('');
+//     // Focus the input when the screen comes into focus
+//     if (inputRef.current) {
+//       inputRef.current.focus();
+//     }
+//     console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+//   }, [isScreenFocused])
+// );
+
+// Move the search logic to this useEffect, which triggers on inputValue changes
+useEffect(() => {
+  if (inputValue) {
+    console.log('Barcode:', inputValue);
+    // Reset the input value after processing
+    setInputValue('');
+    fetchItemDetails(inputValue); // Send request every time input value changes
+  }
+}, [inputValue]);
+const [focusState, setFocusState] = useState(false); // Focus state
+
+useEffect(() => {
+  if (isScreenFocused) {
+    // When the screen is focused, set focusState to true
+    setFocusState(true);
+
+    // Focus the TextInput when the screen comes into focus
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  } else {
+    // When the screen is unfocused, set focusState to false
+    setFocusState(false);
+  }
+}, [isScreenFocused]);
+
+useEffect(() => {
+  if (inputValue) {
+    console.log('Barcode:', inputValue);
+    // Reset the input value after processing
+    setInputValue('');
+  }
+}, [inputValue]);
+
+useEffect(() => {
+  createHashTable();
+}, []);
+
+const handleInputChange = (text: string) => {
+  console.log('Input Value Changed:', text);
+
+  setInputValue(text);
+
+  // Move the fetchItemDetails call to a separate useEffect
+};
+useEffect(() => {
+  createHashTable();
+}, []);
+
+
+const [areCardsVisible, setAreCardsVisible] = useState(true);
+
+
+const createHashTable = async () => {
+  const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
+  const fileContent = await RNFS.readFile(fileUri, 'utf8');
+
+  if (fileContent) {
+    const parsedData = JSON.parse(fileContent);
+    const itemsArray = parsedData.Item;
+
+    if (itemsArray && itemsArray.length > 0) {
+      const newItemsHashTable: { [key: string]: any } = {};
+      itemsArray.forEach((item: any) => {
+        newItemsHashTable[item.Barcode] = item;
+      });
+      setItemsHashTable(newItemsHashTable);
+      console.log('items are set and good to go')
+    }
+  }
+};
 
 
 
+const getLastItemDetails = async () => {
+  try {
+    const lastItemDetails = await AsyncStorage.getItem('lastItemDetails');
+    if (lastItemDetails) {
+      const itemDetails = JSON.parse(lastItemDetails);
+      setItemName(itemDetails.itemName);
+      setBarcode(itemDetails.barcode);
+      setInPrice(itemDetails.inPrice);
+      setOutPrice(itemDetails.outPrice);
+      setStock(itemDetails.stock);
+      setStockPrice(itemDetails.stockPrice);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
 
+useEffect(() => {
+  getLastItemDetails();
+}, [inputValue]);
 
   const [deleteEditModalVisible, setDeleteEditModalVisible] = useState(false);
 
@@ -130,24 +266,8 @@ const Inventar: React.FC = ({ navigation }: any) => {
     }
   };
 
-  const isScreenFocused = useIsFocused();
 
-  const [focusState, setFocusState] = useState(false); // Focus state
-
-  useEffect(() => {
-    if (isScreenFocused) {
-      // When the screen is focused, set focusState to true
-      setFocusState(true);
-
-      // Focus the TextInput when the screen comes into focus
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
-    } else {
-      // When the screen is unfocused, set focusState to false
-      setFocusState(false);
-    }
-  }, [isScreenFocused]);
+  
 
 
   const dispatch = useDispatch();
@@ -194,7 +314,7 @@ const Inventar: React.FC = ({ navigation }: any) => {
     setOutPrice('');
     setStockPrice('');
     setStock('');
-    setItemsHashTable({});
+    //setItemsHashTable({});
 
     // Return a cleanup function that will be run when the screen goes out of focus
     return () => {
@@ -208,63 +328,11 @@ const Inventar: React.FC = ({ navigation }: any) => {
     setOutPrice('');
     setStockPrice('');
     setStock('');
-    setItemsHashTable({});
+    //setItemsHashTable({});
     };
   }, [])
 );
 
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, []);
-
-  useEffect(() => {
-    if (inputValue) {
-      console.log('Barcode:', inputValue);
-      // Reset the input value after processing
-      setInputValue('');
-    }
-  }, [inputValue]);
-
-  useEffect(() => {
-    createHashTable();
-  }, []);
-
- const handleInputChange = (text: string) => {
-    console.log('Input Value Changed:', text);
-  
-    setInputValue(text);
-  
-    // Move the fetchItemDetails call to a separate useEffect
-  };
-  
-  useEffect(() => {7.
-    if (inputValue) {
-      console.log('Barcode:', inputValue);
-      // Reset the input value after processing
-      setInputValue('');
-    }
-  }, [inputValue]);
-
-
-  const createHashTable = async () => {
-    const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
-    const fileContent = await RNFS.readFile(fileUri, 'utf8');
-
-    if (fileContent) {
-      const parsedData = JSON.parse(fileContent);
-      const itemsArray = parsedData.Item;
-
-      if (itemsArray && itemsArray.length > 0) {
-        const newItemsHashTable: { [key: string]: any } = {};
-        itemsArray.forEach((item: any) => {
-          newItemsHashTable[item.Barcode] = item;
-        });
-        setItemsHashTable(newItemsHashTable);
-      }
-    }
-  };
 
   const [selectedItemsForSaving, setSelectedItemsForSaving] = useState<Item[]>([]);
 
@@ -274,8 +342,12 @@ const Inventar: React.FC = ({ navigation }: any) => {
   try {
     setIsLoading(true);
     setStatus('Sorğu başladı');
-
+    
     const foundItem = itemsHashTable[barcode];
+    // console.log("barc ------------", barcode)
+    // console.log("data ------------", itemsHashTable)
+    // console.log("scanned barcode", itemsHashTable[barcode])
+    // console.log("and type is ", typeof(barcode))
     if (foundItem) {
       console.log('Item details:', foundItem);
       setStatus('Sorğu uğurlu oldu');
@@ -310,40 +382,6 @@ const Inventar: React.FC = ({ navigation }: any) => {
   }
 };
 
-  
-
-
-
-
-  const getLastItemDetails = async () => {
-    try {
-      const lastItemDetails = await AsyncStorage.getItem('lastItemDetails');
-      if (lastItemDetails) {
-        const itemDetails = JSON.parse(lastItemDetails);
-        setItemName(itemDetails.itemName);
-        setBarcode(itemDetails.barcode);
-        setInPrice(itemDetails.inPrice);
-        setOutPrice(itemDetails.outPrice);
-        setStock(itemDetails.stock);
-        setStockPrice(itemDetails.stockPrice);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
-
-  useEffect(() => {
-    getLastItemDetails();
-  }, [inputValue]);
-
-  useEffect(() => {
-    if (inputValue) {
-      console.log('Barcode:', inputValue);
-      // Reset the input value after processing
-      setInputValue('');
-      fetchItemDetails(inputValue); // Send request every time input value changes
-    }
-  }, [inputValue]);
  ;
  const resetAllStates = () => {
   // Reset selectedPersonName and selectedStockName
@@ -359,6 +397,8 @@ const Inventar: React.FC = ({ navigation }: any) => {
   
   
 const handleOkPress = async () => {
+ 
+
   try {
     if (selectedItems.length > 0) {
       const currentDate = new Date().toLocaleDateString('en-US');
@@ -410,7 +450,6 @@ const handleOkPress = async () => {
       await RNFS.writeFile(filePath, JSON.stringify(parsedExistingData), 'utf8');
 
       // Clear the selected items array after saving
-      dispatch(setOkPressed(true));
       setSelectedItemsForSaving([]);
       resetAllStates();
 
@@ -428,6 +467,7 @@ const handleOkPress = async () => {
   } catch (error) {
     console.error('Error:', error);
   }
+  dispatch(setOkPressed(true));
 };
 
 const Save = async () => {
@@ -586,11 +626,14 @@ const [selectedItemForModal, setSelectedItemForModal] = useState<Item | null>(nu
                 <Text style={styles.textBold}>12.22.2023</Text>
             </View>
             <View style={styles.paddingContainer}>
-                <Image
+              <TouchableOpacity onPress={() => setAreCardsVisible(!areCardsVisible)}>
+              <Image
                     source={require('../assets&styles/igid.png')}
                     style={styles.horizontalLine}
                 />
+              </TouchableOpacity>
             </View>
+            {areCardsVisible && ( <View>
             <TouchableOpacity onPress={() =>
       navigation.navigate('Techizatci')
       } style={[styles.cardContainer,{marginBottom:20}]}>
@@ -613,11 +656,14 @@ const [selectedItemForModal, setSelectedItemForModal] = useState<Item | null>(nu
                     />
                 </TouchableOpacity>
             </TouchableOpacity >
+            </View>)}
             <View style={styles.paddingContainer}>
-                <Image
+            <TouchableOpacity onPress={() => setAreCardsVisible(!areCardsVisible)}>
+              <Image
                     source={require('../assets&styles/igid.png')}
                     style={styles.horizontalLine}
                 />
+              </TouchableOpacity>
             </View>
             <ScrollView style={styles.container}>
             {selectedItems.map((item, index) => (
