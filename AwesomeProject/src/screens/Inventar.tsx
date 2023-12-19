@@ -97,21 +97,7 @@ const Inventar: React.FC = ({ navigation }: any) => {
 
 // Use the useIsFocused hook to determine if the screen is focused
 const isScreenFocused = useIsFocused();
-useEffect(() => {
-  if (isScreenFocused) {
-    // When the screen is focused, set focusState to true
-    setFocusState(true);
 
-    // Focus the TextInput when the screen comes into focus
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  } else {
-    // When the screen is unfocused, set focusState to false
-    setFocusState(false);
-    
-  }
-}, [isScreenFocused, inputValue]);
 const [rerenderKey, setRerenderKey] = useState(0);
 
 // useEffect(() => {
@@ -594,7 +580,23 @@ const [selectedItemForModal, setSelectedItemForModal] = useState<Item | null>(nu
   // Function to close the pop-up
   const [modalInputValue, setModalInputValue] = useState('');
 
+  useEffect(() => {
+    if (isScreenFocused) {
+      // When the screen is focused, set focusState to true
+      setFocusState(true);
   
+      // Focus the TextInput when the screen comes into focus
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    } else {
+      // When the screen is unfocused, set focusState to false
+      setFocusState(false);
+      
+    }
+    console.log('it works');
+    
+  }, [isScreenFocused, inputValue,closeDeleteEditModal,handleDeleteItem,handleEditItem,updateSayProperty,closePopup]);
 
     return (
 <View style={styles.appContainer}>

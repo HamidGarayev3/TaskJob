@@ -5,6 +5,9 @@ import RNFS from 'react-native-fs';
 import base64 from 'base-64';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../components/store';
+import SQLite, { SQLiteDatabase, Transaction } from 'react-native-sqlite-storage'; // Added this line
+
+
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
@@ -179,6 +182,7 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
       setIsLoading(false);
     }
   };
+  
 
   useEffect(() => {
     const fetchStoredData = async () => {

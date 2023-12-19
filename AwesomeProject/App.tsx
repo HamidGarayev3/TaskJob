@@ -4,6 +4,10 @@ import { NavigationContainer } from "@react-navigation/native";
 import Navigator from './src/navigation';
 import { Provider } from 'react-redux';
 import store from './src/components/store'
+
+
+
+
 const App = () => {
   return (
     <Provider store={store}>

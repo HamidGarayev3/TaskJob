@@ -120,7 +120,7 @@ const Products: React.FC<{navigation: any}> = ({navigation}) => {
         </TouchableOpacity>
       </View>
       <FlatList
-        initialNumToRender={10}
+        initialNumToRender={10} 
         data={filteredItems}
         renderItem={({item}) => (
           <TouchableOpacity
