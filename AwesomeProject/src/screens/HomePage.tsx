@@ -5,21 +5,54 @@ import RNFS from 'react-native-fs';
 import base64 from 'base-64';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../components/store';
-import SQLite, { SQLiteDatabase, Transaction } from 'react-native-sqlite-storage'; // Added this line
+import SQLite from 'react-native-sqlite-storage';
 
 
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
+interface Person {
+  PersonID: string;
+  PersonName: string;
+  PersonVOEN: string;
+  PersonType: boolean;
+  PersonSumm: string | null;
+}
+
+interface Stock {
+  StockID: string;
+  StockName: string;
+  StockMain: string | null;
+}
+
 interface Item {
+  ID: string;
+  Name: string;
   Barcode: string;
-  // Add other properties here if needed
+  Stock: string;
+  InPrice: string;
+  OutPrice: string;
+  TopPrice: string | null;
+  StockPrice: string;
+  TypPrice: string | null;
+  Control: string | null;
 }
 
 interface JsonData {
   Item: Item[];
   // Add other properties here if needed
 }
+
+
+const db = SQLite.openDatabase(
+  {
+    name: 'your_db_name.db',
+    location: 'default',
+    createFromLocation: 1,
+  },
+  () => console.log('Database opened successfully'),
+  error => console.error('Error opening database:', error)
+);
 
 const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [inputValue, setInputValue] = useState('');
@@ -28,6 +61,54 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [status, setStatus] = useState('');
   const animatedDotsOpacity = useRef(new Animated.Value(0)).current;
   const [jsonData, setJsonData] = useState<JsonData | null>(null);
+
+
+
+  useEffect(() => {
+    // Create tables in SQLite for Persons, Stocks, and Item
+    db.transaction(tx => {
+      // Persons table
+      tx.executeSql(
+        'CREATE TABLE IF NOT EXISTS Persons (PersonID TEXT PRIMARY KEY, PersonName TEXT, PersonVOEN TEXT, PersonType INTEGER, PersonSumm TEXT);'
+      );
+
+      // Stocks table
+      tx.executeSql(
+        'CREATE TABLE IF NOT EXISTS Stocks (StockID TEXT PRIMARY KEY, StockName TEXT, StockMain TEXT);'
+      );
+
+      // Item table
+      tx.executeSql(
+        'CREATE TABLE IF NOT EXISTS Item (ID TEXT PRIMARY KEY, Name TEXT, Barcode TEXT, Stock TEXT, InPrice TEXT, OutPrice TEXT, TopPrice TEXT, StockPrice TEXT, TypPrice TEXT, Control TEXT);'
+      );
+    });
+  }, []);
+
+  const saveArrayToSQLite = (tableName: string, dataArray: any[]) => {
+    db.transaction(tx => {
+      // Clear existing data in the table
+      tx.executeSql(`DELETE FROM ${tableName};`);
+
+      // Insert new data
+      dataArray.forEach(data => {
+        const columns = Object.keys(data).join(', ');
+        const placeholders = Array(Object.keys(data).length).fill('?').join(', ');
+        const values = Object.values(data);
+
+        tx.executeSql(
+          `INSERT INTO ${tableName} (${columns}) VALUES (${placeholders});`,
+          values,
+          (_, result) => {
+            console.log(`Data saved to ${tableName} table:`, result);
+          },
+          error => console.error(`Error saving data to ${tableName} table:`, error)
+        );
+      });
+    });
+  };
+
+ 
+
 
   const dispatch = useDispatch();
   const { api, username, password } = useSelector((state: RootState) => state.service);
@@ -126,55 +207,136 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
     }
   };
 
-  const Import = async () => {
-    let uname = 'sa';
-    let pword = 'abc';
+  // const Import = async () => {
+  //   let uname = 'sa';
+  //   let pword = 'abc';
 
+  //   try {
+  //     setIsLoading(true);
+  //     setStatus('Sorğu başladı');
+  //     const response = await fetch(api, {
+  //       method: 'POST',
+  //       headers: {
+  //         Authorization: 'Basic ' + base64.encode(`${username}:${password}`),
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         TypReport: 'Catalogs',
+  //         Usr: { Name: 'Admin' },
+  //       }),
+  //     });
+
+  //     if (response.ok) {
+  //       console.log(api)
+  //       console.log(username)
+  //       console.log(password)
+
+  //       setStatus('Sorğu uğurlu oldu');
+
+  //       const jsonData = await response.json();
+  //       setJsonData(jsonData); // Update jsonData state with the new data
+
+  //       // Save the JSON data to AsyncStorage
+  //       const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
+  //       await RNFS.writeFile(fileUri, JSON.stringify(jsonData), 'utf8');
+  //       console.log('JSON file saved to local storage:', fileUri);
+
+  //       // Load the last imported JSON data after successfully saving it
+  //       getLastImportedJson();
+  //     } else {
+  //       console.log(api)
+  //       console.log(username)
+  //       console.log(password)
+  //       const errorMessage = 'Request failed. Please try again later.';
+  //       setStatus('Sorğu uğursuz oldu');
+  //       Alert.alert('Import Error', errorMessage);
+  //       console.log(response.status, errorMessage);
+  //     }
+  //   } catch (error) {
+  //     console.log(api)
+  //     console.log(username)
+  //     console.log(password)
+  //     console.error('Error:', error);
+  //     setStatus('Sorğu alınmadı');
+  //     Alert.alert('Xəta', 'Giriş zamanı xəta baş verdi.');
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+  const Import = async () => {
     try {
       setIsLoading(true);
       setStatus('Sorğu başladı');
+  
       const response = await fetch(api, {
         method: 'POST',
         headers: {
-          Authorization: 'Basic ' + base64.encode(`${username}:${password}`),
+          Authorization: 'Basic ' + base64.encode(username + ":" + password),
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          typReport: 'Catalogs',
+          TypReport: 'Catalogs',
           Usr: { Name: 'Admin' },
         }),
       });
-
+  
       if (response.ok) {
-        console.log(api)
-        console.log(username)
-        console.log(password)
-
         setStatus('Sorğu uğurlu oldu');
-
+  
         const jsonData = await response.json();
-        setJsonData(jsonData); // Update jsonData state with the new data
-
-        // Save the JSON data to AsyncStorage
-        const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
-        await RNFS.writeFile(fileUri, JSON.stringify(jsonData), 'utf8');
-        console.log('JSON file saved to local storage:', fileUri);
-
+  
+        // Save Persons to SQLite
+        db.transaction((tx: any) => {
+          jsonData.Persons.forEach((person: Person) => {
+            tx.executeSql(
+              'INSERT INTO Persons (PersonID, PersonName, PersonVOEN, PersonType, PersonSumm) VALUES (?, ?, ?, ?, ?)',
+              [person.PersonID, person.PersonName, person.PersonVOEN, person.PersonType, person.PersonSumm],
+            );
+          });
+        });
+  
+        // Save Stocks to SQLite
+        db.transaction((tx: any) => {
+          jsonData.Stocks.forEach((stock: Stock) => {
+            tx.executeSql('INSERT INTO Stocks (StockID, StockName, StockMain) VALUES (?, ?, ?)', [
+              stock.StockID,
+              stock.StockName,
+              stock.StockMain,
+            ]);
+          });
+        });
+  
+        // Save Item to SQLite
+        db.transaction((tx: any) => {
+          jsonData.Item.forEach((item: Item) => {
+            tx.executeSql(
+              'INSERT INTO Item (ID, Name, Barcode, Stock, InPrice, OutPrice, TopPrice, StockPrice, TypPrice, Control) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+              [
+                item.ID,
+                item.Name,
+                item.Barcode,
+                item.Stock,
+                item.InPrice,
+                item.OutPrice,
+                item.TopPrice,
+                item.StockPrice,
+                item.TypPrice,
+                item.Control,
+              ],
+            );
+          });
+        });
+  
         // Load the last imported JSON data after successfully saving it
         getLastImportedJson();
       } else {
-        console.log(api)
-        console.log(username)
-        console.log(password)
         const errorMessage = 'Request failed. Please try again later.';
         setStatus('Sorğu uğursuz oldu');
         Alert.alert('Import Error', errorMessage);
         console.log(response.status, errorMessage);
       }
     } catch (error) {
-      console.log(api)
-      console.log(username)
-      console.log(password)
       console.error('Error:', error);
       setStatus('Sorğu alınmadı');
       Alert.alert('Xəta', 'Giriş zamanı xəta baş verdi.');
@@ -182,7 +344,6 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
       setIsLoading(false);
     }
   };
-  
 
   useEffect(() => {
     const fetchStoredData = async () => {

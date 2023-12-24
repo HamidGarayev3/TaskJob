@@ -7,6 +7,16 @@ import { useDispatch } from 'react-redux';
 import { setSelectedStock } from '../components/stockSlice';
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
+import SQLite from 'react-native-sqlite-storage';
+
+const db = SQLite.openDatabase(
+  {
+    name: 'your_db_name.db',
+    location: 'default',
+  },
+  () => console.log('Database opened successfully'),
+  error => console.error('Error opening database:', error)
+);
 
 interface Item {
     StockID: string;
@@ -48,41 +58,26 @@ const Depolar = ({ navigation }: any) => {
     };
 
     const fetchItems = async () => {
-        if (isLoading) return;
-
-        setIsLoading(true);
         try {
-            const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
-            const fileContent = await RNFS.readFile(fileUri, 'utf8');
-
-            if (fileContent) {
-                const parsedData = JSON.parse(fileContent);
-                const itemsArray: Item[] = parsedData.Stocks;
-
-                if (itemsArray && itemsArray.length > 0) {
-                    const startIndex = (currentPage - 1) * 5;
-                    const endIndex = startIndex + 5;
-                    const newItems = itemsArray.slice(startIndex, endIndex);
-
-                    const updatedItems = newItems.map(item => {
-                        if (item.StockID === '') {
-                            const newBarcode = generateUniqueBarcode();
-                            setGeneratedBarcodes(prevBarcodes => [...prevBarcodes, newBarcode]);
-                            return { ...item, Barcode: newBarcode };
-                        }
-                        return item;
-                    });
-
-                    setItemList(prevItems => [...prevItems, ...updatedItems]);
-                    setCurrentPage(prevPage => prevPage + 1);
+          db.transaction(tx => {
+            tx.executeSql(
+              'SELECT * FROM Stocks;', // Adjust the query based on your table structure
+              [],
+              (_, result) => {
+                const itemsArray: Item[] = [];
+                for (let i = 0; i < result.rows.length; i++) {
+                  itemsArray.push(result.rows.item(i));
                 }
-            }
+    
+                setItemList(itemsArray);
+              },
+              error => console.error('Error fetching items from SQLite:', error)
+            );
+          });
         } catch (error) {
-            console.error('Error fetching items:', error);
-        } finally {
-            setIsLoading(false);
+          console.error('Error fetching items:', error);
         }
-    };
+      };
 
     const handleScroll = (event: NativeScrollEvent) => {
         if (!isLoading) {

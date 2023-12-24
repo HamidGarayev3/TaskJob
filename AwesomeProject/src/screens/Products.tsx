@@ -18,6 +18,17 @@ import Inventar from './Inventar';
 import {useDispatch} from 'react-redux';
 import {addItem} from '../components/inventorySlice'; // Import the new thunk action
 import {AppDispatch} from '../components/store';
+import SQLite from 'react-native-sqlite-storage';
+
+const db = SQLite.openDatabase(
+  {
+    name: 'your_db_name.db',
+    location: 'default',
+  },
+  () => console.log('Database opened successfully'),
+  error => console.error('Error opening database:', error)
+);
+
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -59,23 +70,24 @@ const Products: React.FC<{navigation: any}> = ({navigation}) => {
   };
 
   const fetchItems = async () => {
-    if (isLoading) return;
-
-    setIsLoading(true);
     try {
-      const fileUri = `${RNFS.DocumentDirectoryPath}/jsonData.json`;
-      const fileContent = await RNFS.readFile(fileUri, 'utf8');
+      db.transaction(tx => {
+        tx.executeSql(
+          'SELECT * FROM Item;', // Adjust the query based on your table structure
+          [],
+          (_, result) => {
+            const itemsArray: Item[] = [];
+            for (let i = 0; i < result.rows.length; i++) {
+              itemsArray.push(result.rows.item(i));
+            }
 
-      if (fileContent) {
-        const parsedData = JSON.parse(fileContent);
-        const itemsArray: Item[] = parsedData.Item;
-
-        setItemList(itemsArray);
-      }
+            setItemList(itemsArray);
+          },
+          error => console.error('Error fetching items from SQLite:', error)
+        );
+      });
     } catch (error) {
       console.error('Error fetching items:', error);
-    } finally {
-      setIsLoading(false);
     }
   };
 

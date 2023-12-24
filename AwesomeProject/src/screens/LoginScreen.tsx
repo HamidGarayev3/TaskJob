@@ -34,6 +34,7 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
       Alert.alert('Doğrulama Xətası', 'Zəhmət olmasa istifadəçi adı və şifrə sahələrini doldurun.');
       return;
     }
+    console.log('API-',api,Ad,Parol)
     const serverName: string = 'sa'; // Replace with the actual server name
     const serverPassword: string = 'abc'; // Replace with the actual server password
     let uname = "sa";
@@ -67,7 +68,7 @@ const LoginScreen: React.FC = ({ navigation }: any) => {
         },
         body: JSON.stringify({
           "typReport": "LoginMenu",
-          "Usr": { "Name": Ad, "Pass": Parol }
+          "Usr": { "name": Ad, "pass": Parol }
         }),
       });
 
