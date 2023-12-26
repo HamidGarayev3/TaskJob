@@ -39,6 +39,7 @@ interface Item {
   ID: number;
   InPrice: number;
   Stock: number;
+  Say: number ;
   // Add other properties as needed
 }
 
@@ -51,11 +52,7 @@ const Products: React.FC<{navigation: any}> = ({navigation}) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [generatedBarcodes, setGeneratedBarcodes] = useState<number[]>([]); // Keep track of generated barcodes
 
-  const filteredItems = itemList.filter(
-    item =>
-      item.Name.toLowerCase().includes(searchText.toLowerCase()) ||
-      item.Barcode.toString().includes(searchText),
-  );
+
 
   useEffect(() => {
     fetchItems();
@@ -91,6 +88,13 @@ const Products: React.FC<{navigation: any}> = ({navigation}) => {
     }
   };
 
+  const filteredItems = itemList.filter(
+    item =>
+      item.Name.toLowerCase().includes(searchText.toLowerCase()) ||
+      item.Barcode.toString().includes(searchText)
+  );
+
+
   const handleScroll = (event: NativeScrollEvent) => {
     if (!isLoading) {
       const contentHeight = event.contentSize.height;
@@ -105,6 +109,14 @@ const Products: React.FC<{navigation: any}> = ({navigation}) => {
       }
     }
   };
+  useEffect(() => {
+    console.log('Fetching items...');
+    fetchItems();
+  }, []);
+
+
+console.log('Data - ', filteredItems);
+
 
   return (
     <View style={styles.appContainer}>

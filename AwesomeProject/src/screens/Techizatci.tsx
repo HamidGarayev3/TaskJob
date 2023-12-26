@@ -84,6 +84,7 @@ const Techizatci = ({navigation}: any) => {
             for (let i = 0; i < result.rows.length; i++) {
               itemsArray.push(result.rows.item(i));
             }
+            console.log('ItemsArray',itemsArray)
 
             setItemList(itemsArray);
           },
