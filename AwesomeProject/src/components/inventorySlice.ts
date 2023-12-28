@@ -2,13 +2,17 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 // Define your Item type here
 interface Item {
-  Barcode: string | number;
+  ID: string;
   Name: string;
-  ID: number;
-  InPrice: number;
-  Stock: number;
-  Say: number;
-  // Add other properties as needed
+  Barcode: string;
+  Stock: string | null;
+  InPrice: string | null;
+  OutPrice: string | null;
+  TopPrice: string | null;
+  StockPrice: string | null;
+  TypPrice: string | null;
+  Control: string | null;
+  Say:number | null
 }
 
 interface InventoryState {

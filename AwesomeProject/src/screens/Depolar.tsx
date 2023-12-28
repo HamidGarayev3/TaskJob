@@ -8,6 +8,7 @@ import { setSelectedStock } from '../components/stockSlice';
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 import SQLite from 'react-native-sqlite-storage';
+import { useIsFocused,useFocusEffect } from '@react-navigation/native'; // Import useIsFocused hook
 
 const db = SQLite.openDatabase(
   {
@@ -45,9 +46,10 @@ const Depolar = ({ navigation }: any) => {
           item.StockName.toLowerCase().includes(searchText.toLowerCase()) ||
           item.StockID.toString().includes(searchText),
       );
-    useEffect(() => {
+      const isScreenFocused = useIsFocused();
+      useEffect(() => {
         fetchItems();
-    }, []);
+      }, [isScreenFocused]);
 
     const generateUniqueBarcode = (): number => {
         let newBarcode: number;
@@ -68,7 +70,8 @@ const Depolar = ({ navigation }: any) => {
                 for (let i = 0; i < result.rows.length; i++) {
                   itemsArray.push(result.rows.item(i));
                 }
-    
+                console.log('ItemsArray',itemsArray)
+
                 setItemList(itemsArray);
               },
               error => console.error('Error fetching items from SQLite:', error)

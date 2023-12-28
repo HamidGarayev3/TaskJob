@@ -34,13 +34,17 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 interface Item {
-  Barcode: string | number;
+  ID: string;
   Name: string;
-  ID: number;
-  InPrice: number;
-  Stock: number;
-  Say: number ;
-  // Add other properties as needed
+  Barcode: string;
+  Stock: string | null;
+  InPrice: string | null;
+  OutPrice: string | null;
+  TopPrice: string | null;
+  StockPrice: string | null;
+  TypPrice: string | null;
+  Control: string | null;
+  Say:number | null
 }
 
 const Products: React.FC<{navigation: any}> = ({navigation}) => {
@@ -77,6 +81,7 @@ const Products: React.FC<{navigation: any}> = ({navigation}) => {
             for (let i = 0; i < result.rows.length; i++) {
               itemsArray.push(result.rows.item(i));
             }
+            console.log('ItemsArray',itemsArray)
 
             setItemList(itemsArray);
           },

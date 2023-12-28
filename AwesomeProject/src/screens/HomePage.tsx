@@ -29,11 +29,11 @@ interface Item {
   ID: string;
   Name: string;
   Barcode: string;
-  Stock: string;
-  InPrice: string;
-  OutPrice: string;
+  Stock: string | null;
+  InPrice: string | null;
+  OutPrice: string | null;
   TopPrice: string | null;
-  StockPrice: string;
+  StockPrice: string | null;
   TypPrice: string | null;
   Control: string | null;
 }
@@ -292,6 +292,11 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
             tx.executeSql(
               'INSERT INTO Persons (PersonID, PersonName, PersonVOEN, PersonType, PersonSumm) VALUES (?, ?, ?, ?, ?)',
               [person.PersonID, person.PersonName, person.PersonVOEN, person.PersonType, person.PersonSumm],
+              (tx: any, result: any) => { // Add type annotations for 'tx' and 'result'
+                console.log('Item inserted successfully:', result);
+              },
+              (tx: any, error: any) => { // Add type annotations for 'tx' and 'error'
+                console.error('Error inserting item:', error);}
             );
           });
         });
@@ -324,6 +329,7 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
                 item.TypPrice,
                 item.Control,
               ],
+  
             );
           });
         });

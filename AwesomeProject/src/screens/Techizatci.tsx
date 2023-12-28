@@ -16,6 +16,7 @@ import RNFS from 'react-native-fs';
 import {useDispatch, useSelector} from 'react-redux';
 import {setSelectedPerson} from '../components/personSlice';
 import SQLite from 'react-native-sqlite-storage';
+import { useIsFocused,useFocusEffect } from '@react-navigation/native'; // Import useIsFocused hook
 
 const db = SQLite.openDatabase(
   {
@@ -60,10 +61,10 @@ const Techizatci = ({navigation}: any) => {
   //     item.PersonName.toLowerCase().includes(searchText.toLowerCase()) ||
   //     item.PersonID.toString().includes(searchText),
   // );
-
+  const isScreenFocused = useIsFocused();
   useEffect(() => {
     fetchItems();
-  }, []);
+  }, [isScreenFocused]);
 
   const generateUniqueBarcode = (): number => {
     let newBarcode: number;
@@ -84,7 +85,6 @@ const Techizatci = ({navigation}: any) => {
             for (let i = 0; i < result.rows.length; i++) {
               itemsArray.push(result.rows.item(i));
             }
-            console.log('ItemsArray',itemsArray)
 
             setItemList(itemsArray);
           },
