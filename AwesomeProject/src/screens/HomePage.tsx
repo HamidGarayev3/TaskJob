@@ -25,9 +25,9 @@ interface Stock {
   StockMain: string | null;
 }
 
-interface Item {
-  ID: string;
-  Name: string;
+interface Product {
+  ProductID: string;
+  ProductName: string;
   Barcode: string;
   Stock: string | null;
   InPrice: string | null;
@@ -35,11 +35,11 @@ interface Item {
   TopPrice: string | null;
   StockPrice: string | null;
   TypPrice: string | null;
-  Control: string | null;
+  ProductControl: string | null;
 }
 
 interface JsonData {
-  Item: Item[];
+  Item: Product[];
   // Add other properties here if needed
 }
 
@@ -79,7 +79,7 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
 
       // Item table
       tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS Item (ID TEXT PRIMARY KEY, Name TEXT, Barcode TEXT, Stock TEXT, InPrice TEXT, OutPrice TEXT, TopPrice TEXT, StockPrice TEXT, TypPrice TEXT, Control TEXT);'
+        'CREATE TABLE IF NOT EXISTS Product (ProductID TEXT PRIMARY KEY, ProductName TEXT, Barcode TEXT, Stock TEXT, InPrice TEXT, OutPrice TEXT, TopPrice TEXT, StockPrice TEXT, TypPrice TEXT, ProductControl TEXT);'
       );
     });
   }, []);
@@ -169,7 +169,7 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
 
         if (itemsArray && itemsArray.length > 0) {
           // Find the item with the matching barcode
-          const foundItem = itemsArray.find((item: Item) => item.Barcode === barcode);
+          const foundItem = itemsArray.find((item: Product) => item.Barcode === barcode);
 
           if (foundItem) {
             console.log('Item details:', foundItem);
@@ -292,11 +292,7 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
             tx.executeSql(
               'INSERT INTO Persons (PersonID, PersonName, PersonVOEN, PersonType, PersonSumm) VALUES (?, ?, ?, ?, ?)',
               [person.PersonID, person.PersonName, person.PersonVOEN, person.PersonType, person.PersonSumm],
-              (tx: any, result: any) => { // Add type annotations for 'tx' and 'result'
-                console.log('Item inserted successfully:', result);
-              },
-              (tx: any, error: any) => { // Add type annotations for 'tx' and 'error'
-                console.error('Error inserting item:', error);}
+              
             );
           });
         });
@@ -314,20 +310,20 @@ const Scan: React.FC<{ navigation: any }> = ({ navigation }) => {
   
         // Save Item to SQLite
         db.transaction((tx: any) => {
-          jsonData.Item.forEach((item: Item) => {
+          jsonData.Product.forEach((product: Product) => {
             tx.executeSql(
-              'INSERT INTO Item (ID, Name, Barcode, Stock, InPrice, OutPrice, TopPrice, StockPrice, TypPrice, Control) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+              'INSERT INTO Product (ProductID, ProductName, Barcode, Stock, InPrice, OutPrice, TopPrice, StockPrice, TypPrice, ProductControl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
               [
-                item.ID,
-                item.Name,
-                item.Barcode,
-                item.Stock,
-                item.InPrice,
-                item.OutPrice,
-                item.TopPrice,
-                item.StockPrice,
-                item.TypPrice,
-                item.Control,
+                product.ProductID,
+                product.ProductName,
+                product.Barcode,
+                product.Stock,
+                product.InPrice,
+                product.OutPrice,
+                product.TopPrice,
+                product.StockPrice,
+                product.TypPrice,
+                product.ProductControl,
               ],
   
             );

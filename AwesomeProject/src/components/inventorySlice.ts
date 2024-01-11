@@ -1,9 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 // Define your Item type here
-interface Item {
-  ID: string;
-  Name: string;
+interface Product {
+  ProductID: string;
+  ProductName: string;
   Barcode: string;
   Stock: string | null;
   InPrice: string | null;
@@ -11,12 +11,12 @@ interface Item {
   TopPrice: string | null;
   StockPrice: string | null;
   TypPrice: string | null;
-  Control: string | null;
-  Say:number | null
+  ProductControl: string | null;
+  Say:number;
 }
 
 interface InventoryState {
-  items: Item[];
+  items: Product[];
 }
 
 const initialState: InventoryState = {
@@ -27,16 +27,16 @@ const inventorySlice = createSlice({
   name: 'inventory',
   initialState,
   reducers: {
-    addItem: (state, action: PayloadAction<Item>) => {
+    addItem: (state, action: PayloadAction<Product>) => {
       const newItem = {
         ...action.payload,
         Say: 1,
       };
       state.items.push(newItem);
     },
-    updateSay: (state, action: PayloadAction<{ itemId: number; newSay: number }>) => {
+    updateSay: (state, action: PayloadAction<{ itemId: string; newSay: number }>) => {
       const { itemId, newSay } = action.payload;
-      const itemToUpdate = state.items.find((item) => item.ID === itemId);
+      const itemToUpdate = state.items.find((item) => item.ProductID === itemId);
       if (itemToUpdate) {
         itemToUpdate.Say = newSay;
       }
@@ -46,7 +46,7 @@ const inventorySlice = createSlice({
     },
     deleteItem: (state, action) => {
       // Remove the item with the specified ID from the items array
-      state.items = state.items.filter((item) => item.ID !== action.payload);
+      state.items = state.items.filter((item) => item.ProductID !== action.payload);
     },
     // Other reducer cases...
   },

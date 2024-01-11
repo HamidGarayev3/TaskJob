@@ -33,9 +33,9 @@ const db = SQLite.openDatabase(
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
-interface Item {
-  ID: string;
-  Name: string;
+interface Product {
+  ProductID: string;
+  ProductName: string;
   Barcode: string;
   Stock: string | null;
   InPrice: string | null;
@@ -43,15 +43,15 @@ interface Item {
   TopPrice: string | null;
   StockPrice: string | null;
   TypPrice: string | null;
-  Control: string | null;
-  Say:number | null
+  ProductControl: string | null;
+  Say:number ;
 }
 
 const Products: React.FC<{navigation: any}> = ({navigation}) => {
   const dispatch = useDispatch();
 
   const [searchText, setSearchText] = useState<string>(''); // State for search input text
-  const [itemList, setItemList] = useState<Item[]>([]);
+  const [itemList, setItemList] = useState<Product[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [generatedBarcodes, setGeneratedBarcodes] = useState<number[]>([]); // Keep track of generated barcodes
@@ -74,14 +74,14 @@ const Products: React.FC<{navigation: any}> = ({navigation}) => {
     try {
       db.transaction(tx => {
         tx.executeSql(
-          'SELECT * FROM Item;', // Adjust the query based on your table structure
+          'SELECT * FROM Product;', // Adjust the query based on your table structure
           [],
           (_, result) => {
-            const itemsArray: Item[] = [];
+            const itemsArray: Product[] = [];
             for (let i = 0; i < result.rows.length; i++) {
               itemsArray.push(result.rows.item(i));
             }
-            console.log('ItemsArray',itemsArray)
+            // console.log('ItemsArray',itemsArray)
 
             setItemList(itemsArray);
           },
@@ -95,7 +95,7 @@ const Products: React.FC<{navigation: any}> = ({navigation}) => {
 
   const filteredItems = itemList.filter(
     item =>
-      item.Name.toLowerCase().includes(searchText.toLowerCase()) ||
+      item.ProductName.toLowerCase().includes(searchText.toLowerCase()) ||
       item.Barcode.toString().includes(searchText)
   );
 
@@ -117,10 +117,9 @@ const Products: React.FC<{navigation: any}> = ({navigation}) => {
   useEffect(() => {
     console.log('Fetching items...');
     fetchItems();
-  }, []);
+  }, [isLoading]);
 
 
-console.log('Data - ', filteredItems);
 
 
   return (
@@ -163,9 +162,9 @@ console.log('Data - ', filteredItems);
                 <View style={styles.halfContainer}>
                   <View style={styles.leftHalf}>
                     <View style={styles.topHalf}>
-                      <Text style={styles.topHalfText2}>{item.Name}</Text>
+                      <Text style={styles.topHalfText2}>{item.ProductName}</Text>
                       <Text style={{fontSize: 12, color: 'white'}}>
-                        {item.ID}
+                        {item.ProductID}
                       </Text>
                     </View>
                     <View style={styles.horizontalDivider} />
